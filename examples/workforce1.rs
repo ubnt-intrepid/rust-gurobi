@@ -17,7 +17,7 @@ fn main() {
                     "Sat13", "Sun14"];
 
   // Number of workers required for each shift
-  let shift_requirements = vec![3, 2, 4, 4, 5, 6, 5, 2, 2, 3, 4, 6, 7, 5];
+  let shift_requirements = vec![3.0, 2.0, 4.0, 4.0, 5.0, 6.0, 5.0, 2.0, 2.0, 3.0, 4.0, 6.0, 7.0, 5.0];
 
   // Worker availability: 0 if the worker is unavailable for a shift
   let availability = vec![
@@ -52,4 +52,19 @@ fn main() {
   let objexpr = Zip::new((x.iter().flatten(), objterm.flatten()))
     .fold(LinExpr::new(), |expr, (&x, &c)| expr.term(x, c));
   model.set_objective(objexpr, Minimize).unwrap();
+
+  for (s, (shift, &requirement)) in shifts.iter().zip(shift_requirements.iter()).enumerate() {
+    model.add_constr(format!("c.{}", shift).as_str(),
+                  x.iter().map(|x| x[s]).fold(LinExpr::new(), |expr, x| expr.term(x, 1.0)),
+                  Equal,
+                  requirement)
+      .unwrap();
+  }
+
+  model.write("assignment.lp").unwrap();
+
+  model.optimize().unwrap();
+
+  model.compute_iis().unwrap();
+  model.write("assignment.ilp").unwrap();
 }
