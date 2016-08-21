@@ -49,8 +49,8 @@ fn main() {
 
   let objterm = pays.iter().map(|pay| repeat(pay).take(shifts.len()));
 
-  let objexpr = Zip::new((x.iter().flatten(), objterm.flatten()))
-    .fold(LinExpr::new(), |expr, (ref x, &c)| expr.term((*x).clone(), c));
+  let objexpr = Zip::new((x.iter().flatten(), objterm.flatten())).fold(LinExpr::new(),
+                                                                       |expr, (ref x, &c)| expr.term((*x).clone(), c));
   model.set_objective(objexpr, Minimize).unwrap();
 
   for (s, (shift, &requirement)) in shifts.iter().zip(shift_requirements.iter()).enumerate() {

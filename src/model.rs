@@ -477,9 +477,7 @@ impl From<i32> for Status {
 pub trait Proxy {
   fn index(&self) -> i32;
 
-  fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> {
-    model.get_value(attr, self.index())
-  }
+  fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> { model.get_value(attr, self.index()) }
 
   fn set<A: AttrArray>(&mut self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
     model.set_value(attr, self.index(), val)
