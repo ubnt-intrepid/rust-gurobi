@@ -62,9 +62,18 @@ fn main() {
   }
 
   model.write("assignment.lp").unwrap();
-
   model.optimize().unwrap();
 
-  model.compute_iis().unwrap();
-  model.write("assignment.ilp").unwrap();
+  let status = model.status().unwrap();
+  if status == model::Status::Infeasible {
+    // compute IIS.
+    model.compute_iis().unwrap();
+    model.write("assignment.ilp").unwrap();
+
+    println!("The following constraint(s) cannot be satisfied:");
+    for c in model.get_iis_constrs().unwrap().iter() {
+      let cname = c.get(&model, attr::ConstrName).unwrap();
+      println!("{}", cname);
+    }
+  }
 }
