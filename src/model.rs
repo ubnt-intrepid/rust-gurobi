@@ -475,16 +475,14 @@ impl From<i32> for Status {
 
 
 pub trait Proxy {
-  fn index(&self) -> Result<Rc<i32>>;
+  fn index(&self) -> i32;
 
   fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> {
-    let index = try!(self.index());
-    model.get_value(attr, *index)
+    model.get_value(attr, self.index())
   }
 
   fn set<A: AttrArray>(&mut self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
-    let index = try!(self.index());
-    model.set_value(attr, *index, val)
+    model.set_value(attr, self.index(), val)
   }
 }
 
@@ -505,19 +503,19 @@ pub struct QConstr(Rc<i32>);
 pub struct SOS(Rc<i32>);
 
 impl Proxy for Var {
-  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
+  fn index(&self) -> i32 { *self.0 }
 }
 
 impl Proxy for Constr {
-  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
+  fn index(&self) -> i32 { *self.0 }
 }
 
 impl Proxy for QConstr {
-  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
+  fn index(&self) -> i32 { *self.0 }
 }
 
 impl Proxy for SOS {
-  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
+  fn index(&self) -> i32 { *self.0 }
 }
 
 
@@ -995,7 +993,7 @@ impl<'a> Model<'a> {
 
     let mut pen_lb = vec![super::INFINITY; self.vars.len()];
     let mut pen_ub = vec![super::INFINITY; self.vars.len()];
-    for (&v, &lb, &ub) in Zip::new((vars, lbpen, ubpen)) {
+    for (ref v, &lb, &ub) in Zip::new((vars, lbpen, ubpen)) {
       let idx = v.index();
       if idx >= self.vars.len() as i32 {
         return Err(Error::InconsitentDims);
@@ -1005,7 +1003,7 @@ impl<'a> Model<'a> {
     }
 
     let mut pen_rhs = vec![super::INFINITY; self.constrs.len()];
-    for (&c, &rhs) in Zip::new((constrs, rhspen)) {
+    for (ref c, &rhs) in Zip::new((constrs, rhspen)) {
       let idx = c.index();
       if idx >= self.constrs.len() as i32 {
         return Err(Error::InconsitentDims);
@@ -1038,9 +1036,9 @@ impl<'a> Model<'a> {
     let xrows = self.constrs.len();
     let xqrows = self.qconstrs.len();
 
-    self.vars.extend((xcols..cols).map(|idx| Var(idx as i32)));
-    self.constrs.extend((xrows..rows).map(|idx| Constr(idx as i32)));
-    self.qconstrs.extend((xqrows..qrows).map(|idx| QConstr(idx as i32)));
+    self.vars.extend((xcols..cols).map(|idx| Var(Rc::new(idx as i32))));
+    self.constrs.extend((xrows..rows).map(|idx| Constr(Rc::new(idx as i32))));
+    self.qconstrs.extend((xqrows..qrows).map(|idx| QConstr(Rc::new(idx as i32))));
 
     Ok((feasobj, self.vars[cols..].into(), self.constrs[rows..].into(), self.qconstrs[qrows..].into()))
   }
@@ -1057,10 +1055,10 @@ impl<'a> Model<'a> {
   /// Get all of the linear constraints which includes IIS.
   pub fn get_iis_constrs(&self) -> Result<Vec<Constr>> {
     let mut buf = Vec::new();
-    for &c in self.constrs.iter() {
+    for ref c in self.constrs.iter() {
       let iis = try!(self.get_value(attr::IISConstr, c.index()));
       if iis != 0 {
-        buf.push(c);
+        buf.push((*c).clone());
       }
     }
     Ok(buf)
