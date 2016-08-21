@@ -6,6 +6,7 @@ use std::ffi::CString;
 use std::ptr::{null, null_mut};
 use std::ops::{Add, Sub, Mul};
 use std::mem::transmute;
+use std::rc::Rc;
 
 use env::Env;
 use error::{Error, Result};
@@ -474,45 +475,49 @@ impl From<i32> for Status {
 
 
 pub trait Proxy {
-  fn index(&self) -> i32;
+  fn index(&self) -> Result<Rc<i32>>;
 
-  fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> { model.get_value(attr, self.index()) }
+  fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> {
+    let index = try!(self.index());
+    model.get_value(attr, *index)
+  }
 
   fn set<A: AttrArray>(&mut self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
-    model.set_value(attr, self.index(), val)
+    let index = try!(self.index());
+    model.set_value(attr, *index, val)
   }
 }
 
 /// represents a set of decision variables.
-#[derive(Clone,Copy)]
-pub struct Var(i32);
+#[derive(Clone)]
+pub struct Var(Rc<i32>);
 
 /// The proxy object of a set of linear constraints.
-#[derive(Clone,Copy)]
-pub struct Constr(i32);
+#[derive(Clone)]
+pub struct Constr(Rc<i32>);
 
 /// The proxy object of a set of quadratic constraints.
-#[derive(Clone,Copy)]
-pub struct QConstr(i32);
+#[derive(Clone)]
+pub struct QConstr(Rc<i32>);
 
 /// The proxy object of a Special Order Set (SOS) constraint.
-#[derive(Clone,Copy)]
-pub struct SOS(i32);
+#[derive(Clone)]
+pub struct SOS(Rc<i32>);
 
 impl Proxy for Var {
-  fn index(&self) -> i32 { self.0 }
+  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
 }
 
 impl Proxy for Constr {
-  fn index(&self) -> i32 { self.0 }
+  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
 }
 
 impl Proxy for QConstr {
-  fn index(&self) -> i32 { self.0 }
+  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
 }
 
 impl Proxy for SOS {
-  fn index(&self) -> i32 { self.0 }
+  fn index(&self) -> Result<Rc<i32>> { Ok(self.0.clone()) }
 }
 
 
@@ -855,9 +860,9 @@ impl<'a> Model<'a> {
     }
 
     let col_no = self.vars.len() as i32;
-    self.vars.push(Var(col_no));
+    self.vars.push(Var(Rc::new(col_no)));
 
-    self.vars.last().cloned().ok_or(Error::InconsitentDims)
+    Ok(self.vars.last().cloned().unwrap())
   }
 
   /// add a linear constraint to the model.
@@ -876,9 +881,9 @@ impl<'a> Model<'a> {
       return Err(self.error_from_api(error));
     }
     let row_no = self.constrs.len() as i32;
-    self.constrs.push(Constr(row_no));
+    self.constrs.push(Constr(Rc::new(row_no)));
 
-    self.constrs.last().cloned().ok_or(Error::InconsitentDims)
+    Ok(self.constrs.last().cloned().unwrap())
   }
 
   /// add a quadratic constraint to the model.
@@ -903,9 +908,9 @@ impl<'a> Model<'a> {
     }
 
     let qrow_no = self.qconstrs.len() as i32;
-    self.qconstrs.push(QConstr(qrow_no));
+    self.qconstrs.push(QConstr(Rc::new(qrow_no)));
 
-    self.qconstrs.last().cloned().ok_or(Error::InconsitentDims)
+    Ok(self.qconstrs.last().cloned().unwrap())
   }
 
   /// add Special Order Set (SOS) constraint to the model.
@@ -931,9 +936,9 @@ impl<'a> Model<'a> {
     }
 
     let sos_no = self.sos.len() as i32;
-    self.sos.push(SOS(sos_no));
+    self.sos.push(SOS(Rc::new(sos_no)));
 
-    self.sos.last().cloned().ok_or(Error::InconsitentDims)
+    Ok(self.sos.last().cloned().unwrap())
   }
 
   /// Set the objective function of the model.
