@@ -557,8 +557,8 @@ impl LinExpr {
   pub fn value(&self, model: &Model) -> Result<f64> { model.calc_value(self) }
 }
 
-impl Into<QuadExpr> for Var {
-  fn into(self) -> QuadExpr { QuadExpr::new().term(self, 1.0) }
+impl<'a> Into<QuadExpr> for &'a Var {
+  fn into(self) -> QuadExpr { QuadExpr::new().term(self.clone(), 1.0) }
 }
 
 impl Into<QuadExpr> for LinExpr {
@@ -626,15 +626,15 @@ impl Mul<f64> for Var {
   fn mul(self, rhs: f64) -> Self::Output { LinExpr::new().term(self, rhs) }
 }
 
-impl Mul<Var> for f64 {
+impl<'a> Mul<&'a Var> for f64 {
   type Output = LinExpr;
-  fn mul(self, rhs: Var) -> Self::Output { LinExpr::new().term(rhs, self) }
+  fn mul(self, rhs: &'a Var) -> Self::Output { LinExpr::new().term(rhs.clone(), self) }
 }
 
 
-impl Mul for Var {
+impl<'a> Mul for &'a Var {
   type Output = QuadExpr;
-  fn mul(self, rhs: Var) -> Self::Output { QuadExpr::new().qterm(self, rhs, 1.0) }
+  fn mul(self, rhs: &'a Var) -> Self::Output { QuadExpr::new().qterm(self.clone(), rhs.clone(), 1.0) }
 }
 
 impl Mul<f64> for QuadExpr {
@@ -730,24 +730,24 @@ impl Sub for QuadExpr {
   }
 }
 
-impl Add for Var {
+impl<'a> Add for &'a Var {
   type Output = LinExpr;
-  fn add(self, rhs: Var) -> LinExpr { LinExpr::new().term(self, 1.0).term(rhs, 1.0) }
+  fn add(self, rhs: &Var) -> LinExpr { LinExpr::new().term(self.clone(), 1.0).term(rhs.clone(), 1.0) }
 }
 
-impl Sub for Var {
+impl<'a> Sub for &'a Var {
   type Output = LinExpr;
-  fn sub(self, rhs: Var) -> LinExpr { LinExpr::new().term(self, 1.0).term(rhs, -1.0) }
+  fn sub(self, rhs: &Var) -> LinExpr { LinExpr::new().term(self.clone(), 1.0).term(rhs.clone(), -1.0) }
 }
 
-impl Add<LinExpr> for Var {
+impl<'a> Add<LinExpr> for &'a Var {
   type Output = LinExpr;
-  fn add(self, rhs: LinExpr) -> LinExpr { rhs.term(self, 1.0) }
+  fn add(self, rhs: LinExpr) -> LinExpr { rhs.term(self.clone(), 1.0) }
 }
 
-impl Add<Var> for LinExpr {
+impl<'a> Add<&'a Var> for LinExpr {
   type Output = LinExpr;
-  fn add(self, rhs: Var) -> LinExpr { self.term(rhs, 1.0) }
+  fn add(self, rhs: &'a Var) -> LinExpr { self.term(rhs.clone(), 1.0) }
 }
 
 
