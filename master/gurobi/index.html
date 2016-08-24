@@ -47,17 +47,30 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/gurobi/src/lib.rs.html#6-76' title='goto source code'>[src]</a></span></h1>
-<div class='docblock'><p>A crate which provides low-level Rust API of Gurobi Optimizer.</p>
+               </span><a id='src-0' class='srclink' href='../src/gurobi/src/lib.rs.html#6-91' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This crate provides primitive Rust APIs for Gurobi Optimizer.</p>
 
-<p>This crate provides wrappers of the Gurobi solver which supports some
-types of mathematical programming problems (e.g. Linear programming; LP,
+<p>It supports some types of mathematical programming problems (e.g. Linear programming; LP,
 Mixed Integer Linear Programming; MILP, and so on).</p>
 
-<h2 id='installation' class='section-header'><a href='#installation'>Installation</a></h2>
-<p>Before using this crate, you should install Gurobi and obtain a license.
+<h2 id='notices' class='section-header'><a href='#notices'>Notices</a></h2>
+<ul>
+<li><p>Before using this crate, you should install Gurobi and obtain a license.
 The instruction can be found
-<a href="http://www.gurobi.com/downloads/licenses/license-center">here</a>.</p>
+<a href="http://www.gurobi.com/downloads/licenses/license-center">here</a>.</p></li>
+<li><p>Make sure that the environment variable <code>GUROBI_HOME</code> is set to the installation path of Gurobi
+(like <code>C:\gurobi652\win64</code>, <code>/opt/gurobi652/linux64</code>).</p></li>
+<li><p>On Windows, the toolchain should be MSVC ABI (it also requires Visual Studio or
+Visual C++ Build Tools).
+If you want to use GNU ABI with MinGW-w64/MSYS2 toolchain, you should create the import
+library for Gurobi runtime DLL (e.g. <code>gurobi65.dll</code>) and put it into <code>GUROBI_HOME/lib</code>.
+Procedure of creating import library is as follows:</p>
+
+<pre><code class="language-shell-session">$ pacman -S mingw-w64-x86_64-tools-git
+$ gendef - $(cygpath $GUROBI_HOME)/bin/gurobi65.dll &gt; gurobi65.def
+$ dlltool --dllname gurobi65.dll --def gurobi65.def --output-lib $(cygpath $GUROBI}HOME)/lib/libgurobi65.dll.a
+</code></pre></li>
+</ul>
 
 <h2 id='examples' class='section-header'><a href='#examples'>Examples</a></h2>
 <pre class='rust rust-example-rendered'>
