@@ -19,16 +19,8 @@ use env::Env;
 use error::{Error, Result};
 use util;
 
+pub mod attr;
 
-/// Defines the name of attributes
-pub mod attr {
-  pub use ffi::{IntAttr, DoubleAttr, CharAttr, StringAttr};
-
-  pub use self::IntAttr::*;
-  pub use self::DoubleAttr::*;
-  pub use self::CharAttr::*;
-  pub use self::StringAttr::*;
-}
 
 /// provides function to query/set the value of scalar attribute.
 pub trait Attr: Into<CString> {
