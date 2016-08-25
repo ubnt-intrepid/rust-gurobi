@@ -132,11 +132,13 @@ pub trait ProxyBase {
 /// Provides methods to query/modify attributes associated with certain element.
 pub trait Proxy: ProxyBase {
   /// Query the value of attribute.
-  fn get<A: AttrElem>(&self, model: &Model, attr: A) -> Result<A::Out> { model.get_value(attr, self.index()) }
+  fn get<A: attr::AttrArrayBase>(&self, model: &Model, attr: A) -> Result<A::Out> {
+    model.get_element(attr, self.index())
+  }
 
   /// Set the value of attribute.
-  fn set<A: AttrElem>(&mut self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
-    model.set_value(attr, self.index(), val)
+  fn set<A: attr::AttrArrayBase>(&mut self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
+    model.set_element(attr, self.index(), val)
   }
 }
 
@@ -613,37 +615,92 @@ impl<'a> Model<'a> {
     try!(self.del_qpterms());
     try!(self.update());
 
-    try!(AttrList::set_list(self, attr::Obj, lind.as_slice(), expr.lval.as_slice()));
+    try!(self.set_list(attr::Obj, lind.as_slice(), expr.lval.as_slice()));
     try!(self.add_qpterms(qrow.as_slice(), qcol.as_slice(), expr.qval.as_slice()));
 
     self.set(attr::ModelSense, sense.into())
   }
 
   /// Query the value of attributes which associated with variable/constraints.
-  pub fn get<A: Attr>(&self, attr: A) -> Result<A::Out> { A::get(self, attr) }
+  pub fn get<A: attr::AttrBase>(&self, attr: A) -> Result<A::Out> {
+    let mut value: A::Buf = util::Init::init();
+
+    try!(self.call_api(unsafe {
+      use util::AsRawPtr;
+      A::get_attr(self.model, attr.into().as_ptr(), value.as_rawptr())
+    }));
+
+    Ok(util::Into::into(value))
+  }
 
   /// Set the value of attributes which associated with variable/constraints.
-  pub fn set<A: Attr>(&mut self, attr: A, val: A::Out) -> Result<()> { A::set(self, attr, val) }
+  pub fn set<A: attr::AttrBase>(&mut self, attr: A, value: A::Out) -> Result<()> {
+    self.call_api(unsafe { A::set_attr(self.model, attr.into().as_ptr(), util::From::from(value)) })
+  }
 
-  fn get_value<A: AttrElem>(&self, attr: A, e: i32) -> Result<A::Out> { A::get_element(self, attr, e) }
 
-  fn set_value<A: AttrElem>(&mut self, attr: A, e: i32, val: A::Out) -> Result<()> {
-    A::set_element(self, attr, e, val)
+  fn get_element<A: attr::AttrArrayBase>(&self, attr: A, element: i32) -> Result<A::Out> {
+    let mut value: A::Buf = util::Init::init();
+
+    try!(self.call_api(unsafe {
+      use util::AsRawPtr;
+      A::get_attrelement(self.model, attr.into().as_ptr(), element, value.as_rawptr())
+    }));
+
+    Ok(util::Into::into(value))
+  }
+
+  fn set_element<A: attr::AttrArrayBase>(&mut self, attr: A, element: i32, value: A::Out) -> Result<()> {
+    self.call_api(unsafe {
+      A::set_attrelement(self.model,
+                         attr.into().as_ptr(),
+                         element,
+                         util::From::from(value))
+    })
   }
 
   /// Query the value of attributes which associated with variable/constraints.
-  pub fn get_values<A: AttrList, P: Proxy>(&self, attr: A, item: &[P]) -> Result<Vec<A::Out>> {
-    A::get_list(self,
-                attr,
-                item.iter().map(|e| e.index()).collect_vec().as_slice())
+  pub fn get_values<A: attr::AttrArrayBase, P: Proxy>(&self, attr: A, item: &[P]) -> Result<Vec<A::Out>> {
+    self.get_list(attr,
+                  item.iter().map(|e| e.index()).collect_vec().as_slice())
   }
 
+  fn get_list<A: attr::AttrArrayBase>(&self, attr: A, ind: &[i32]) -> Result<Vec<A::Out>> {
+    let mut values: Vec<_> = iter::repeat(util::Init::init()).take(ind.len()).collect();
+
+    try!(self.call_api(unsafe {
+      A::get_attrlist(self.model,
+                      attr.into().as_ptr(),
+                      ind.len() as ffi::c_int,
+                      ind.as_ptr(),
+                      values.as_mut_ptr())
+    }));
+
+    Ok(values.into_iter().map(|s| util::Into::into(s)).collect())
+  }
+
+
   /// Set the value of attributes which associated with variable/constraints.
-  pub fn set_values<A: AttrList, P: Proxy>(&mut self, attr: A, item: &[P], val: &[A::Out]) -> Result<()> {
-    A::set_list(self,
-                attr,
-                item.iter().map(|e| e.index()).collect_vec().as_slice(),
-                val)
+  pub fn set_values<A: attr::AttrArrayBase, P: Proxy>(&mut self, attr: A, item: &[P], val: &[A::Out]) -> Result<()> {
+    self.set_list(attr,
+                  item.iter().map(|e| e.index()).collect_vec().as_slice(),
+                  val)
+  }
+
+  fn set_list<A: attr::AttrArrayBase>(&mut self, attr: A, ind: &[i32], values: &[A::Out]) -> Result<()> {
+    if ind.len() != values.len() {
+      return Err(Error::InconsitentDims);
+    }
+
+    let values = try!(A::to_rawsets(values));
+
+    self.call_api(unsafe {
+      A::set_attrlist(self.model,
+                      attr.into().as_ptr(),
+                      ind.len() as ffi::c_int,
+                      ind.as_ptr(),
+                      values.as_ptr())
+    })
   }
 
   /// Modify the model to create a feasibility relaxation.
@@ -871,86 +928,6 @@ impl<'a> Drop for Model<'a> {
     self.model = null_mut();
   }
 }
-
-
-pub trait Attr: attr::AttrBase {
-  fn get(model: &Model, attr: Self) -> Result<Self::Out> {
-    let mut value: Self::Buf = util::Init::init();
-
-    try!(model.call_api(unsafe {
-      use util::AsRawPtr;
-      Self::get_attr(model.model, attr.into().as_ptr(), value.as_rawptr())
-    }));
-
-    Ok(util::Into::into(value))
-  }
-
-  fn set(model: &mut Model, attr: Self, value: Self::Out) -> Result<()> {
-    model.call_api(unsafe { Self::set_attr(model.model, attr.into().as_ptr(), util::From::from(value)) })
-  }
-}
-
-pub trait AttrElem: attr::AttrArrayBase {
-  fn get_element(model: &Model, attr: Self, element: i32) -> Result<Self::Out> {
-    let mut value: Self::Buf = util::Init::init();
-
-    try!(model.call_api(unsafe {
-      use util::AsRawPtr;
-      Self::get_attrelement(model.model,
-                            attr.into().as_ptr(),
-                            element,
-                            value.as_rawptr())
-    }));
-
-    Ok(util::Into::into(value))
-  }
-
-  fn set_element(model: &mut Model, attr: Self, element: i32, value: Self::Out) -> Result<()> {
-    model.call_api(unsafe {
-      Self::set_attrelement(model.model,
-                            attr.into().as_ptr(),
-                            element,
-                            util::From::from(value))
-    })
-  }
-}
-
-pub trait AttrList: attr::AttrArrayBase {
-  fn get_list(model: &Model, attr: Self, ind: &[i32]) -> Result<Vec<Self::Out>> {
-    let mut values: Vec<_> = iter::repeat(util::Init::init()).take(ind.len()).collect();
-
-    try!(model.call_api(unsafe {
-      Self::get_attrlist(model.model,
-                         attr.into().as_ptr(),
-                         ind.len() as ffi::c_int,
-                         ind.as_ptr(),
-                         values.as_mut_ptr())
-    }));
-
-    Ok(values.into_iter().map(|s| util::Into::into(s)).collect())
-  }
-
-  fn set_list(model: &mut Model, attr: Self, ind: &[i32], values: &[Self::Out]) -> Result<()> {
-    if ind.len() != values.len() {
-      return Err(Error::InconsitentDims);
-    }
-
-    let values = try!(Self::to_rawsets(values));
-
-    model.call_api(unsafe {
-      Self::set_attrlist(model.model,
-                         attr.into().as_ptr(),
-                         ind.len() as ffi::c_int,
-                         ind.as_ptr(),
-                         values.as_ptr())
-    })
-  }
-}
-
-impl<T:attr::AttrBase> Attr for T {}
-impl<T:attr::AttrArrayBase> AttrElem for T {}
-impl<T:attr::AttrArrayBase> AttrList for T {}
-
 
 #[test]
 fn removing_variable_should_be_successed() {
