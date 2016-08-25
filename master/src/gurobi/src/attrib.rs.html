@@ -276,25 +276,21 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
 <span class='comment'>// This software is released under the MIT License.</span>
 <span class='comment'>// See http://opensource.org/licenses/mit-license.php or &lt;LICENSE&gt;.</span>
 
-<span class='doccomment'>//! Defines the name of attributes</span>
-
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ffi</span>::{<span class='ident'>IntAttr</span>, <span class='ident'>DoubleAttr</span>, <span class='ident'>CharAttr</span>, <span class='ident'>StringAttr</span>};
-
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>values</span> {
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>IntAttr</span>::<span class='op'>*</span>;
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>DoubleAttr</span>::<span class='op'>*</span>;
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>CharAttr</span>::<span class='op'>*</span>;
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>StringAttr</span>::<span class='op'>*</span>;
+<span class='doccomment'>/// Defines the name of attributes</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>exports</span> {
+  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ffi</span>::{<span class='ident'>IntAttr</span>, <span class='ident'>DoubleAttr</span>, <span class='ident'>CharAttr</span>, <span class='ident'>StringAttr</span>};
+  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>IntAttr</span>::<span class='op'>*</span>;
+  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>DoubleAttr</span>::<span class='op'>*</span>;
+  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>CharAttr</span>::<span class='op'>*</span>;
+  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>StringAttr</span>::<span class='op'>*</span>;
 }
-
+<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>exports</span>::<span class='op'>*</span>;
 
 <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>ffi</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>CString</span>;
