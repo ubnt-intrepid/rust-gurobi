@@ -483,7 +483,7 @@ impl<'a> Model<'a> {
   }
 
   /// apply all modification of the model to process.
-  pub fn update(&mut self) -> Result<()> { self.call_api(unsafe { ffi::GRBupdatemodel(self.model) }) }
+  pub fn update(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }) }
 
   /// create a copy of the model
   pub fn copy(&self) -> Result<Model> {
@@ -504,13 +504,13 @@ impl<'a> Model<'a> {
   /// optimize the model.
   pub fn optimize(&mut self) -> Result<()> {
     try!(self.update());
-    self.call_api(unsafe { ffi::GRBoptimize(self.model) })
+    self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
   }
 
   /// write information of the model to file.
   pub fn write(&self, filename: &str) -> Result<()> {
     let filename = try!(util::make_c_str(filename));
-    self.call_api(unsafe { ffi::GRBwrite(self.model, filename.as_ptr()) })
+    self.check_apicall(unsafe { ffi::GRBwrite(self.model, filename.as_ptr()) })
   }
 
   /// add a decision variable to the model.
@@ -519,7 +519,7 @@ impl<'a> Model<'a> {
     let (vtype, lb, ub) = vtype.into();
     let name = try!(util::make_c_str(name));
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       ffi::GRBaddvar(self.model,
                      0,
                      null(),
@@ -540,7 +540,7 @@ impl<'a> Model<'a> {
   /// add a linear constraint to the model.
   pub fn add_constr(&mut self, name: &str, expr: LinExpr, sense: ConstrSense, rhs: f64) -> Result<Constr> {
     let constrname = try!(util::make_c_str(name));
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       ffi::GRBaddconstr(self.model,
                         expr.coeff.len() as ffi::c_int,
                         expr.vars.into_iter().map(|e| e.index()).collect_vec().as_ptr(),
@@ -560,7 +560,7 @@ impl<'a> Model<'a> {
   pub fn add_qconstr(&mut self, constrname: &str, expr: QuadExpr, sense: ConstrSense, rhs: f64) -> Result<QConstr> {
     let constrname = try!(util::make_c_str(constrname));
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       ffi::GRBaddqconstr(self.model,
                          expr.lval.len() as ffi::c_int,
                          expr.lind.into_iter().map(|e| e.index()).collect_vec().as_ptr(),
@@ -589,7 +589,7 @@ impl<'a> Model<'a> {
     let vars = vars.iter().map(|v| v.index()).collect_vec();
     let beg = 0;
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       ffi::GRBaddsos(self.model,
                      1,
                      vars.len() as ffi::c_int,
@@ -625,7 +625,7 @@ impl<'a> Model<'a> {
   pub fn get<A: attr::AttrBase>(&self, attr: A) -> Result<A::Out> {
     let mut value: A::Buf = util::Init::init();
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       use util::AsRawPtr;
       A::get_attr(self.model, attr.into().as_ptr(), value.as_rawptr())
     }));
@@ -635,14 +635,14 @@ impl<'a> Model<'a> {
 
   /// Set the value of attributes which associated with variable/constraints.
   pub fn set<A: attr::AttrBase>(&mut self, attr: A, value: A::Out) -> Result<()> {
-    self.call_api(unsafe { A::set_attr(self.model, attr.into().as_ptr(), util::From::from(value)) })
+    self.check_apicall(unsafe { A::set_attr(self.model, attr.into().as_ptr(), util::From::from(value)) })
   }
 
 
   fn get_element<A: attr::AttrArrayBase>(&self, attr: A, element: i32) -> Result<A::Out> {
     let mut value: A::Buf = util::Init::init();
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       use util::AsRawPtr;
       A::get_attrelement(self.model, attr.into().as_ptr(), element, value.as_rawptr())
     }));
@@ -651,7 +651,7 @@ impl<'a> Model<'a> {
   }
 
   fn set_element<A: attr::AttrArrayBase>(&mut self, attr: A, element: i32, value: A::Out) -> Result<()> {
-    self.call_api(unsafe {
+    self.check_apicall(unsafe {
       A::set_attrelement(self.model,
                          attr.into().as_ptr(),
                          element,
@@ -668,7 +668,7 @@ impl<'a> Model<'a> {
   fn get_list<A: attr::AttrArrayBase>(&self, attr: A, ind: &[i32]) -> Result<Vec<A::Out>> {
     let mut values: Vec<_> = iter::repeat(util::Init::init()).take(ind.len()).collect();
 
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       A::get_attrlist(self.model,
                       attr.into().as_ptr(),
                       ind.len() as ffi::c_int,
@@ -694,7 +694,7 @@ impl<'a> Model<'a> {
 
     let values = try!(A::to_rawsets(values));
 
-    self.call_api(unsafe {
+    self.check_apicall(unsafe {
       A::set_attrlist(self.model,
                       attr.into().as_ptr(),
                       ind.len() as ffi::c_int,
@@ -757,7 +757,7 @@ impl<'a> Model<'a> {
     let minrelax = if minrelax { 1 } else { 0 };
 
     let mut feasobj = 0f64;
-    try!(self.call_api(unsafe {
+    try!(self.check_apicall(unsafe {
       ffi::GRBfeasrelax(self.model,
                         relaxtype.into(),
                         minrelax,
@@ -783,7 +783,7 @@ impl<'a> Model<'a> {
   }
 
   /// Compute an Irreducible Inconsistent Subsystem (IIS) of the model.
-  pub fn compute_iis(&mut self) -> Result<()> { self.call_api(unsafe { ffi::GRBcomputeIIS(self.model) }) }
+  pub fn compute_iis(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBcomputeIIS(self.model) }) }
 
   /// Retrieve the status of the model.
   pub fn status(&self) -> Result<Status> { self.get(attr::Status).map(|val| val.into()) }
@@ -808,7 +808,7 @@ impl<'a> Model<'a> {
     }
 
     if index != -1 {
-      try!(self.call_api(unsafe { ffi::GRBdelvars(self.model, 1, &index) }));
+      try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, 1, &index) }));
 
       self.vars.remove(index as usize);
       item.set_index(-1);
@@ -829,7 +829,7 @@ impl<'a> Model<'a> {
     }
 
     if index != -1 {
-      try!(self.call_api(unsafe { ffi::GRBdelconstrs(self.model, 1, &index) }));
+      try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, 1, &index) }));
 
       self.constrs.remove(index as usize);
       item.set_index(-1);
@@ -850,7 +850,7 @@ impl<'a> Model<'a> {
     }
 
     if index != -1 {
-      try!(self.call_api(unsafe { ffi::GRBdelqconstrs(self.model, 1, &index) }));
+      try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, 1, &index) }));
 
       self.qconstrs.remove(index as usize);
       item.set_index(-1);
@@ -871,7 +871,7 @@ impl<'a> Model<'a> {
     }
 
     if index != -1 {
-      try!(self.call_api(unsafe { ffi::GRBdelsos(self.model, 1, &index) }));
+      try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, 1, &index) }));
 
       self.sos.remove(index as usize);
       item.set_index(-1);
@@ -887,7 +887,7 @@ impl<'a> Model<'a> {
 
   // add quadratic terms of objective function.
   fn add_qpterms(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
-    self.call_api(unsafe {
+    self.check_apicall(unsafe {
       ffi::GRBaddqpterms(self.model,
                          qrow.len() as ffi::c_int,
                          qrow.as_ptr(),
@@ -897,7 +897,7 @@ impl<'a> Model<'a> {
   }
 
   // remove quadratic terms of objective function.
-  fn del_qpterms(&mut self) -> Result<()> { self.call_api(unsafe { ffi::GRBdelq(self.model) }) }
+  fn del_qpterms(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBdelq(self.model) }) }
 
   // calculates the actual value of linear/quadratic expression.
   fn calc_value<E: Into<QuadExpr> + Clone>(&self, expr: &E) -> Result<f64> {
@@ -911,14 +911,12 @@ impl<'a> Model<'a> {
        Zip::new((qrow, qcol, expr.qval)).fold(0.0, |acc, (row, col, val)| acc + row * col * val) + expr.offset)
   }
 
-  fn call_api(&self, error: ffi::c_int) -> Result<()> {
+  fn check_apicall(&self, error: ffi::c_int) -> Result<()> {
     if error != 0 {
-      return Err(self.error_from_api(error));
+      return Err(self.env.error_from_api(error));
     }
     Ok(())
   }
-
-  fn error_from_api(&self, errcode: ffi::c_int) -> Error { self.env.error_from_api(errcode) }
 }
 
 
