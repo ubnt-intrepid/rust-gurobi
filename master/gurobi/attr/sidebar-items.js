@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CharAttr",""],["DoubleAttr",""],["IntAttr",""],["StringAttr",""]]});
+initSidebarItems({});
