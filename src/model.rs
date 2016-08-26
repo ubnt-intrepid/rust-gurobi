@@ -551,10 +551,10 @@ pub mod callback {
   pub use super::CallbackWhatDoubleArray;
   pub use super::CallbackWhatString;
 
-  pub use super::CallbackWhatInt::*;
-  pub use super::CallbackWhatDouble::*;
-  pub use super::CallbackWhatDoubleArray::*;
-  pub use super::CallbackWhatString::*;
+  pub use self::CallbackWhatInt::*;
+  pub use self::CallbackWhatDouble::*;
+  pub use self::CallbackWhatDoubleArray::*;
+  pub use self::CallbackWhatString::*;
 }
 
 pub trait CallbackWhat: Into<i32> {
@@ -604,15 +604,17 @@ impl CallbackWhat for CallbackWhatString {
 
 
 #[allow(dead_code)]
-pub struct CallbackContext {
+pub struct CallbackContext<'a> {
   cbdata: *mut ffi::c_void,
   loc: CallbackLocation,
-  usrdata: *mut ffi::c_void,
+  model: &'a Model<'a>,
   ncols: usize
 }
 
-impl CallbackContext {
+impl<'a> CallbackContext<'a> {
   pub fn get_loc(&self) -> &CallbackLocation { &self.loc }
+
+  pub fn get_model(&self) -> &Model { self.model }
 
   pub fn get<C: CallbackWhat>(&self, what: C) -> Result<C::Output> {
     let mut buf = C::init();
@@ -642,6 +644,52 @@ impl CallbackContext {
     }
     Ok(buf)
   }
+
+  /// Add a new cutting plane to the MIP model.
+  pub fn add_cut(&self, lhs: LinExpr, sense: ConstrSense, rhs: f64) -> Result<()> {
+    let error = unsafe {
+      ffi::GRBcbcut(self.cbdata,
+                    lhs.coeff.len() as ffi::c_int,
+                    lhs.vars.into_iter().map(|e| e.index()).collect_vec().as_ptr(),
+                    lhs.coeff.as_ptr(),
+                    sense.into(),
+                    rhs - lhs.offset)
+    };
+    if error != 0 {
+      return Err(Error::FromAPI("Callback error".to_owned(), 40000));
+    }
+    Ok(())
+  }
+
+
+  /// Add a new lazy constraint to the MIP model.
+  pub fn add_lazy(&self, lhs: LinExpr, sense: ConstrSense, rhs: f64) -> Result<()> {
+    let error = unsafe {
+      ffi::GRBcblazy(self.cbdata,
+                     lhs.coeff.len() as ffi::c_int,
+                     lhs.vars.into_iter().map(|e| e.index()).collect_vec().as_ptr(),
+                     lhs.coeff.as_ptr(),
+                     sense.into(),
+                     rhs - lhs.offset)
+    };
+    if error != 0 {
+      return Err(Error::FromAPI("Callback error".to_owned(), 40000));
+    }
+    Ok(())
+  }
+
+  /// Provide a new feasible solution for a MIP model.
+  pub fn set_solution(&self, solution: &[f64]) -> Result<()> {
+    if solution.len() < self.ncols {
+      return Err(Error::InconsitentDims);
+    }
+    let error = unsafe { ffi::GRBcbsolution(self.cbdata, solution.as_ptr()) };
+
+    if error != 0 {
+      return Err(Error::FromAPI("Callback error".to_owned(), 40000));
+    }
+    Ok(())
+  }
 }
 
 
@@ -665,7 +713,7 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
     let context = CallbackContext {
       cbdata: cbdata,
       loc: loc.into(),
-      usrdata: usrdata,
+      model: &themodel,
       ncols: themodel.vars.len()
     };
 
