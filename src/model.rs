@@ -899,7 +899,7 @@ impl<'a> Model<'a> {
   }
 
 
-  /// add a decision variable to the model.
+  /// add a decision variable into the model.
   pub fn add_var(&mut self, name: &str, vtype: VarType) -> Result<Var> {
     // extract parameters
     let (vtype, lb, ub) = vtype.into();
@@ -922,6 +922,51 @@ impl<'a> Model<'a> {
 
     Ok(self.vars.last().cloned().unwrap())
   }
+
+  /// add decision variables into the model.
+  pub fn add_vars(&mut self, names: &[&str], vtypes: &[VarType]) -> Result<Vec<Var>> {
+    if names.len() != vtypes.len() {
+        return Err(Error::InconsitentDims);
+    }
+
+    let mut _vtypes = Vec::with_capacity(vtypes.len());
+    let mut lbs = Vec::with_capacity(vtypes.len());
+    let mut ubs = Vec::with_capacity(vtypes.len());
+    let mut _names = Vec::with_capacity(vtypes.len());
+    for (&name, &vtype) in Zip::new((names, vtypes)) { 
+        let (vtype, lb, ub) = vtype.into();
+        let name = try!(CString::new(name));
+        _vtypes.push(vtype);
+        lbs.push(lb);
+        ubs.push(ub);
+        _names.push(name.as_ptr());
+    }
+    let mut objs = Vec::with_capacity(vtypes.len());
+    objs.resize(vtypes.len(), 0.0);
+
+    try!(self.check_apicall(unsafe {
+      ffi::GRBaddvars(self.model,
+                      _names.len() as ffi::c_int,
+                     0,
+                     null(),
+                     null(),
+                     null(),
+                     objs.as_ptr(),
+                     lbs.as_ptr(),
+                     ubs.as_ptr(),
+                     _vtypes.as_ptr(),
+                     _names.as_ptr())
+    }));
+
+    let xcols = self.vars.len();
+    let cols = self.vars.len() + _names.len();
+    for col_no in xcols..cols {
+        self.vars.push(Var::new(col_no as i32));
+    }
+
+    Ok(self.vars[xcols..].iter().cloned().collect_vec())
+  }
+
 
   /// add a linear constraint to the model.
   pub fn add_constr(&mut self, name: &str, expr: LinExpr, sense: ConstrSense, rhs: f64) -> Result<Constr> {
