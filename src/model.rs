@@ -471,11 +471,30 @@ impl Into<i32> for RelaxType {
 }
 
 
-
+#[allow(dead_code)]
 pub struct CallbackContext {
+  cbdata: *mut ffi::c_void,
+  usrdata: *mut ffi::c_void
 }
 
 pub enum CallbackLocation {
+  Polling = 0,
+  PreSolve,
+  Simplex,
+  MIP,
+  MIPSol,
+  MIPNode,
+  Message,
+  Barrier
+}
+
+impl From<i32> for CallbackLocation {
+  fn from(val: i32) -> CallbackLocation {
+    match val {
+      0...7 => unsafe { transmute(val as u8) },
+      _ => panic!("invalid conversion")
+    }
+  }
 }
 
 pub type Callback = fn(&CallbackContext, CallbackLocation) -> Result<()>;
@@ -483,7 +502,24 @@ pub type Callback = fn(&CallbackContext, CallbackLocation) -> Result<()>;
 extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
                                usrdata: *mut ffi::c_void)
                                -> ffi::c_int {
-  0
+  let themodel: &Model = unsafe { transmute(usrdata) };
+  if themodel.model != model {
+    println!("invalid callback context.");
+    return -1;
+  }
+
+  if let Some(callback) = themodel.callback {
+    let context = CallbackContext {
+      cbdata: cbdata,
+      usrdata: usrdata
+    };
+    match callback(&context, loc.into()) {
+      Ok(_) => 0,
+      Err(_) => -1,
+    }
+  } else {
+    0
+  }
 }
 
 extern "C" fn null_callback_wrapper(_: *mut ffi::GRBmodel, _: *mut ffi::c_void, _: ffi::c_int, _: *mut ffi::c_void)
