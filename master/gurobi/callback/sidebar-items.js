@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CallbackWhatDouble",""],["CallbackWhatDoubleArray",""],["CallbackWhatInt",""],["CallbackWhatString",""]]});
+initSidebarItems({"enum":[["WhatDouble",""],["WhatDoubleArray",""],["WhatInt",""],["WhatString",""],["Where",""]],"trait":[["What",""]]});
