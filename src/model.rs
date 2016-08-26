@@ -472,6 +472,26 @@ impl Into<i32> for RelaxType {
 
 
 
+pub struct CallbackContext {
+}
+
+pub enum CallbackLocation {
+}
+
+pub type Callback = fn(&CallbackContext, CallbackLocation) -> Result<()>;
+
+extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
+                               usrdata: *mut ffi::c_void)
+                               -> ffi::c_int {
+  0
+}
+
+extern "C" fn null_callback_wrapper(_: *mut ffi::GRBmodel, _: *mut ffi::c_void, _: ffi::c_int, _: *mut ffi::c_void)
+                                    -> ffi::c_int {
+  0
+}
+
+
 /// Gurobi model object associated with certain environment.
 pub struct Model<'a> {
   model: *mut ffi::GRBmodel,
@@ -479,7 +499,8 @@ pub struct Model<'a> {
   vars: Vec<Var>,
   constrs: Vec<Constr>,
   qconstrs: Vec<QConstr>,
-  sos: Vec<SOS>
+  sos: Vec<SOS>,
+  callback: Option<Callback>
 }
 
 impl<'a> Model<'a> {
@@ -491,7 +512,8 @@ impl<'a> Model<'a> {
       vars: Vec::new(),
       constrs: Vec::new(),
       qconstrs: Vec::new(),
-      sos: Vec::new()
+      sos: Vec::new(),
+      callback: None
     }
   }
 
@@ -507,7 +529,8 @@ impl<'a> Model<'a> {
       vars: self.vars.clone(),
       constrs: self.constrs.clone(),
       qconstrs: self.qconstrs.clone(),
-      sos: self.sos.clone()
+      sos: self.sos.clone(),
+      callback: self.callback
     })
   }
 
@@ -986,6 +1009,18 @@ impl<'a> Model<'a> {
         s.set_index(idx as i32);
       }
     }
+    Ok(())
+  }
+
+  pub fn set_callback(&mut self, callback: Callback) -> Result<()> {
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&self)) }));
+    self.callback = Some(callback);
+    Ok(())
+  }
+
+  pub fn reset_callback(&mut self) -> Result<()> {
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
+    self.callback = None;
     Ok(())
   }
 
