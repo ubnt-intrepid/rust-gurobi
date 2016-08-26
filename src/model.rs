@@ -470,13 +470,6 @@ impl Into<i32> for RelaxType {
   }
 }
 
-
-#[allow(dead_code)]
-pub struct CallbackContext {
-  cbdata: *mut ffi::c_void,
-  usrdata: *mut ffi::c_void
-}
-
 pub enum CallbackLocation {
   Polling = 0,
   PreSolve,
@@ -497,11 +490,24 @@ impl From<i32> for CallbackLocation {
   }
 }
 
-pub type Callback = fn(&CallbackContext, CallbackLocation) -> Result<()>;
+#[allow(dead_code)]
+pub struct CallbackContext {
+  cbdata: *mut ffi::c_void,
+  loc: CallbackLocation,
+  usrdata: *mut ffi::c_void
+}
+
+
+pub type Callback = fn(CallbackContext) -> Result<()>;
 
 extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
                                usrdata: *mut ffi::c_void)
                                -> ffi::c_int {
+  // null callback
+  if usrdata.is_null() {
+    return 0;
+  }
+
   let themodel: &Model = unsafe { transmute(usrdata) };
   if themodel.model != model {
     println!("invalid callback context.");
@@ -511,20 +517,17 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
   if let Some(callback) = themodel.callback {
     let context = CallbackContext {
       cbdata: cbdata,
+      loc: loc.into(),
       usrdata: usrdata
     };
-    match callback(&context, loc.into()) {
+
+    match callback(context) {
       Ok(_) => 0,
       Err(_) => -1,
     }
   } else {
     0
   }
-}
-
-extern "C" fn null_callback_wrapper(_: *mut ffi::GRBmodel, _: *mut ffi::c_void, _: ffi::c_int, _: *mut ffi::c_void)
-                                    -> ffi::c_int {
-  0
 }
 
 
@@ -1055,7 +1058,7 @@ impl<'a> Model<'a> {
   }
 
   pub fn reset_callback(&mut self) -> Result<()> {
-    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, null_mut()) }));
     self.callback = None;
     Ok(())
   }

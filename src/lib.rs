@@ -92,6 +92,7 @@ pub use model::RelaxType::*;
 pub use parameter::exports as param;
 pub use attrib::exports as attr;
 
+pub use model::{Callback, CallbackContext, CallbackLocation};
 
 /// Large number used in C API
 pub const INFINITY: f64 = 1e100;
