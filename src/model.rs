@@ -690,6 +690,9 @@ impl<'a> CallbackContext<'a> {
     }
     Ok(())
   }
+
+  /// terminate the optimization.
+  pub fn terminate(&self) { self.get_model().terminate(); }
 }
 
 
