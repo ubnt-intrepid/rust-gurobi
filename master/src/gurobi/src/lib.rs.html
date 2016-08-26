@@ -147,6 +147,8 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -242,6 +244,8 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>parameter</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>param</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>attrib</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>attr</span>;
 
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>Callback</span>, <span class='ident'>CallbackContext</span>, <span class='ident'>CallbackLocation</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>callback</span>;
 
 <span class='doccomment'>/// Large number used in C API</span>
 <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>INFINITY</span>: <span class='ident'>f64</span> <span class='op'>=</span> <span class='number'>1e100</span>;
