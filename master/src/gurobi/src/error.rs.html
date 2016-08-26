@@ -70,6 +70,11 @@
 <span id="26">26</span>
 <span id="27">27</span>
 <span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -94,6 +99,11 @@
   <span class='doccomment'>/// String conversion error</span>
   <span class='ident'>StringConversion</span>
 }
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>NulError</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>NulError</span>) <span class='op'>-&gt;</span> <span class='ident'>Error</span> { <span class='ident'>Error</span>::<span class='ident'>NulError</span>(<span class='ident'>err</span>) }
+}
+
 
 <span class='doccomment'>/// A specialized</span>
 <span class='doccomment'>/// [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html)</span>

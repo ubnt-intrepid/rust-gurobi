@@ -47,21 +47,66 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-756' class='srclink' href='../src/gurobi/src/model.rs.html#475-482' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-761' class='srclink' href='../src/gurobi/src/model.rs.html#476-483' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Model&lt;'a&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Gurobi model object associated with certain environment.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-764' class='srclink' href='../src/gurobi/src/model.rs.html#484-920' title='goto source code'>[src]</a></span></h3>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-769' class='srclink' href='../src/gurobi/src/model.rs.html#485-1013' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(env: &amp;'a <a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a>, model: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a>GRBmodel) -&gt; <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></h4>
 <div class='docblock'><p>create an empty model which associated with certain environment.</p>
-</div><h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
-<div class='docblock'><p>apply all modification of the model to process.</p>
 </div><h4 id='method.copy' class='method'><code>fn <a href='#method.copy' class='fnname'>copy</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
 <div class='docblock'><p>create a copy of the model</p>
+</div><h4 id='method.fixed' class='method'><code>fn <a href='#method.fixed' class='fnname'>fixed</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;&gt;</code></h4>
+<div class='docblock'><p>Create an fixed model associated with the model.</p>
+
+<p>In fixed model, each integer variable is fixed to the value that it takes in the
+original MIP solution.
+Note that the model must be MIP and have a solution loaded.</p>
+</div><h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Apply all modification of the model to process</p>
 </div><h4 id='method.optimize' class='method'><code>fn <a href='#method.optimize' class='fnname'>optimize</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
-<div class='docblock'><p>optimize the model.</p>
+<div class='docblock'><p>Optimize the model synchronously</p>
+</div><h4 id='method.optimize_async' class='method'><code>fn <a href='#method.optimize_async' class='fnname'>optimize_async</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Optimize the model asynchronously</p>
+</div><h4 id='method.sync' class='method'><code>fn <a href='#method.sync' class='fnname'>sync</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Wait for a optimization called asynchronously.</p>
+</div><h4 id='method.compute_iis' class='method'><code>fn <a href='#method.compute_iis' class='fnname'>compute_iis</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Compute an Irreducible Inconsistent Subsystem (IIS) of the model.</p>
+</div><h4 id='method.terminate' class='method'><code>fn <a href='#method.terminate' class='fnname'>terminate</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Send a request to the model to terminate the current optimization process.</p>
+</div><h4 id='method.reset' class='method'><code>fn <a href='#method.reset' class='fnname'>reset</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Reset the model to an unsolved state.</p>
+
+<p>All solution information previously computed are discarded.</p>
+</div><h4 id='method.tune' class='method'><code>fn <a href='#method.tune' class='fnname'>tune</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='stability'><em class='stab deprecated'>Deprecated</em></div><div class='docblock'><p>Perform an automated search for parameter settings that improve performance on the model.
+See also references <a href="https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning">on official
+manual</a>.</p>
+</div><h4 id='method.get_tune_result' class='method'><code>fn <a href='#method.get_tune_result' class='fnname'>get_tune_result</a>(&amp;self, n: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='stability'><em class='stab deprecated'>Deprecated</em></div><div class='docblock'><p>Prepare to retrieve the results of <code>tune()</code>.
+See also references <a href="https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning">on official
+manual</a>.</p>
+</div><h4 id='method.get_concurrent_env' class='method'><code>fn <a href='#method.get_concurrent_env' class='fnname'>get_concurrent_env</a>(&amp;self, num: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a>&gt;</code></h4>
+<div class='stability'><em class='stab deprecated'>Deprecated</em></div><div class='docblock'><p>Create/retrieve a concurrent environment for the model</p>
+
+<p>Note that the number of concurrent environments (<code>num</code>) must be contiguously numbered.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>env1</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>0</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='ident'>env2</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>1</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='ident'>env3</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>2</span>).<span class='ident'>unwrap</span>();
+...</pre>
+</div><h4 id='method.discard_concurrent_envs' class='method'><code>fn <a href='#method.discard_concurrent_envs' class='fnname'>discard_concurrent_envs</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Discard all concurrent environments for the model.</p>
+</div><h4 id='method.message' class='method'><code>fn <a href='#method.message' class='fnname'>message</a>(&amp;self, message: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>)</code></h4>
+<div class='docblock'><p>Insert a message into log file.</p>
+
+<p>When <strong>message</strong> cannot convert to raw C string, a panic is occurred.</p>
+</div><h4 id='method.read' class='method'><code>fn <a href='#method.read' class='fnname'>read</a>(&amp;mut self, filename: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Import optimization data of the model from a file.</p>
 </div><h4 id='method.write' class='method'><code>fn <a href='#method.write' class='fnname'>write</a>(&amp;self, filename: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
-<div class='docblock'><p>write information of the model to file.</p>
+<div class='docblock'><p>Export optimization data of the model to a file.</p>
 </div><h4 id='method.add_var' class='method'><code>fn <a href='#method.add_var' class='fnname'>add_var</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, vtype: <a class='enum' href='../gurobi/enum.VarType.html' title='gurobi::VarType'>VarType</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;</code></h4>
 <div class='docblock'><p>add a decision variable to the model.</p>
 </div><h4 id='method.add_constr' class='method'><code>fn <a href='#method.add_constr' class='fnname'>add_constr</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, expr: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;</code></h4>
@@ -104,8 +149,8 @@ See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
 <li>The objective value for the relaxation performed (if <code>minrelax</code> is <code>true</code>).</li>
 <li>Slack variables for relaxation and linear/quadratic constraints related to theirs.</li>
 </ul>
-</div><h4 id='method.compute_iis' class='method'><code>fn <a href='#method.compute_iis' class='fnname'>compute_iis</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
-<div class='docblock'><p>Compute an Irreducible Inconsistent Subsystem (IIS) of the model.</p>
+</div><h4 id='method.set_pwl_obj' class='method'><code>fn <a href='#method.set_pwl_obj' class='fnname'>set_pwl_obj</a>(&amp;mut self, var: &amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Set a piecewise-linear objective function of a certain variable in the model.</p>
 </div><h4 id='method.status' class='method'><code>fn <a href='#method.status' class='fnname'>status</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='enum' href='../gurobi/enum.Status.html' title='gurobi::Status'>Status</a>&gt;</code></h4>
 <div class='docblock'><p>Retrieve the status of the model.</p>
 </div><h4 id='method.get_vars' class='method'><code>fn <a href='#method.get_vars' class='fnname'>get_vars</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;</code></h4>
@@ -124,7 +169,7 @@ See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
 <div class='docblock'><p>Remove a quadratic constraint from the model.</p>
 </div><h4 id='method.remove_sos' class='method'><code>fn <a href='#method.remove_sos' class='fnname'>remove_sos</a>(&amp;mut self, item: <a class='struct' href='../gurobi/struct.SOS.html' title='gurobi::SOS'>SOS</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
 <div class='docblock'><p>Remove a special order set (SOS) cnstraint from the model.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1025' class='srclink' href='../src/gurobi/src/model.rs.html#923-928' title='goto source code'>[src]</a></span></h3>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1068' class='srclink' href='../src/gurobi/src/model.rs.html#1016-1021' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
 <div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
 </div></div></section>

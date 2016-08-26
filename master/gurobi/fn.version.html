@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `SOSType` enum in crate `gurobi`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, SOSType">
+    <meta name="description" content="API documentation for the Rust `version` fn in crate `gurobi`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, version">
 
-    <title>gurobi::SOSType - Rust</title>
+    <title>gurobi::version - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
@@ -28,7 +28,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>gurobi</a></p><script>window.sidebarCurrent = {name: 'SOSType', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='index.html'>gurobi</a></p><script>window.sidebarCurrent = {name: 'version', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -42,24 +42,14 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>gurobi</a>::<wbr><a class='enum' href=''>SOSType</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content fn">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>gurobi</a>::<wbr><a class='fn' href=''>version</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-428' class='srclink' href='../src/gurobi/src/model.rs.html#83-86' title='goto source code'>[src]</a></span></h1>
-<pre class='rust enum'>pub enum SOSType {
-    SOSType1,
-    SOSType2,
-}</pre><div class='docblock'><p>Type of new SOS constraint</p>
-</div><h2 class='variants'>Variants</h2>
-<span id='variant.SOSType1' class='variant'><code>SOSType1</code></span><span id='variant.SOSType2' class='variant'><code>SOSType2</code></span><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../gurobi/enum.SOSType.html' title='gurobi::SOSType'>SOSType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-422' class='srclink' href='../src/gurobi/src/model.rs.html#82' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-<div class='docblock'><p>Formats the value using the given formatter.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='enum' href='../gurobi/enum.SOSType.html' title='gurobi::SOSType'>SOSType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-431' class='srclink' href='../src/gurobi/src/model.rs.html#88-95' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.into' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into' class='fnname'>into</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
-<div class='docblock'><p>Performs the conversion.</p>
-</div></div></section>
+               </span><a id='src-1233' class='srclink' href='../src/gurobi/src/lib.rs.html#101-105' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn version() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></pre><div class='docblock'><p>Returns the version number of Gurobi</p>
+</div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
