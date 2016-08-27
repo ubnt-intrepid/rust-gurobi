@@ -495,6 +495,14 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
   }
 }
 
+#[allow(dead_code)]
+#[allow(unused_variables)]
+extern "C" fn null_callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
+                                    usrdata: *mut ffi::c_void)
+                                    -> ffi::c_int {
+  0
+}
+
 
 /// Gurobi model object associated with certain environment.
 pub struct Model<'a> {
@@ -577,13 +585,38 @@ impl<'a> Model<'a> {
   /// Optimize the model synchronously
   pub fn optimize(&mut self) -> Result<()> {
     try!(self.update());
+
+    // clear callback from the model.
+    // Notice: Rust does not have approproate mechanism which treats "null" C-style function
+    // pointer.
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
+
     self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
   }
 
   /// Optimize the model asynchronously
   pub fn optimize_async(&mut self) -> Result<()> {
     try!(self.update());
+
+    // clear callback from the model.
+    // Notice: Rust does not have approproate mechanism which treats "null" C-style function
+    // pointer.
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
+
     self.check_apicall(unsafe { ffi::GRBoptimizeasync(self.model) })
+  }
+
+  /// Optimize the model with a callback function
+  pub fn optimize_with_callback<F>(&mut self, callback: F) -> Result<()>
+    where F: Fn(Context) -> Result<()> + 'static
+  {
+    let usrdata = CallbackData {
+      model: self,
+      callback: Box::new(callback)
+    };
+    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&usrdata)) }));
+
+    self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
   }
 
   /// Wait for a optimization called asynchronously.
@@ -1227,22 +1260,6 @@ impl<'a> Model<'a> {
     }
     Ok(())
   }
-
-  // /// a
-  // pub fn set_callback(&mut self, callback: &'a Fn(Context) -> Result<()>) -> Result<()> {
-  //   try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&self)) }));
-  //   try!(self.update());
-  //   self.callback = Some(callback);
-  //   Ok(())
-  // }
-
-  // /// a
-  // pub fn reset_callback(&mut self) -> Result<()> {
-  //   try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, null_mut()) }));
-  //   try!(self.update());
-  //   self.callback = None;
-  //   Ok(())
-  // }
 
   /// Retrieve a single constant matrix coefficient of the model.
   pub fn get_coeff(&self, var: &Var, constr: &Constr) -> Result<f64> {
