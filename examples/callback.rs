@@ -28,23 +28,14 @@ fn main() {
         }
 
         // Currently performing presolve
-        PreSolve => {
-          let cdels = try!(ctx.get_what(PreSolve_ColDel));
-          let rdels = try!(ctx.get_what(PreSolve_RowDel));
-
+        PreSolve(cdels, rdels, _, _, _, _, _, _, _) => {
           if cdels > 0 || rdels > 0 {
             println!("{} columns and {} rows are removed.", cdels, rdels);
           }
         }
 
         // Currently in simplex
-        Simplex => {
-          let itcnt = try!(ctx.get_what(Simplex_ItrCnt));
-          let obj = try!(ctx.get_what(Simplex_ObjVal));
-          let pinf = try!(ctx.get_what(Simplex_PrimInf));
-          let dinf = try!(ctx.get_what(Simplex_DualInf));
-          let ispert = try!(ctx.get_what(Simplex_IsPert));
-
+        Simplex(ispert, itcnt, obj, pinf, dinf) => {
           if itcnt - lastiter >= 100.0 {
             lastiter = itcnt;
             let ch = match ispert {
@@ -57,15 +48,7 @@ fn main() {
         }
 
         // Currently in MIP
-        MIP => {
-          let nodecnt = try!(ctx.get_what(MIP_NodCnt));
-          let solcnt = try!(ctx.get_what(MIP_SolCnt));
-          let itcnt = try!(ctx.get_what(MIP_ItrCnt));
-          let cutcnt = try!(ctx.get_what(MIP_CutCnt));
-          let objbst = try!(ctx.get_what(MIP_ObjBst));
-          let objbnd = try!(ctx.get_what(MIP_ObjBnd));
-          let actnodes = try!(ctx.get_what(MIP_NodLeft));
-
+        MIP(solcnt, cutcnt, objbst, objbnd, nodecnt, actnodes, itcnt) => {
           if nodecnt - lastnode >= 100.0 {
             lastnode = nodecnt;
             println!("{} {} {} {} {} {} {}",
@@ -90,11 +73,7 @@ fn main() {
         }
 
         // Found a new MIP incumbent
-        MIPSol => {
-          let nodecnt = try!(ctx.get_what(MIPSol_NodCnt)) as i64;
-          let obj = try!(ctx.get_what(MIPSol_Obj));
-          let solcnt = try!(ctx.get_what(MIPSol_SolCnt)) as i64;
-
+        MIPSol(solcnt, obj, objbst, objbnd, nodecnt) => {
           let x = try!(ctx.get_solution(vars.as_slice()));
           println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
                    nodecnt,
@@ -104,9 +83,7 @@ fn main() {
         }
 
         // Currently exploring a MIP node
-        MIPNode => {
-          let status = try!(ctx.get_what(MIPNode_Status));
-
+        MIPNode(status, solcnt, objbst, objbnd, nodecnt) => {
           println!("**** New node ****");
           if Status::from(status) == Status::Optimal {
             let x = try!(ctx.get_node_rel(vars.as_slice()));
@@ -115,12 +92,10 @@ fn main() {
         }
 
         // Currently in barrier
-        Barrier => (),
+        Barrier(itcnt, pobj, dobj, pinf, dinf, compl) => (),
 
         // Printing a log message
-        Message => {
-          let message = try!(ctx.get_msg_string());
-
+        Message(message) => {
           println!("{}", message);
         }
       }
