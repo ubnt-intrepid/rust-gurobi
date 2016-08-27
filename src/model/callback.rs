@@ -149,7 +149,7 @@ impl<'a> Context<'a> {
   pub fn get_model(&self) -> &Model { self.model }
 
   /// a
-  pub fn get<C: What>(&self, what: C) -> Result<C::Out> {
+  pub fn get_what<C: What>(&self, what: C) -> Result<C::Out> {
     let mut buf = C::Buf::default();
     self.check_apicall(unsafe {
         ffi::GRBcbget(self.cbdata,

@@ -472,31 +472,26 @@ impl<'a> Add<&'a Var> for LinExpr {
 }
 
 
+struct CallbackData<'a> {
+  model: &'a Model<'a>,
+  callback: Box<Fn(Context) -> Result<()>>
+}
 
-pub type Callback = fn(Context) -> Result<()>;
-
+#[allow(dead_code)]
+#[allow(unused_variables)]
 extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
                                usrdata: *mut ffi::c_void)
                                -> ffi::c_int {
-  // null callback
-  if usrdata.is_null() {
-    return 0;
-  }
 
-  let themodel: &Model = unsafe { transmute(usrdata) };
-  if themodel.model != model {
-    println!("invalid callback context.");
-    return -1;
-  }
+  let usrdata: &CallbackData = unsafe { transmute(usrdata) };
 
-  if let Some(callback) = themodel.callback {
-    let context = Context::new(cbdata, loc.into(), &themodel);
-    match callback(context) {
-      Ok(_) => 0,
-      Err(_) => -1,
-    }
-  } else {
-    0
+  let ref callback = *usrdata.callback;
+  let context = Context::new(cbdata, loc.into(), &usrdata.model);
+
+  let ret = callback(context);
+  match ret {
+    Ok(_) => 0,
+    Err(_) => -1,
   }
 }
 
@@ -508,8 +503,7 @@ pub struct Model<'a> {
   vars: Vec<Var>,
   constrs: Vec<Constr>,
   qconstrs: Vec<QConstr>,
-  sos: Vec<SOS>,
-  callback: Option<Callback>
+  sos: Vec<SOS>
 }
 
 impl<'a> Model<'a> {
@@ -521,8 +515,7 @@ impl<'a> Model<'a> {
       vars: Vec::new(),
       constrs: Vec::new(),
       qconstrs: Vec::new(),
-      sos: Vec::new(),
-      callback: None
+      sos: Vec::new()
     };
     try!(model.populate());
     Ok(model)
@@ -535,10 +528,7 @@ impl<'a> Model<'a> {
       return Err(Error::FromAPI("Failed to create a copy of the model".to_owned(), 20002));
     }
 
-    Model::new(self.env, copied).map(|mut model| {
-      model.callback = self.callback;
-      model
-    })
+    Model::new(self.env, copied)
   }
 
   /// Create an fixed model associated with the model.
@@ -1238,21 +1228,21 @@ impl<'a> Model<'a> {
     Ok(())
   }
 
-  /// a
-  pub fn set_callback(&mut self, callback: Callback) -> Result<()> {
-    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&self)) }));
-    try!(self.update());
-    self.callback = Some(callback);
-    Ok(())
-  }
+  // /// a
+  // pub fn set_callback(&mut self, callback: &'a Fn(Context) -> Result<()>) -> Result<()> {
+  //   try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&self)) }));
+  //   try!(self.update());
+  //   self.callback = Some(callback);
+  //   Ok(())
+  // }
 
-  /// a
-  pub fn reset_callback(&mut self) -> Result<()> {
-    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, null_mut()) }));
-    try!(self.update());
-    self.callback = None;
-    Ok(())
-  }
+  // /// a
+  // pub fn reset_callback(&mut self) -> Result<()> {
+  //   try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, null_mut()) }));
+  //   try!(self.update());
+  //   self.callback = None;
+  //   Ok(())
+  // }
 
   /// Retrieve a single constant matrix coefficient of the model.
   pub fn get_coeff(&self, var: &Var, constr: &Constr) -> Result<f64> {
@@ -1287,8 +1277,6 @@ impl<'a> Model<'a> {
   }
 
   fn populate(&mut self) -> Result<()> {
-    self.callback = None;
-
     let cols = try!(self.get(attr::exports::NumVars)) as usize;
     let rows = try!(self.get(attr::exports::NumConstrs)) as usize;
     let numqconstrs = try!(self.get(attr::exports::NumQConstrs)) as usize;
