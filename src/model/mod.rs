@@ -474,7 +474,7 @@ impl<'a> Add<&'a Var> for LinExpr {
 
 struct CallbackData<'a> {
   model: &'a Model<'a>,
-  callback: Box<Fn(Context) -> Result<()>>
+  callback: &'a mut FnMut(Context) -> Result<()>
 }
 
 #[allow(dead_code)]
@@ -483,9 +483,9 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
                                usrdata: *mut ffi::c_void)
                                -> ffi::c_int {
 
-  let usrdata: &CallbackData = unsafe { transmute(usrdata) };
-
-  let ref callback = *usrdata.callback;
+  let mut usrdata: &mut CallbackData = unsafe { transmute(usrdata) };
+  
+  let callback: &mut FnMut(Context)->Result<()> = usrdata.callback;
   let context = Context::new(cbdata, loc.into(), &usrdata.model);
 
   let ret = callback(context);
@@ -585,38 +585,31 @@ impl<'a> Model<'a> {
   /// Optimize the model synchronously
   pub fn optimize(&mut self) -> Result<()> {
     try!(self.update());
-
-    // clear callback from the model.
-    // Notice: Rust does not have approproate mechanism which treats "null" C-style function
-    // pointer.
-    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
-
     self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
   }
 
   /// Optimize the model asynchronously
   pub fn optimize_async(&mut self) -> Result<()> {
     try!(self.update());
-
-    // clear callback from the model.
-    // Notice: Rust does not have approproate mechanism which treats "null" C-style function
-    // pointer.
-    try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) }));
-
     self.check_apicall(unsafe { ffi::GRBoptimizeasync(self.model) })
   }
 
   /// Optimize the model with a callback function
-  pub fn optimize_with_callback<F>(&mut self, callback: F) -> Result<()>
-    where F: Fn(Context) -> Result<()> + 'static
+  pub fn optimize_with_callback<F>(&mut self, mut callback: F) -> Result<()>
+    where F: FnMut(Context) -> Result<()> + 'static
   {
     let usrdata = CallbackData {
       model: self,
-      callback: Box::new(callback)
+      callback: &mut callback
     };
     try!(self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, callback_wrapper, transmute(&usrdata)) }));
 
-    self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
+    try!(self.check_apicall(unsafe { ffi::GRBoptimize(self.model) }));
+
+    // clear callback from the model.
+    // Notice: Rust does not have approproate mechanism which treats "null" C-style function
+    // pointer.
+    self.check_apicall(unsafe { ffi::GRBsetcallbackfunc(self.model, null_callback_wrapper, null_mut()) })
   }
 
   /// Wait for a optimization called asynchronously.
