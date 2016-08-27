@@ -1374,6 +1374,10 @@
 <span id="1330">1330</span>
 <span id="1331">1331</span>
 <span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -1395,6 +1399,7 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>Cell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::<span class='ident'>Iter</span>;
 
+<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::<span class='ident'>Context</span>;
 <span class='kw'>use</span> <span class='ident'>env</span>::{<span class='ident'>Env</span>, <span class='ident'>FromRaw</span>, <span class='ident'>ErrorFromAPI</span>};
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 <span class='kw'>use</span> <span class='ident'>util</span>;
@@ -1500,6 +1505,33 @@
     }
   }
 }
+
+<span class='doccomment'>/// Type of cost function at feasibility relaxation</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RelaxType</span> {
+  <span class='doccomment'>/// The weighted magnitude of bounds and constraint violations</span>
+  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i`)</span>
+  <span class='ident'>Linear</span>,
+
+  <span class='doccomment'>/// The weighted square of magnitude of bounds and constraint violations</span>
+  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i^2`)</span>
+  <span class='ident'>Quadratic</span>,
+
+  <span class='doccomment'>/// The weighted count of bounds and constraint violations</span>
+  <span class='doccomment'>/// (`penalty(s_i) = w_i * [s_i &gt; 0]`)</span>
+  <span class='ident'>Cardinality</span>
+}
+
+<span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RelaxType</span> {
+  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
+    <span class='kw'>match</span> <span class='self'>self</span> {
+      <span class='ident'>RelaxType</span>::<span class='ident'>Linear</span> <span class='op'>=&gt;</span> <span class='number'>0</span>,
+      <span class='ident'>RelaxType</span>::<span class='ident'>Quadratic</span> <span class='op'>=&gt;</span> <span class='number'>1</span>,
+      <span class='ident'>RelaxType</span>::<span class='ident'>Cardinality</span> <span class='op'>=&gt;</span> <span class='number'>2</span>,
+    }
+  }
+}
+
 
 
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ProxyBase</span> {
@@ -1822,31 +1854,7 @@
 
 
 
-<span class='doccomment'>/// Type of cost function at feasibility relaxation</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RelaxType</span> {
-  <span class='doccomment'>/// The weighted magnitude of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i`)</span>
-  <span class='ident'>Linear</span>,
-
-  <span class='doccomment'>/// The weighted square of magnitude of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i^2`)</span>
-  <span class='ident'>Quadratic</span>,
-
-  <span class='doccomment'>/// The weighted count of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i * [s_i &gt; 0]`)</span>
-  <span class='ident'>Cardinality</span>
-}
-
-<span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RelaxType</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-    <span class='kw'>match</span> <span class='self'>self</span> {
-      <span class='ident'>RelaxType</span>::<span class='ident'>Linear</span> <span class='op'>=&gt;</span> <span class='number'>0</span>,
-      <span class='ident'>RelaxType</span>::<span class='ident'>Quadratic</span> <span class='op'>=&gt;</span> <span class='number'>1</span>,
-      <span class='ident'>RelaxType</span>::<span class='ident'>Cardinality</span> <span class='op'>=&gt;</span> <span class='number'>2</span>,
-    }
-  }
-}
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Callback</span> <span class='op'>=</span> <span class='kw'>fn</span>(<span class='ident'>Context</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>;
 
 <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> <span class='ident'>callback_wrapper</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>, <span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>loc</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                                <span class='ident'>usrdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>)
@@ -1882,7 +1890,7 @@
   <span class='ident'>constrs</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Constr</span><span class='op'>&gt;</span>,
   <span class='ident'>qconstrs</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>QConstr</span><span class='op'>&gt;</span>,
   <span class='ident'>sos</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>SOS</span><span class='op'>&gt;</span>,
-  <span class='ident'>callback</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>callback</span>::<span class='ident'>Callback</span><span class='op'>&gt;</span>
+  <span class='ident'>callback</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Callback</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
@@ -2596,7 +2604,7 @@
   }
 
   <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_callback</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>callback</span>: <span class='ident'>callback</span>::<span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_callback</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>callback</span>: <span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBsetcallbackfunc</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>callback_wrapper</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>)) }));
     <span class='self'>self</span>.<span class='ident'>callback</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>callback</span>);
     <span class='prelude-val'>Ok</span>(())
