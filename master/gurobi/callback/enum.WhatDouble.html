@@ -47,40 +47,45 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-829' class='srclink' href='../../src/gurobi/src/model.rs.html#521-544' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-524' class='srclink' href='../../src/gurobi/src/model/callback.rs.html#62-90' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum WhatDouble {
     Runtime,
-    SpxItrCnt,
-    SpxObjVal,
-    SpxPrimInf,
-    SpxDualInf,
-    MIPObjBst,
-    MIPObjBnd,
-    MIPNodCnt,
-    MIPNodLeft,
-    MIPItrCnt,
-    MIPSolObj,
-    MIPSolObjBst,
-    MIPSolObjBnd,
-    MIPSolNodCnt,
-    MIPNodeObjBst,
-    MIPNodeObjBnd,
-    MIPNodeNodCnt,
-    BarrierPrimObj,
-    BarrierDualObj,
-    BarrierPrimInf,
-    BarrierDualInf,
-    BarrierCompl,
-}</pre><h2 class='variants'>Variants</h2>
-<span id='variant.Runtime' class='variant'><code>Runtime</code></span><span id='variant.SpxItrCnt' class='variant'><code>SpxItrCnt</code></span><span id='variant.SpxObjVal' class='variant'><code>SpxObjVal</code></span><span id='variant.SpxPrimInf' class='variant'><code>SpxPrimInf</code></span><span id='variant.SpxDualInf' class='variant'><code>SpxDualInf</code></span><span id='variant.MIPObjBst' class='variant'><code>MIPObjBst</code></span><span id='variant.MIPObjBnd' class='variant'><code>MIPObjBnd</code></span><span id='variant.MIPNodCnt' class='variant'><code>MIPNodCnt</code></span><span id='variant.MIPNodLeft' class='variant'><code>MIPNodLeft</code></span><span id='variant.MIPItrCnt' class='variant'><code>MIPItrCnt</code></span><span id='variant.MIPSolObj' class='variant'><code>MIPSolObj</code></span><span id='variant.MIPSolObjBst' class='variant'><code>MIPSolObjBst</code></span><span id='variant.MIPSolObjBnd' class='variant'><code>MIPSolObjBnd</code></span><span id='variant.MIPSolNodCnt' class='variant'><code>MIPSolNodCnt</code></span><span id='variant.MIPNodeObjBst' class='variant'><code>MIPNodeObjBst</code></span><span id='variant.MIPNodeObjBnd' class='variant'><code>MIPNodeObjBnd</code></span><span id='variant.MIPNodeNodCnt' class='variant'><code>MIPNodeNodCnt</code></span><span id='variant.BarrierPrimObj' class='variant'><code>BarrierPrimObj</code></span><span id='variant.BarrierDualObj' class='variant'><code>BarrierDualObj</code></span><span id='variant.BarrierPrimInf' class='variant'><code>BarrierPrimInf</code></span><span id='variant.BarrierDualInf' class='variant'><code>BarrierDualInf</code></span><span id='variant.BarrierCompl' class='variant'><code>BarrierCompl</code></span><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-891' class='srclink' href='../../src/gurobi/src/model.rs.html#568-570' title='goto source code'>[src]</a></span></h3>
+    Spx_ItrCnt,
+    Spx_ObjVal,
+    Spx_PrimInf,
+    Spx_DualInf,
+    MIP_ObjBst,
+    MIP_ObjBnd,
+    MIP_NodCnt,
+    MIP_NodLeft,
+    MIP_ItrCnt,
+    MIPSol_Obj,
+    MIPSol_ObjBst,
+    MIPSol_ObjBnd,
+    MIPSol_NodCnt,
+    MIPNode_ObjBst,
+    MIPNode_ObjBnd,
+    MIPNode_NodCnt,
+    Barrier_PrimObj,
+    Barrier_DualObj,
+    Barrier_PrimInf,
+    Barrier_DualInf,
+    Barrier_Compl,
+}</pre><div class='docblock'><p>Name of floating attributes in callback</p>
+</div><h2 class='variants'>Variants</h2>
+<span id='variant.Runtime' class='variant'><code>Runtime</code></span><span id='variant.Spx_ItrCnt' class='variant'><code>Spx_ItrCnt</code></span><span id='variant.Spx_ObjVal' class='variant'><code>Spx_ObjVal</code></span><span id='variant.Spx_PrimInf' class='variant'><code>Spx_PrimInf</code></span><span id='variant.Spx_DualInf' class='variant'><code>Spx_DualInf</code></span><span id='variant.MIP_ObjBst' class='variant'><code>MIP_ObjBst</code></span><span id='variant.MIP_ObjBnd' class='variant'><code>MIP_ObjBnd</code></span><span id='variant.MIP_NodCnt' class='variant'><code>MIP_NodCnt</code></span><span id='variant.MIP_NodLeft' class='variant'><code>MIP_NodLeft</code></span><span id='variant.MIP_ItrCnt' class='variant'><code>MIP_ItrCnt</code></span><span id='variant.MIPSol_Obj' class='variant'><code>MIPSol_Obj</code></span><span id='variant.MIPSol_ObjBst' class='variant'><code>MIPSol_ObjBst</code></span><span id='variant.MIPSol_ObjBnd' class='variant'><code>MIPSol_ObjBnd</code></span><span id='variant.MIPSol_NodCnt' class='variant'><code>MIPSol_NodCnt</code></span><span id='variant.MIPNode_ObjBst' class='variant'><code>MIPNode_ObjBst</code></span><span id='variant.MIPNode_ObjBnd' class='variant'><code>MIPNode_ObjBnd</code></span><span id='variant.MIPNode_NodCnt' class='variant'><code>MIPNode_NodCnt</code></span><span id='variant.Barrier_PrimObj' class='variant'><code>Barrier_PrimObj</code></span><span id='variant.Barrier_DualObj' class='variant'><code>Barrier_DualObj</code></span><span id='variant.Barrier_PrimInf' class='variant'><code>Barrier_PrimInf</code></span><span id='variant.Barrier_DualInf' class='variant'><code>Barrier_DualInf</code></span><span id='variant.Barrier_Compl' class='variant'><code>Barrier_Compl</code></span><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-494' class='srclink' href='../../src/gurobi/src/model/callback.rs.html#61' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-497' class='srclink' href='../../src/gurobi/src/model/callback.rs.html#61' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-498' class='srclink' href='../../src/gurobi/src/model/callback.rs.html#61' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-586' class='srclink' href='../../src/gurobi/src/model/callback.rs.html#122-124' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.into' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into' class='fnname'>into</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
 <div class='docblock'><p>Performs the conversion.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>What</a> for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-906' class='srclink' href='../../src/gurobi/src/model.rs.html#587-592' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='associatedtype.Output' class='type'><code>type <a href='../../gurobi/callback/trait.What.html#associatedtype.Output' class='type'>Output</a> = <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></h4>
-<h4 id='associatedtype.Buf' class='type'><code>type <a href='../../gurobi/callback/trait.What.html#associatedtype.Buf' class='type'>Buf</a> = <a class='type' href='https://doc.rust-lang.org/nightly/std/os/raw/type.c_double.html' title='std::os::raw::c_double'>c_double</a></code></h4>
-<h4 id='method.init' class='method'><code>fn <a href='../../gurobi/callback/trait.What.html#tymethod.init' class='fnname'>init</a>() -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/os/raw/type.c_double.html' title='std::os::raw::c_double'>c_double</a></code></h4>
-<h4 id='method.to_out' class='method'><code>fn <a href='../../gurobi/callback/trait.What.html#tymethod.to_out' class='fnname'>to_out</a>(buf: <a class='type' href='https://doc.rust-lang.org/nightly/std/os/raw/type.c_double.html' title='std::os::raw::c_double'>c_double</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></h4>
-</div></section>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>

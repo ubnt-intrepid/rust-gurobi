@@ -147,8 +147,6 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -221,31 +219,29 @@
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>gurobi_sys</span> <span class='kw'>as</span> <span class='ident'>ffi</span>;
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>itertools</span>;
 
-<span class='kw'>mod</span> <span class='ident'>attrib</span>;
 <span class='kw'>mod</span> <span class='ident'>env</span>;
 <span class='kw'>mod</span> <span class='ident'>error</span>;
 <span class='kw'>mod</span> <span class='ident'>model</span>;
-<span class='kw'>mod</span> <span class='ident'>parameter</span>;
 <span class='kw'>mod</span> <span class='ident'>util</span>;
 
 <span class='comment'>// re-exports</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>env</span>::<span class='ident'>Env</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>Model</span>, <span class='ident'>Var</span>, <span class='ident'>Constr</span>, <span class='ident'>QConstr</span>, <span class='ident'>SOS</span>, <span class='ident'>LinExpr</span>, <span class='ident'>QuadExpr</span>, <span class='ident'>Proxy</span>};
 
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>Model</span>, <span class='ident'>Var</span>, <span class='ident'>Constr</span>, <span class='ident'>QConstr</span>, <span class='ident'>SOS</span>, <span class='ident'>LinExpr</span>, <span class='ident'>QuadExpr</span>, <span class='ident'>Proxy</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>VarType</span>, <span class='ident'>ConstrSense</span>, <span class='ident'>ModelSense</span>, <span class='ident'>SOSType</span>, <span class='ident'>Status</span>, <span class='ident'>RelaxType</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>callback</span>::{<span class='ident'>Callback</span>, <span class='ident'>Context</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>VarType</span>::<span class='op'>*</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>ConstrSense</span>::<span class='op'>*</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>ModelSense</span>::<span class='op'>*</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>SOSType</span>::<span class='op'>*</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>RelaxType</span>::<span class='op'>*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>parameter</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>param</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>attrib</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>attr</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>attr</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>attr</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>callback</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>callback</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>env</span>::<span class='ident'>param</span>::<span class='ident'>exports</span> <span class='kw'>as</span> <span class='ident'>param</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>Callback</span>, <span class='ident'>Context</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>callback</span>;
 
 <span class='doccomment'>/// Large number used in C API</span>
 <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>INFINITY</span>: <span class='ident'>f64</span> <span class='op'>=</span> <span class='number'>1e100</span>;

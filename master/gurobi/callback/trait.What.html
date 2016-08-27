@@ -47,24 +47,18 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-882' class='srclink' href='../../src/gurobi/src/model.rs.html#555-561' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-872' class='srclink' href='../../src/gurobi/src/model.rs.html#543-546' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait What: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; {
-    type <a href='#associatedtype.Output' class='type'>Output</a>;
-    type <a href='#associatedtype.Buf' class='type'>Buf</a>;
-    fn <a href='#tymethod.init' class='fnname'>init</a>() -&gt; Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Buf</a>;
-    fn <a href='#tymethod.to_out' class='fnname'>to_out</a>(buf: Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Buf</a>) -&gt; Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Output</a>;
+    type <a href='#associatedtype.Out' class='type'>Out</a>;
+    type <a href='#associatedtype.Buf' class='type'>Buf</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Out</a>&gt;;
 }</pre>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.Output' class='method stab '><code>type <a href='#associatedtype.Output' class='type'>Output</a></code></h3><h3 id='associatedtype.Buf' class='method stab '><code>type <a href='#associatedtype.Buf' class='type'>Buf</a></code></h3></div>
-            <h2 id='required-methods'>Required Methods</h2>
-            <div class='methods'>
-        <h3 id='tymethod.init' class='method stab '><code>fn <a href='#tymethod.init' class='fnname'>init</a>() -&gt; Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Buf</a></code></h3><h3 id='tymethod.to_out' class='method stab '><code>fn <a href='#tymethod.to_out' class='fnname'>to_out</a>(buf: Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Buf</a>) -&gt; Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Output</a></code></h3></div>
+        <h3 id='associatedtype.Out' class='method stab '><code>type <a href='#associatedtype.Out' class='type'>Out</a></code></h3><h3 id='associatedtype.Buf' class='method stab '><code>type <a href='#associatedtype.Buf' class='type'>Buf</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;Self::<a class='trait' href='../../gurobi/callback/trait.What.html' title='gurobi::callback::What'>Out</a>&gt;</code></h3></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     <li><code>impl What for <a class='enum' href='../../gurobi/callback/enum.WhatInt.html' title='gurobi::callback::WhatInt'>WhatInt</a></code></li>
 <li><code>impl What for <a class='enum' href='../../gurobi/callback/enum.WhatDouble.html' title='gurobi::callback::WhatDouble'>WhatDouble</a></code></li>
-<li><code>impl What for <a class='enum' href='../../gurobi/callback/enum.WhatString.html' title='gurobi::callback::WhatString'>WhatString</a></code></li>
 </ul><script type="text/javascript" async
                          src="../../implementors/gurobi/callback/trait.What.js">
                  </script></section>

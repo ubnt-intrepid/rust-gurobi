@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["WhatDouble",""],["WhatDoubleArray",""],["WhatInt",""],["WhatString",""],["Where",""]],"trait":[["What",""]]});
+initSidebarItems({"enum":[["WhatDouble","Name of floating attributes in callback"],["WhatInt","Name of integer attributes in callback"],["Where","Location where the callback called."]]});
