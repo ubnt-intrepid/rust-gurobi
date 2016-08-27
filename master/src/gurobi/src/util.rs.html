@@ -178,8 +178,6 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -189,8 +187,6 @@
 <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>ffi</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::{<span class='ident'>CStr</span>, <span class='ident'>CString</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::<span class='ident'>null</span>;
-
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_error_msg_env</span>(<span class='ident'>env</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBenv</span>) <span class='op'>-&gt;</span> <span class='ident'>String</span> { <span class='kw'>unsafe</span> { <span class='ident'>from_c_str</span>(<span class='ident'>ffi</span>::<span class='ident'>GRBgeterrormsg</span>(<span class='ident'>env</span>)) } }
 
 <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_c_str</span>(<span class='ident'>s</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>ffi</span>::<span class='ident'>c_char</span>) <span class='op'>-&gt;</span> <span class='ident'>String</span> { <span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>s</span>).<span class='ident'>to_string_lossy</span>().<span class='ident'>into_owned</span>() }
 
