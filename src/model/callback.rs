@@ -35,23 +35,23 @@ pub mod exports {
   /// Name of integer attributes in callback
   #[derive(Debug, Copy, Clone)]
   pub enum WhatInt {
-    Pre_ColDel = 1000,
-    Pre_RowDel = 1001,
-    Pre_SenChg = 1002,
-    Pre_BndChg = 1003,
-    Pre_CoeChg = 1004,
+    PreSolve_ColDel = 1000,
+    PreSolve_RowDel = 1001,
+    PreSolve_SenChg = 1002,
+    PreSolve_BndChg = 1003,
+    PreSolve_CoeChg = 1004,
 
-    Spx_IsPert = 2004,
+    Simplex_IsPert = 2004,
 
     MIP_SolCnt = 3003,
     MIP_CutCnt = 3004,
 
     MIPSol_SolCnt = 4001,
 
-    MIP_NodeStatus = 5001,
-    MIP_NodeSolCnt = 5006,
+    MIPNode_Status = 5001,
+    MIPNode_SolCnt = 5006,
 
-    BarrierItrCnt = 7001
+    Barrier_ItrCnt = 7001
   }
 
   /// Name of floating attributes in callback
@@ -59,10 +59,10 @@ pub mod exports {
   pub enum WhatDouble {
     Runtime = 6001,
 
-    Spx_ItrCnt = 2000,
-    Spx_ObjVal = 2001,
-    Spx_PrimInf = 2002,
-    Spx_DualInf = 2003,
+    Simplex_ItrCnt = 2000,
+    Simplex_ObjVal = 2001,
+    Simplex_PrimInf = 2002,
+    Simplex_DualInf = 2003,
 
     MIP_ObjBst = 3000,
     MIP_ObjBnd = 3001,

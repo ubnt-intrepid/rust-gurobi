@@ -18,31 +18,32 @@ fn main() {
     let mut lastiter = 0;
     let mut lastnode = 0;
 
+    use gurobi::callback::*;
     move |ctx: Context| {
       let vars: Vec<_> = ctx.get_vars().cloned().collect();
       match ctx.get_where() {
-        callback::Polling => {
+        Polling => {
           // Ignore polling callback
         }
 
-        callback::PreSolve => {
-          let cdels = try!(ctx.get_what(callback::Pre_ColDel));
-          let rdels = try!(ctx.get_what(callback::Pre_RowDel));
+        PreSolve => {
+          let cdels = try!(ctx.get_what(PreSolve_ColDel));
+          let rdels = try!(ctx.get_what(PreSolve_RowDel));
           if cdels > 0 || rdels > 0 {
             println!("{} columns and {} rows are removed.", cdels, rdels);
           }
         }
 
-        callback::Simplex => {
-          let itcnt = try!(ctx.get_what(callback::Spx_ItrCnt)) as i64;
+        Simplex => {
+          let itcnt = try!(ctx.get_what(Simplex_ItrCnt)) as i64;
           if itcnt - lastiter >= 100 {
             lastiter = itcnt;
 
-            let obj = try!(ctx.get_what(callback::Spx_ObjVal));
-            let pinf = try!(ctx.get_what(callback::Spx_PrimInf));
-            let dinf = try!(ctx.get_what(callback::Spx_DualInf));
+            let obj = try!(ctx.get_what(Simplex_ObjVal));
+            let pinf = try!(ctx.get_what(Simplex_PrimInf));
+            let dinf = try!(ctx.get_what(Simplex_DualInf));
 
-            let ispert = try!(ctx.get_what(callback::Spx_IsPert));
+            let ispert = try!(ctx.get_what(Simplex_IsPert));
             let ch = match ispert {
               0 => ' ',
               1 => 'S',
@@ -53,18 +54,18 @@ fn main() {
           }
         }
 
-        callback::MIP => {
-          let nodecnt = try!(ctx.get_what(callback::MIP_NodCnt)) as i64;
-          let objbst = try!(ctx.get_what(callback::MIP_ObjBst));
-          let objbnd = try!(ctx.get_what(callback::MIP_ObjBnd));
-          let solcnt = try!(ctx.get_what(callback::MIP_SolCnt));
+        MIP => {
+          let nodecnt = try!(ctx.get_what(MIP_NodCnt)) as i64;
+          let objbst = try!(ctx.get_what(MIP_ObjBst));
+          let objbnd = try!(ctx.get_what(MIP_ObjBnd));
+          let solcnt = try!(ctx.get_what(MIP_SolCnt));
 
           if nodecnt - lastnode >= 100 {
             lastnode = nodecnt;
 
-            let actnodes = try!(ctx.get_what(callback::MIP_NodLeft));
-            let itcnt = try!(ctx.get_what(callback::MIP_ItrCnt));
-            let cutcnt = try!(ctx.get_what(callback::MIP_CutCnt));
+            let actnodes = try!(ctx.get_what(MIP_NodLeft));
+            let itcnt = try!(ctx.get_what(MIP_ItrCnt));
+            let cutcnt = try!(ctx.get_what(MIP_CutCnt));
             println!("{} {} {} {} {} {} {}",
                      nodecnt,
                      actnodes,
@@ -86,10 +87,10 @@ fn main() {
           }
         }
 
-        callback::MIPSol => {
-          let nodecnt = try!(ctx.get_what(callback::MIPSol_NodCnt)) as i64;
-          let obj = try!(ctx.get_what(callback::MIPSol_Obj));
-          let solcnt = try!(ctx.get_what(callback::MIPSol_SolCnt)) as i64;
+        MIPSol => {
+          let nodecnt = try!(ctx.get_what(MIPSol_NodCnt)) as i64;
+          let obj = try!(ctx.get_what(MIPSol_Obj));
+          let solcnt = try!(ctx.get_what(MIPSol_SolCnt)) as i64;
 
           let x = try!(ctx.get_solution(vars.as_slice()));
           println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
@@ -99,19 +100,18 @@ fn main() {
                    x[0]);
         }
 
-        callback::MIPNode => {
+        MIPNode => {
           println!("**** New node ****");
-          if Status::from(try!(ctx.get_what(callback::MIP_NodeStatus))) == Status::Optimal {
+          if Status::from(try!(ctx.get_what(MIPNode_Status))) == Status::Optimal {
             let x = try!(ctx.get_node_rel(vars.as_slice()));
             try!(ctx.set_solution(x.as_slice()));
           }
         }
 
-        callback::Barrier => (),
+        Barrier => (),
 
-        callback::Message => {
-          let msg = try!(ctx.get_msg_string());
-          println!("{}", msg);
+        Message => {
+          println!("{}", try!(ctx.get_msg_string()));
         }
       }
       Ok(())
