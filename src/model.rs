@@ -636,8 +636,7 @@ impl<'a> Context<'a> {
   }
 
   pub fn get_array(&self, what: callback::WhatDoubleArray) -> Result<Vec<f64>> {
-    let mut buf = Vec::with_capacity(self.ncols);
-    buf.resize(self.ncols, 0.0);
+    let mut buf = vec![self.ncols; 0.0];
     let error = unsafe {
       ffi::GRBcbget(self.cbdata,
                     self.loc.clone().into(),
@@ -941,8 +940,7 @@ impl<'a> Model<'a> {
       lbs.push(lb);
       ubs.push(ub);
     }
-    let mut objs = Vec::with_capacity(vtypes.len());
-    objs.resize(vtypes.len(), 0.0);
+    let mut objs = vec![vtypes.len(); 0.0];
 
     try!(self.check_apicall(unsafe {
       ffi::GRBaddvars(self.model,
