@@ -8,14 +8,15 @@ use gurobi::*;
 
 
 fn main() {
-  let mut env = Env::new("callback.rs").unwrap();
+  let mut env = Env::new("callback.log").unwrap();
   env.set(param::OutputFlag, 0).unwrap();
-  env.set(param::Heuristics, 0.0);
+  env.set(param::Heuristics, 0.0).unwrap();
 
   let mut model = env.read_model(&std::env::args().nth(1).unwrap()).unwrap();
 
   let callback = {
     let mut lastiter = 0;
+
     |ctx: Context| -> gurobi::Result<()> {
       let vars: Vec<_> = ctx.get_vars().collect();
       match ctx.get_where() {
