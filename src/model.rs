@@ -926,20 +926,20 @@ impl<'a> Model<'a> {
   /// add decision variables into the model.
   pub fn add_vars(&mut self, names: &[&str], vtypes: &[VarType]) -> Result<Vec<Var>> {
     if names.len() != vtypes.len() {
-        return Err(Error::InconsitentDims);
+      return Err(Error::InconsitentDims);
     }
 
     let mut _vtypes = Vec::with_capacity(vtypes.len());
+    let mut _names = Vec::with_capacity(vtypes.len());
     let mut lbs = Vec::with_capacity(vtypes.len());
     let mut ubs = Vec::with_capacity(vtypes.len());
-    let mut _names = Vec::with_capacity(vtypes.len());
-    for (&name, &vtype) in Zip::new((names, vtypes)) { 
-        let (vtype, lb, ub) = vtype.into();
-        let name = try!(CString::new(name));
-        _vtypes.push(vtype);
-        lbs.push(lb);
-        ubs.push(ub);
-        _names.push(name.as_ptr());
+    for (&name, &vtype) in Zip::new((names, vtypes)) {
+      let (vtype, lb, ub) = vtype.into();
+      let name = try!(CString::new(name));
+      _vtypes.push(vtype);
+      _names.push(name.as_ptr());
+      lbs.push(lb);
+      ubs.push(ub);
     }
     let mut objs = Vec::with_capacity(vtypes.len());
     objs.resize(vtypes.len(), 0.0);
@@ -947,21 +947,21 @@ impl<'a> Model<'a> {
     try!(self.check_apicall(unsafe {
       ffi::GRBaddvars(self.model,
                       _names.len() as ffi::c_int,
-                     0,
-                     null(),
-                     null(),
-                     null(),
-                     objs.as_ptr(),
-                     lbs.as_ptr(),
-                     ubs.as_ptr(),
-                     _vtypes.as_ptr(),
-                     _names.as_ptr())
+                      0,
+                      null(),
+                      null(),
+                      null(),
+                      objs.as_ptr(),
+                      lbs.as_ptr(),
+                      ubs.as_ptr(),
+                      _vtypes.as_ptr(),
+                      _names.as_ptr())
     }));
 
     let xcols = self.vars.len();
     let cols = self.vars.len() + _names.len();
     for col_no in xcols..cols {
-        self.vars.push(Var::new(col_no as i32));
+      self.vars.push(Var::new(col_no as i32));
     }
 
     Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -985,6 +985,44 @@ impl<'a> Model<'a> {
     self.constrs.push(Constr::new(row_no));
 
     Ok(self.constrs.last().cloned().unwrap())
+  }
+
+  /// add linear constraints to the model.
+  pub fn add_constrs(&mut self, name: &[&str], expr: &[LinExpr], sense: &[ConstrSense], rhs: &[f64])
+                     -> Result<Vec<Constr>> {
+
+    let mut constrnames = Vec::with_capacity(name.len());
+    for &s in name.iter() {
+      let name = try!(CString::new(s));
+      constrnames.push(name.as_ptr());
+    }
+
+    let sense = sense.iter().map(|&s| s.into()).collect_vec();
+    let rhs = Zip::new((rhs, expr)).map(|(rhs, expr)| rhs - expr.offset).collect_vec();
+
+    let beg = Vec::with_capacity(name.len());
+    let ind = Vec::with_capacity(name.len());
+    let val = Vec::with_capacity(name.len());
+
+    try!(self.check_apicall(unsafe {
+      ffi::GRBaddconstrs(self.model,
+                         constrnames.len() as ffi::c_int,
+                         beg.len() as ffi::c_int,
+                         beg.as_ptr(),
+                         ind.as_ptr(),
+                         val.as_ptr(),
+                         sense.as_ptr(),
+                         rhs.as_ptr(),
+                         constrnames.as_ptr())
+    }));
+
+    let xrows = self.constrs.len();
+    let rows = self.constrs.len() + constrnames.len();
+    for row_no in xrows..rows {
+      self.constrs.push(Constr::new(row_no as i32));
+    }
+
+    Ok(self.constrs[xrows..].iter().cloned().collect_vec())
   }
 
   /// add a quadratic constraint to the model.
