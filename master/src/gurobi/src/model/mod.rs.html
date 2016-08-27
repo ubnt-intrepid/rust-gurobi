@@ -1399,7 +1399,7 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>Cell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::<span class='ident'>Iter</span>;
 
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::<span class='ident'>Context</span>;
+<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::{<span class='ident'>Context</span>, <span class='ident'>New</span>};
 <span class='kw'>use</span> <span class='ident'>env</span>::{<span class='ident'>Env</span>, <span class='ident'>FromRaw</span>, <span class='ident'>ErrorFromAPI</span>};
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 <span class='kw'>use</span> <span class='ident'>util</span>;
@@ -1871,7 +1871,7 @@
   }
 
   <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>callback</span>) <span class='op'>=</span> <span class='ident'>themodel</span>.<span class='ident'>callback</span> {
-    <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>callback</span>::<span class='ident'>Context</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='kw-2'>&amp;</span><span class='ident'>themodel</span>);
+    <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>Context</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='kw-2'>&amp;</span><span class='ident'>themodel</span>);
     <span class='kw'>match</span> <span class='ident'>callback</span>(<span class='ident'>context</span>) {
       <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> <span class='number'>0</span>,
       <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>1</span>,
