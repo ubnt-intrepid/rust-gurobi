@@ -899,7 +899,7 @@ impl<'a> Model<'a> {
   }
 
 
-  /// add a decision variable into the model.
+  /// add a decision variable to the model.
   pub fn add_var(&mut self, name: &str, vtype: VarType) -> Result<Var> {
     // extract parameters
     let (vtype, lb, ub) = vtype.into();
@@ -923,7 +923,7 @@ impl<'a> Model<'a> {
     Ok(self.vars.last().cloned().unwrap())
   }
 
-  /// add decision variables into the model.
+  /// add decision variables to the model.
   pub fn add_vars(&mut self, names: &[&str], vtypes: &[VarType]) -> Result<Vec<Var>> {
     if names.len() != vtypes.len() {
       return Err(Error::InconsitentDims);
@@ -990,7 +990,6 @@ impl<'a> Model<'a> {
   /// add linear constraints to the model.
   pub fn add_constrs(&mut self, name: &[&str], expr: &[LinExpr], sense: &[ConstrSense], rhs: &[f64])
                      -> Result<Vec<Constr>> {
-
     let mut constrnames = Vec::with_capacity(name.len());
     for &s in name.iter() {
       let name = try!(CString::new(s));
@@ -1000,9 +999,20 @@ impl<'a> Model<'a> {
     let sense = sense.iter().map(|&s| s.into()).collect_vec();
     let rhs = Zip::new((rhs, expr)).map(|(rhs, expr)| rhs - expr.offset).collect_vec();
 
-    let beg = Vec::with_capacity(name.len());
-    let ind = Vec::with_capacity(name.len());
-    let val = Vec::with_capacity(name.len());
+    let mut beg = Vec::with_capacity(expr.len());
+
+    let numnz = expr.iter().map(|expr| expr.vars.len()).sum();
+    let mut ind = Vec::with_capacity(numnz);
+    let mut val = Vec::with_capacity(numnz);
+
+    for expr in expr.iter() {
+      let nz = ind.len();
+      let vars = expr.vars.iter().map(|e| e.index()).collect_vec();
+
+      beg.push(nz as i32);
+      ind.extend(vars);
+      val.extend(&expr.coeff);
+    }
 
     try!(self.check_apicall(unsafe {
       ffi::GRBaddconstrs(self.model,
