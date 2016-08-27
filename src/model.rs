@@ -1033,7 +1033,14 @@ impl<'a> Model<'a> {
     Ok(self.constrs[xrows..].iter().cloned().collect_vec())
   }
 
+  /// Add a range constraint to the model.
   ///
+  /// This operation adds a decision variable with lower/upper bound, and a linear
+  /// equality constraint which states that the value of variable must equal to `expr`.
+  ///
+  /// # Returns
+  /// * An decision variable associated with the model. It has lower/upper bound constraints.
+  /// * An linear equality constraint associated with the model.
   pub fn add_range(&mut self, name: &str, expr: LinExpr, lb: f64, ub: f64) -> Result<(Var, Constr)> {
     let constrname = try!(CString::new(name));
     try!(self.check_apicall(unsafe {
@@ -1055,7 +1062,7 @@ impl<'a> Model<'a> {
     Ok((self.vars.last().cloned().unwrap(), self.constrs.last().cloned().unwrap()))
   }
 
-  ///
+  /// Add range constraints to the model.
   pub fn add_ranges(&mut self, names: &[&str], expr: &[LinExpr], lb: &[f64], ub: &[f64])
                     -> Result<(Vec<Var>, Vec<Constr>)> {
 
