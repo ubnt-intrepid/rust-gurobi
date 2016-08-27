@@ -183,6 +183,7 @@ impl<'a> Context<'a> {
   /// a
   pub fn get_node_rel(&self, vars: &[Var]) -> Result<Vec<f64>> {
     const MIPNODE_REL: i32 = 5002;
+    // memo: only MIPNode && status == Optimal
     self.get_double_array(vars, MIPNODE_REL)
   }
 

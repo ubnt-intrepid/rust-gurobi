@@ -85,10 +85,7 @@ fn main() {
         // Currently exploring a MIP node
         MIPNode(status, solcnt, objbst, objbnd, nodecnt) => {
           println!("**** New node ****");
-          if Status::from(status) == Status::Optimal {
-            let x = try!(ctx.get_node_rel(vars.as_slice()));
-            try!(ctx.set_solution(x.as_slice()));
-          }
+          try!(ctx.get_node_rel(vars.as_slice()).map(|x| ctx.set_solution(x.as_slice())));
         }
 
         // Currently in barrier
