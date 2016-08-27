@@ -3,19 +3,16 @@
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
 
+use ffi;
+use itertools::Itertools;
+
 use std::ops::Deref;
 use std::mem::transmute;
-use super::super::ffi;
-
-use model::Model;
-use error::{Error, Result};
 use std::ptr::null;
+
+use error::{Error, Result};
+use model::{Model, Var, LinExpr, ConstrSense, ProxyBase};
 use util;
-use model::Var;
-use model::LinExpr;
-use model::ConstrSense;
-use model::ProxyBase;
-use itertools::Itertools;
 
 
 /// Defines callback codes. See also
@@ -113,7 +110,6 @@ impl From<i32> for Where {
 impl Into<i32> for Where {
   fn into(self) -> i32 { self as i32 }
 }
-
 
 impl Into<i32> for WhatInt {
   fn into(self) -> i32 { self as i32 }

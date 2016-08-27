@@ -6,8 +6,8 @@
 pub mod attr;
 pub mod callback;
 
-use super::ffi;
-use super::itertools::{Itertools, Zip};
+use ffi;
+use itertools::{Itertools, Zip};
 
 use std::ffi::CString;
 use std::iter;
