@@ -133,19 +133,19 @@ impl What for WhatDouble {
 /// a
 pub struct Context<'a> {
   cbdata: *mut ffi::c_void,
-  where_: Where,
+  where_: i32,
   model: &'a Model<'a>
 }
 
 impl<'a> Context<'a> {
   /// a
-  pub fn get_where(&self) -> Where { self.where_ }
+  pub fn get_where(&self) -> Where { 
+      match self.where_ {
+      0 => ...,
+      }
+  }
 
-  /// a
-  pub fn get_model(&self) -> &Model { self.model }
-
-  /// a
-  pub fn get_what<C: What>(&self, what: C) -> Result<C::Out> {
+  fn get_int(&self, what: WhatInt) -> Result<i32> {
     let mut buf = C::Buf::default();
     self.check_apicall(unsafe {
         ffi::GRBcbget(self.cbdata,
@@ -156,8 +156,18 @@ impl<'a> Context<'a> {
       .and(Ok(buf.into()))
   }
 
-  /// a
-  pub fn get_msg_string(&self) -> Result<String> {
+  fn get_double(&self, what: WhatDouble) -> Result<f64> {
+    let mut buf = C::Buf::default();
+    self.check_apicall(unsafe {
+        ffi::GRBcbget(self.cbdata,
+                      self.where_.clone().into(),
+                      what.into(),
+                      transmute(&mut buf))
+      })
+      .and(Ok(buf.into()))
+  }
+
+  fn get_msg_string(&self) -> Result<String> {
     const MSG_STRING: i32 = 6002;
 
     let mut buf = null();

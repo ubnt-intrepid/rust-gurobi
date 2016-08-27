@@ -92,7 +92,9 @@ fn main() {
         }
 
         // Currently in barrier
-        Barrier(itcnt, pobj, dobj, pinf, dinf, compl) => (),
+        Barrier(itcnt, pobj, dobj, pinf, dinf, compl) => {
+          println!("{} {} {} {} {} {}", itcnt, pobj, dobj, pinf, dinf, compl);
+        }
 
         // Printing a log message
         Message(message) => {
