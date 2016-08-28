@@ -29,8 +29,11 @@ fn main() {
 
         // Currently performing presolve
         PreSolve { coldel, rowdel, .. } => {
+          println!("@PreSolve");
           if coldel > 0 || rowdel > 0 {
-            println!("{} columns and {} rows are removed.", coldel, rowdel);
+            println!("**** {} columns and {} rows are removed. ****",
+                     coldel,
+                     rowdel);
           }
         }
 
@@ -43,7 +46,12 @@ fn main() {
               1 => 'S',
               _ => 'P'
             };
-            println!("{} {}{} {} {}", itrcnt, objval, ch, priminf, dualinf);
+            println!("@Simplex: itrcnt={}, objval={}{}, priminf={}, dualinf={}.",
+                     itrcnt,
+                     objval,
+                     ch,
+                     priminf,
+                     dualinf);
           }
         }
 
@@ -51,7 +59,7 @@ fn main() {
         MIP { solcnt, cutcnt, objbst, objbnd, nodcnt, nodleft: actnodes, itrcnt } => {
           if nodcnt - lastnode >= 100.0 {
             lastnode = nodcnt;
-            println!("{} {} {} {} {} {} {}",
+            println!("@MIP: nodcnt={}, actnodes={}, itrcnt={}, objbst={}, objbnd={}, solcnt={}, cutcnt={}.",
                      nodcnt,
                      actnodes,
                      itrcnt,
@@ -74,6 +82,7 @@ fn main() {
 
         // Found a new MIP incumbent
         MIPSol { solcnt, obj, nodcnt, .. } => {
+          println!("@MIPSol: ");
           let x = try!(ctx.get_solution(vars.as_slice()));
           println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
                    nodcnt,
@@ -84,19 +93,27 @@ fn main() {
 
         // Currently exploring a MIP node
         MIPNode { .. } => {
-          println!("**** New node ****");
+          println!("@MIPNode");
+          println!("**** NEW NODE! ****");
           let x = try!(ctx.get_node_rel(vars.as_slice()));
+          println!("  relaxed solution = {:?}", x);
           try!(ctx.set_solution(vars.as_slice(), x.as_slice()));
         }
 
         // Currently in barrier
         Barrier { itrcnt, primobj, dualobj, priminf, dualinf, compl } => {
-          println!("{} {} {} {} {} {}", itrcnt, primobj, dualobj, priminf, dualinf, compl);
+          println!("@Barrier: itrcnt={}, primobj={}, dualobj={}, priminf={}, dualinf={}, compl={}.",
+                   itrcnt,
+                   primobj,
+                   dualobj,
+                   priminf,
+                   dualinf,
+                   compl);
         }
 
         // Printing a log message
         Message(message) => {
-          println!("{}", message);
+          println!("@Message: message = {}", message);
         }
       }
 
