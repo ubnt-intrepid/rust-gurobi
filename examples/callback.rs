@@ -35,26 +35,26 @@ fn main() {
         }
 
         // Currently in simplex
-        Simplex { ispert, itrcnt: itcnt, objval: obj, priminf: pinf, dualinf: dinf } => {
-          if itcnt - lastiter >= 100.0 {
-            lastiter = itcnt;
+        Simplex { ispert, itrcnt, objval, priminf, dualinf } => {
+          if itrcnt - lastiter >= 100.0 {
+            lastiter = itrcnt;
             let ch = match ispert {
               0 => ' ',
               1 => 'S',
               _ => 'P'
             };
-            println!("{} {}{} {} {}", itcnt, obj, ch, pinf, dinf);
+            println!("{} {}{} {} {}", itrcnt, objval, ch, priminf, dualinf);
           }
         }
 
         // Currently in MIP
-        MIP { solcnt, cutcnt, objbst, objbnd, nodcnt: nodecnt, nodleft: actnodes, itrcnt: itcnt } => {
-          if nodecnt - lastnode >= 100.0 {
-            lastnode = nodecnt;
+        MIP { solcnt, cutcnt, objbst, objbnd, nodcnt, nodleft: actnodes, itrcnt } => {
+          if nodcnt - lastnode >= 100.0 {
+            lastnode = nodcnt;
             println!("{} {} {} {} {} {} {}",
-                     nodecnt,
+                     nodcnt,
                      actnodes,
-                     itcnt,
+                     itrcnt,
                      objbst,
                      objbnd,
                      solcnt,
@@ -66,17 +66,17 @@ fn main() {
             ctx.terminate();
           }
 
-          if nodecnt >= 10000.0 && solcnt != 0.0 {
+          if nodcnt >= 10000.0 && solcnt != 0.0 {
             println!("Stop early - 10000 nodes explored");
             ctx.terminate();
           }
         }
 
         // Found a new MIP incumbent
-        MIPSol { solcnt, obj, nodcnt: nodecnt, .. } => {
+        MIPSol { solcnt, obj, nodcnt, .. } => {
           let x = try!(ctx.get_solution(vars.as_slice()));
           println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
-                   nodecnt,
+                   nodcnt,
                    obj,
                    solcnt,
                    x[0]);
@@ -90,8 +90,8 @@ fn main() {
         }
 
         // Currently in barrier
-        Barrier { itrcnt: itcnt, primobj: pobj, dualobj: dobj, priminf: pinf, dualinf: dinf, compl } => {
-          println!("{} {} {} {} {} {}", itcnt, pobj, dobj, pinf, dinf, compl);
+        Barrier { itrcnt, primobj, dualobj, priminf, dualinf, compl } => {
+          println!("{} {} {} {} {} {}", itrcnt, primobj, dualobj, priminf, dualinf, compl);
         }
 
         // Printing a log message

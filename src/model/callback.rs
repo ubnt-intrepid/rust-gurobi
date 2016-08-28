@@ -215,61 +215,61 @@ impl<'a> New<'a> for Callback<'a> {
       POLLING => Where::Polling,
       PRESOLVE => {
         Where::PreSolve {
-          coldel: try!(callback.get_int(where_, PRE_COLDEL)),
-          rowdel: try!(callback.get_int(where_, PRE_ROWDEL)),
-          senchg: try!(callback.get_int(where_, PRE_SENCHG)),
-          bndchg: try!(callback.get_int(where_, PRE_BNDCHG)),
-          coecfg: try!(callback.get_int(where_, PRE_COECHG))
+          coldel: try!(callback.get_int(PRESOLVE, PRE_COLDEL)),
+          rowdel: try!(callback.get_int(PRESOLVE, PRE_ROWDEL)),
+          senchg: try!(callback.get_int(PRESOLVE, PRE_SENCHG)),
+          bndchg: try!(callback.get_int(PRESOLVE, PRE_BNDCHG)),
+          coecfg: try!(callback.get_int(PRESOLVE, PRE_COECHG))
         }
       }
 
       SIMPLEX => {
         Where::Simplex {
-          itrcnt: try!(callback.get_double(where_, SPX_ITRCNT)),
-          objval: try!(callback.get_double(where_, SPX_OBJVAL)),
-          priminf: try!(callback.get_double(where_, SPX_PRIMINF)),
-          dualinf: try!(callback.get_double(where_, SPX_DUALINF)),
-          ispert: try!(callback.get_int(where_, SPX_ISPERT))
+          itrcnt: try!(callback.get_double(SIMPLEX, SPX_ITRCNT)),
+          objval: try!(callback.get_double(SIMPLEX, SPX_OBJVAL)),
+          priminf: try!(callback.get_double(SIMPLEX, SPX_PRIMINF)),
+          dualinf: try!(callback.get_double(SIMPLEX, SPX_DUALINF)),
+          ispert: try!(callback.get_int(SIMPLEX, SPX_ISPERT))
         }
       }
       MIP => {
         Where::MIP {
-          objbst: try!(callback.get_double(where_, MIP_OBJBST)),
-          objbnd: try!(callback.get_double(where_, MIP_OBJBND)),
-          nodcnt: try!(callback.get_double(where_, MIP_NODCNT)),
-          solcnt: try!(callback.get_double(where_, MIP_SOLCNT)),
-          cutcnt: try!(callback.get_int(where_, MIP_CUTCNT)),
-          nodleft: try!(callback.get_double(where_, MIP_NODLFT)),
-          itrcnt: try!(callback.get_double(where_, MIP_ITRCNT))
+          objbst: try!(callback.get_double(MIP, MIP_OBJBST)),
+          objbnd: try!(callback.get_double(MIP, MIP_OBJBND)),
+          nodcnt: try!(callback.get_double(MIP, MIP_NODCNT)),
+          solcnt: try!(callback.get_double(MIP, MIP_SOLCNT)),
+          cutcnt: try!(callback.get_int(MIP, MIP_CUTCNT)),
+          nodleft: try!(callback.get_double(MIP, MIP_NODLFT)),
+          itrcnt: try!(callback.get_double(MIP, MIP_ITRCNT))
         }
       }
       MIPSOL => {
         Where::MIPSol {
-          obj: 0.0,
-          objbst: 0.0,
-          objbnd: 0.0,
-          nodcnt: 0.0,
-          solcnt: 0.0
+          obj: try!(callback.get_double(MIPSOL, MIPSOL_OBJ)),
+          objbst: try!(callback.get_double(MIPSOL, MIPSOL_OBJBST)),
+          objbnd: try!(callback.get_double(MIPSOL, MIPSOL_OBJBND)),
+          nodcnt: try!(callback.get_double(MIPSOL, MIPSOL_NODCNT)),
+          solcnt: try!(callback.get_double(MIPSOL, MIPSOL_SOLCNT)),
         }
       }
       MIPNODE => {
         Where::MIPNode {
-          status: 0,
-          objbst: 0.0,
-          objbnd: 0.0,
-          nodcnt: 0.0,
-          solcnt: 0
+          status: try!(callback.get_int(MIPNODE, MIPNODE_STATUS)),
+          objbst: try!(callback.get_double(MIPNODE, MIPNODE_OBJBST)),
+          objbnd: try!(callback.get_double(MIPNODE, MIPNODE_OBJBND)),
+          nodcnt: try!(callback.get_double(MIPNODE, MIPNODE_NODCNT)),
+          solcnt: try!(callback.get_int(MIPNODE, MIPNODE_SOLCNT)),
         }
       }
       MESSAGE => Where::Message("a".to_owned()),
       BARRIER => {
         Where::Barrier {
-          itrcnt: 0,
-          primobj: 0.0,
-          dualobj: 0.0,
-          priminf: 0.0,
-          dualinf: 0.0,
-          compl: 0.0
+          itrcnt: try!(callback.get_int(BARRIER, BARRIER_ITRCNT)),
+          primobj: try!(callback.get_double(BARRIER, BARRIER_PRIMOBJ)),
+          dualobj: try!(callback.get_double(BARRIER, BARRIER_DUALOBJ)),
+          priminf:try!(callback.get_double(BARRIER, BARRIER_PRIMINF)),
+          dualinf: try!(callback.get_double(BARRIER, BARRIER_DUALINF)),
+          compl: try!(callback.get_double(BARRIER, BARRIER_COMPL)),
         }
       }
       _ => panic!("Invalid callback location. {}", where_)
