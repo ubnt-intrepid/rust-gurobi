@@ -484,8 +484,8 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
                                -> ffi::c_int {
 
   let mut usrdata: &mut CallbackData = unsafe { transmute(usrdata) };
-  
-  let callback: &mut FnMut(Context)->Result<()> = usrdata.callback;
+
+  let callback: &mut FnMut(Context) -> Result<()> = usrdata.callback;
   let context = Context::new(cbdata, loc.into(), &usrdata.model);
 
   let ret = callback(context);

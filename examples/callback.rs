@@ -20,7 +20,7 @@ fn main() {
     let vars: Vec<_> = model.get_vars().cloned().collect();
 
     move |ctx: Context| {
-      use gurobi::callback::*;
+      use gurobi::Where::*;
       match ctx.get_where() {
         // Periodic polling callback
         Polling => {
