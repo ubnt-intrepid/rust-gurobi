@@ -113,7 +113,7 @@ fn main() {
 
         // Printing a log message
         Message(message) => {
-          println!("@Message: message = {}", message);
+          println!("@Message: {}", message);
         }
       }
 

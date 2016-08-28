@@ -477,7 +477,6 @@ struct CallbackData<'a> {
   callback: &'a mut FnMut(Callback) -> Result<()>
 }
 
-#[allow(dead_code)]
 #[allow(unused_variables)]
 extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
                                usrdata: *mut ffi::c_void)
@@ -501,7 +500,6 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
   }
 }
 
-#[allow(dead_code)]
 #[allow(unused_variables)]
 extern "C" fn null_callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_void, loc: ffi::c_int,
                                     usrdata: *mut ffi::c_void)

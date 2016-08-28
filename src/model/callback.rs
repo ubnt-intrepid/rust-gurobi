@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
 
-#![allow(dead_code)]
 
 use ffi;
 use itertools::{Itertools, Zip};
@@ -46,6 +45,8 @@ const MIP_SOLCNT: i32 = 3003;
 const MIP_CUTCNT: i32 = 3004;
 const MIP_NODLFT: i32 = 3005;
 const MIP_ITRCNT: i32 = 3006;
+
+#[allow(dead_code)]
 const MIP_OBJBNDC: i32 = 3007;
 
 const MIPSOL_SOL: i32 = 4001;
@@ -54,6 +55,7 @@ const MIPSOL_OBJBST: i32 = 4003;
 const MIPSOL_OBJBND: i32 = 4004;
 const MIPSOL_NODCNT: i32 = 4005;
 const MIPSOL_SOLCNT: i32 = 4006;
+#[allow(dead_code)]
 const MIPSOL_OBJBNDC: i32 = 4007;
 
 const MIPNODE_STATUS: i32 = 5001;
@@ -62,7 +64,9 @@ const MIPNODE_OBJBST: i32 = 5003;
 const MIPNODE_OBJBND: i32 = 5004;
 const MIPNODE_NODCNT: i32 = 5005;
 const MIPNODE_SOLCNT: i32 = 5006;
+#[allow(dead_code)]
 const MIPNODE_BRVAR: i32 = 5007;
+#[allow(dead_code)]
 const MIPNODE_OBJBNDC: i32 = 5008;
 
 const MSG_STRING: i32 = 6001;
@@ -261,7 +265,7 @@ impl<'a> New<'a> for Callback<'a> {
           solcnt: try!(callback.get_int(MIPNODE, MIPNODE_SOLCNT)),
         }
       }
-      MESSAGE => Where::Message("a".to_owned()),
+      MESSAGE => Where::Message(try!(callback.get_string(MESSAGE, MSG_STRING)).trim().to_owned()),
       BARRIER => {
         Where::Barrier {
           itrcnt: try!(callback.get_int(BARRIER, BARRIER_ITRCNT)),
