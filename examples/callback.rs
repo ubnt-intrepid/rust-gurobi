@@ -28,14 +28,14 @@ fn main() {
         }
 
         // Currently performing presolve
-        PreSolve(cdels, rdels, _, _, _, _, _, _, _) => {
-          if cdels > 0 || rdels > 0 {
-            println!("{} columns and {} rows are removed.", cdels, rdels);
+        PreSolve { coldel, rowdel, .. } => {
+          if coldel > 0 || rowdel > 0 {
+            println!("{} columns and {} rows are removed.", coldel, rowdel);
           }
         }
 
         // Currently in simplex
-        Simplex(ispert, itcnt, obj, pinf, dinf) => {
+        Simplex { ispert, itrcnt: itcnt, objval: obj, priminf: pinf, dualinf: dinf } => {
           if itcnt - lastiter >= 100.0 {
             lastiter = itcnt;
             let ch = match ispert {
@@ -48,7 +48,7 @@ fn main() {
         }
 
         // Currently in MIP
-        MIP(solcnt, cutcnt, objbst, objbnd, nodecnt, actnodes, itcnt) => {
+        MIP { solcnt, cutcnt, objbst, objbnd, nodcnt: nodecnt, nodleft: actnodes, itrcnt: itcnt } => {
           if nodecnt - lastnode >= 100.0 {
             lastnode = nodecnt;
             println!("{} {} {} {} {} {} {}",
@@ -66,14 +66,14 @@ fn main() {
             ctx.terminate();
           }
 
-          if nodecnt >= 10000.0 && solcnt != 0 {
+          if nodecnt >= 10000.0 && solcnt != 0.0 {
             println!("Stop early - 10000 nodes explored");
             ctx.terminate();
           }
         }
 
         // Found a new MIP incumbent
-        MIPSol(solcnt, obj, objbst, objbnd, nodecnt) => {
+        MIPSol { solcnt, obj, nodcnt: nodecnt, .. } => {
           let x = try!(ctx.get_solution(vars.as_slice()));
           println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
                    nodecnt,
@@ -83,13 +83,14 @@ fn main() {
         }
 
         // Currently exploring a MIP node
-        MIPNode(status, solcnt, objbst, objbnd, nodecnt) => {
+        MIPNode { .. } => {
           println!("**** New node ****");
-          try!(ctx.get_node_rel(vars.as_slice()).map(|x| ctx.set_solution(x.as_slice())));
+          let x = try!(ctx.get_node_rel(vars.as_slice()));
+          try!(ctx.set_solution(vars.as_slice(), x.as_slice()));
         }
 
         // Currently in barrier
-        Barrier(itcnt, pobj, dobj, pinf, dinf, compl) => {
+        Barrier { itrcnt: itcnt, primobj: pobj, dualobj: dobj, priminf: pinf, dualinf: dinf, compl } => {
           println!("{} {} {} {} {} {}", itcnt, pobj, dobj, pinf, dinf, compl);
         }
 

@@ -6,7 +6,7 @@
 #![allow(dead_code)]
 
 use ffi;
-use itertools::{Itertools,Zip};
+use itertools::{Itertools, Zip};
 
 use std::mem::transmute;
 use std::ops::Deref;
@@ -78,27 +78,114 @@ const BARRIER_COMPL: i32 = 7006;
 
 #[derive(Debug, Clone)]
 pub enum Where {
+  /// b
   Polling,
-  PreSolve(i32),
-  Simplex(i32),
-  MIP(i32),
-  MIPSol(i32),
-  MIPNode(i32),
+
+  /// a
+  PreSolve {
+    /// The number of columns removed by presolve to this point.
+    coldel: i32,
+    /// The number of rows removed by presolve to this point.
+    rowdel: i32,
+    /// The number of constraint senses changed by presolve to this point.
+    senchg: i32,
+    /// The number of variable bounds changed by presolve to this point.
+    bndchg: i32,
+    /// The number of coefficients changed by presolve to this point.
+    coecfg: i32
+  },
+
+  /// c
+  Simplex {
+    /// Current simplex iteration count.
+    itrcnt: f64,
+    /// Current simplex objective value.
+    objval: f64,
+    /// Current primal infeasibility.
+    priminf: f64,
+    /// Current dual infeasibility.
+    dualinf: f64,
+    /// Is problem current perturbed?
+    ispert: i32
+  },
+
+  /// d
+  MIP {
+    /// Current best objective.
+    objbst: f64,
+    /// Current best objective bound.
+    objbnd: f64,
+    /// Current explored node count.
+    nodcnt: f64,
+    /// Current count of feasible solutions found.
+    solcnt: f64,
+    /// Current count of cutting planes applied.
+    cutcnt: i32,
+    /// Current unexplored node count.
+    nodleft: f64,
+    /// Current simplex iteration count.
+    itrcnt: f64
+  },
+
+  /// e
+  MIPSol {
+    /// Objective value for new solution.
+    obj: f64,
+    /// Current best objective.
+    objbst: f64,
+    /// Current best objective bound.
+    objbnd: f64,
+    /// Current explored node count.
+    nodcnt: f64,
+    /// Current count of feasible solutions found.
+    solcnt: f64
+  },
+
+  /// f
+  MIPNode {
+    /// Optimization status of current MIP node (see the Status Code section for further information).
+    status: i32,
+    /// Current best objective.
+    objbst: f64,
+    /// Current best objective bound.
+    objbnd: f64,
+    /// Current explored node count.
+    nodcnt: f64,
+    /// Current count of feasible solutions found.
+    solcnt: i32
+  },
+
+  /// f
   Message(String),
-  Barrier(i32)
+
+  /// d
+  Barrier {
+    /// Current barrier iteration count.
+    itrcnt: i32,
+    /// Primal objective value for current barrier iterate.
+    primobj: f64,
+    /// Dual objective value for current barrier iterate.
+    dualobj: f64,
+    /// Primal infeasibility for current barrier iterate.
+    priminf: f64,
+    /// Dual infeasibility for current barrier iterate.
+    dualinf: f64,
+    /// Complementarity violation for current barrier iterate.
+    compl: f64
+  }
 }
 
 impl Into<i32> for Where {
   fn into(self) -> i32 {
     match self {
       Where::Polling => POLLING,
-      Where::PreSolve(_) => PRESOLVE,
-      Where::Simplex(_) => SIMPLEX,
-      Where::MIP(_) => MIP,
-      Where::MIPSol(_) =>MIPSOL,
-      Where::MIPNode(_) =>MIPNODE,
-      Where::Message(_) =>MESSAGE,
-      Where::Barrier(_) =>BARRIER,
+      Where::PreSolve { .. } => PRESOLVE,
+      Where::Simplex { .. } => SIMPLEX,
+      Where::MIP { .. } => MIP,
+      Where::MIPSol { .. } => MIPSOL,
+      Where::MIPNode { .. } => MIPNODE,
+      Where::Message(_) => MESSAGE,
+      Where::Barrier { .. } => BARRIER,
     }
   }
 }
@@ -113,28 +200,83 @@ pub struct Callback<'a> {
 
 
 pub trait New<'a> {
-  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Callback<'a>;
+  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Result<Callback<'a>>;
 }
 
 impl<'a> New<'a> for Callback<'a> {
-  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Callback<'a> {
-    let where_ = match where_ {
-      POLLING => Where::Polling,
-      PRESOLVE => Where::PreSolve(0),
-      SIMPLEX => Where::Simplex(0),
-      MIP => Where::MIP(0),
-      MIPSOL => Where::MIPSol(0),
-      MIPNODE => Where::MIPNode(0),
-      MESSAGE => Where::Message("a".to_owned()),
-      BARRIER => Where::Barrier(0),
-      _ => panic!("Invalid callback location. {}", where_),
+  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Result<Callback<'a>> {
+    let mut callback = Callback {
+      cbdata: cbdata,
+      where_: Where::Polling,
+      model: model
     };
 
-    Callback {
-      cbdata: cbdata,
-      where_: where_,
-      model: model
-    }
+    let where_ = match where_ {
+      POLLING => Where::Polling,
+      PRESOLVE => {
+        Where::PreSolve {
+          coldel: try!(callback.get_int(where_, PRE_COLDEL)),
+          rowdel: try!(callback.get_int(where_, PRE_ROWDEL)),
+          senchg: try!(callback.get_int(where_, PRE_SENCHG)),
+          bndchg: try!(callback.get_int(where_, PRE_BNDCHG)),
+          coecfg: try!(callback.get_int(where_, PRE_COECHG))
+        }
+      }
+
+      SIMPLEX => {
+        Where::Simplex {
+          itrcnt: try!(callback.get_double(where_, SPX_ITRCNT)),
+          objval: try!(callback.get_double(where_, SPX_OBJVAL)),
+          priminf: try!(callback.get_double(where_, SPX_PRIMINF)),
+          dualinf: try!(callback.get_double(where_, SPX_DUALINF)),
+          ispert: try!(callback.get_int(where_, SPX_ISPERT))
+        }
+      }
+      MIP => {
+        Where::MIP {
+          objbst: try!(callback.get_double(where_, MIP_OBJBST)),
+          objbnd: try!(callback.get_double(where_, MIP_OBJBND)),
+          nodcnt: try!(callback.get_double(where_, MIP_NODCNT)),
+          solcnt: try!(callback.get_double(where_, MIP_SOLCNT)),
+          cutcnt: try!(callback.get_int(where_, MIP_CUTCNT)),
+          nodleft: try!(callback.get_double(where_, MIP_NODLFT)),
+          itrcnt: try!(callback.get_double(where_, MIP_ITRCNT))
+        }
+      }
+      MIPSOL => {
+        Where::MIPSol {
+          obj: 0.0,
+          objbst: 0.0,
+          objbnd: 0.0,
+          nodcnt: 0.0,
+          solcnt: 0.0
+        }
+      }
+      MIPNODE => {
+        Where::MIPNode {
+          status: 0,
+          objbst: 0.0,
+          objbnd: 0.0,
+          nodcnt: 0.0,
+          solcnt: 0
+        }
+      }
+      MESSAGE => Where::Message("a".to_owned()),
+      BARRIER => {
+        Where::Barrier {
+          itrcnt: 0,
+          primobj: 0.0,
+          dualobj: 0.0,
+          priminf: 0.0,
+          dualinf: 0.0,
+          compl: 0.0
+        }
+      }
+      _ => panic!("Invalid callback location. {}", where_)
+    };
+
+    callback.where_ = where_;
+    Ok(callback)
   }
 }
 
@@ -167,6 +309,15 @@ impl<'a> Callback<'a> {
     }
 
     self.check_apicall(unsafe { ffi::GRBcbsolution(self.cbdata, buf.as_ptr()) })
+  }
+
+  ///
+  pub fn get_runtime(&self) -> Result<f64> {
+    match self.get_where() {
+      Where::Polling => return Err(Error::FromAPI("bad call in callback".to_owned(), 40001)),
+      _ => ()
+    }
+    self.get_double(self.get_where().into(), RUNTIME)
   }
 
   /// Add a new cutting plane to the MIP model.

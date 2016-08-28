@@ -486,7 +486,13 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
   let mut usrdata: &mut CallbackData = unsafe { transmute(usrdata) };
 
   let callback: &mut FnMut(Callback) -> Result<()> = usrdata.callback;
+
   let context = Callback::new(cbdata, loc.into(), &usrdata.model);
+  if context.is_err() {
+    println!("failed to create context: {:?}", context.err().unwrap());
+    return -1;
+  }
+  let context = context.unwrap();
 
   let ret = callback(context);
   match ret {
