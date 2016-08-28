@@ -317,256 +317,490 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
 <span class='comment'>// This software is released under the MIT License.</span>
 <span class='comment'>// See http://opensource.org/licenses/mit-license.php or &lt;LICENSE&gt;.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span>;
+
+<span class='kw'>use</span> <span class='ident'>ffi</span>;
+<span class='kw'>use</span> <span class='ident'>itertools</span>::{<span class='ident'>Itertools</span>, <span class='ident'>Zip</span>};
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>;
-<span class='kw'>use</span> <span class='kw'>super</span>::<span class='kw'>super</span>::<span class='ident'>ffi</span>;
-
-<span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>Model</span>;
-<span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::<span class='ident'>null</span>;
+
+<span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
+<span class='kw'>use</span> <span class='ident'>model</span>::{<span class='ident'>Model</span>, <span class='ident'>Var</span>, <span class='ident'>LinExpr</span>, <span class='ident'>ConstrSense</span>, <span class='ident'>ProxyBase</span>};
 <span class='kw'>use</span> <span class='ident'>util</span>;
-<span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>Var</span>;
-<span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>LinExpr</span>;
-<span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>ConstrSense</span>;
-<span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>ProxyBase</span>;
-<span class='kw'>use</span> <span class='ident'>itertools</span>::<span class='ident'>Itertools</span>;
+
+<span class='comment'>// Location where the callback called.</span>
+<span class='kw'>const</span> <span class='ident'>POLLING</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>0</span>;
+<span class='kw'>const</span> <span class='ident'>PRESOLVE</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1</span>;
+<span class='kw'>const</span> <span class='ident'>SIMPLEX</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2</span>;
+<span class='kw'>const</span> <span class='ident'>MIP</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5</span>;
+<span class='kw'>const</span> <span class='ident'>MESSAGE</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>6</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7</span>;
 
 
-<span class='doccomment'>/// Defines callback codes. See also</span>
-<span class='doccomment'>/// [the reference of official site](https://www.gurobi.com/documentation/6.5/refman/callback_codes.html).</span>
-<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>exports</span> {
-  <span class='doccomment'>/// Location where the callback called.</span>
-  <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-  <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Where</span> {
-    <span class='ident'>Polling</span> <span class='op'>=</span> <span class='number'>0</span>,
-    <span class='ident'>PreSolve</span>,
-    <span class='ident'>Simplex</span>,
-    <span class='ident'>MIP</span>,
-    <span class='ident'>MIPSol</span>,
-    <span class='ident'>MIPNode</span>,
-    <span class='ident'>Message</span>,
-    <span class='ident'>Barrier</span>
-  }
+<span class='kw'>const</span> <span class='ident'>PRE_COLDEL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1000</span>;
+<span class='kw'>const</span> <span class='ident'>PRE_ROWDEL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1001</span>;
+<span class='kw'>const</span> <span class='ident'>PRE_SENCHG</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1002</span>;
+<span class='kw'>const</span> <span class='ident'>PRE_BNDCHG</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1003</span>;
+<span class='kw'>const</span> <span class='ident'>PRE_COECHG</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>1004</span>;
 
-  <span class='doccomment'>/// Name of integer attributes in callback</span>
-  <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-  <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>WhatInt</span> {
-    <span class='ident'>Pre_ColDel</span> <span class='op'>=</span> <span class='number'>1000</span>,
-    <span class='ident'>Pre_RowDel</span> <span class='op'>=</span> <span class='number'>1001</span>,
-    <span class='ident'>Pre_SenChg</span> <span class='op'>=</span> <span class='number'>1002</span>,
-    <span class='ident'>Pre_BndChg</span> <span class='op'>=</span> <span class='number'>1003</span>,
-    <span class='ident'>Pre_CoeChg</span> <span class='op'>=</span> <span class='number'>1004</span>,
+<span class='kw'>const</span> <span class='ident'>SPX_ITRCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2000</span>;
+<span class='kw'>const</span> <span class='ident'>SPX_OBJVAL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2001</span>;
+<span class='kw'>const</span> <span class='ident'>SPX_PRIMINF</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2002</span>;
+<span class='kw'>const</span> <span class='ident'>SPX_DUALINF</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2003</span>;
+<span class='kw'>const</span> <span class='ident'>SPX_ISPERT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>2004</span>;
 
-    <span class='ident'>Spx_IsPert</span> <span class='op'>=</span> <span class='number'>2004</span>,
+<span class='kw'>const</span> <span class='ident'>MIP_OBJBST</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3000</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_OBJBND</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3001</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_NODCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3002</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_SOLCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3003</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_CUTCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3004</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_NODLFT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3005</span>;
+<span class='kw'>const</span> <span class='ident'>MIP_ITRCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3006</span>;
 
-    <span class='ident'>MIP_SolCnt</span> <span class='op'>=</span> <span class='number'>3003</span>,
-    <span class='ident'>MIP_CutCnt</span> <span class='op'>=</span> <span class='number'>3004</span>,
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+<span class='kw'>const</span> <span class='ident'>MIP_OBJBNDC</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3007</span>;
 
-    <span class='ident'>MIPSol_SolCnt</span> <span class='op'>=</span> <span class='number'>4001</span>,
+<span class='kw'>const</span> <span class='ident'>MIPSOL_SOL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4001</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL_OBJ</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4002</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL_OBJBST</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4003</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL_OBJBND</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4004</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL_NODCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4005</span>;
+<span class='kw'>const</span> <span class='ident'>MIPSOL_SOLCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4006</span>;
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+<span class='kw'>const</span> <span class='ident'>MIPSOL_OBJBNDC</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4007</span>;
 
-    <span class='ident'>MIP_NodeStatus</span> <span class='op'>=</span> <span class='number'>5001</span>,
-    <span class='ident'>MIP_NodeSolCnt</span> <span class='op'>=</span> <span class='number'>5006</span>,
+<span class='kw'>const</span> <span class='ident'>MIPNODE_STATUS</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5001</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE_REL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5002</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE_OBJBST</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5003</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE_OBJBND</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5004</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE_NODCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5005</span>;
+<span class='kw'>const</span> <span class='ident'>MIPNODE_SOLCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5006</span>;
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+<span class='kw'>const</span> <span class='ident'>MIPNODE_BRVAR</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5007</span>;
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+<span class='kw'>const</span> <span class='ident'>MIPNODE_OBJBNDC</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5008</span>;
 
-    <span class='ident'>BarrierItrCnt</span> <span class='op'>=</span> <span class='number'>7001</span>
-  }
+<span class='kw'>const</span> <span class='ident'>MSG_STRING</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>6001</span>;
+<span class='kw'>const</span> <span class='ident'>RUNTIME</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>6002</span>;
 
-  <span class='doccomment'>/// Name of floating attributes in callback</span>
-  <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-  <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>WhatDouble</span> {
-    <span class='ident'>Runtime</span> <span class='op'>=</span> <span class='number'>6001</span>,
+<span class='kw'>const</span> <span class='ident'>BARRIER_ITRCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7001</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER_PRIMOBJ</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7002</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER_DUALOBJ</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7003</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER_PRIMINF</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7004</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER_DUALINF</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7005</span>;
+<span class='kw'>const</span> <span class='ident'>BARRIER_COMPL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7006</span>;
 
-    <span class='ident'>Spx_ItrCnt</span> <span class='op'>=</span> <span class='number'>2000</span>,
-    <span class='ident'>Spx_ObjVal</span> <span class='op'>=</span> <span class='number'>2001</span>,
-    <span class='ident'>Spx_PrimInf</span> <span class='op'>=</span> <span class='number'>2002</span>,
-    <span class='ident'>Spx_DualInf</span> <span class='op'>=</span> <span class='number'>2003</span>,
 
-    <span class='ident'>MIP_ObjBst</span> <span class='op'>=</span> <span class='number'>3000</span>,
-    <span class='ident'>MIP_ObjBnd</span> <span class='op'>=</span> <span class='number'>3001</span>,
-    <span class='ident'>MIP_NodCnt</span> <span class='op'>=</span> <span class='number'>3002</span>,
-    <span class='ident'>MIP_NodLeft</span> <span class='op'>=</span> <span class='number'>3005</span>,
-    <span class='ident'>MIP_ItrCnt</span> <span class='op'>=</span> <span class='number'>3006</span>,
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Where</span> {
+  <span class='doccomment'>/// b</span>
+  <span class='ident'>Polling</span>,
 
-    <span class='ident'>MIPSol_Obj</span> <span class='op'>=</span> <span class='number'>4002</span>,
-    <span class='ident'>MIPSol_ObjBst</span> <span class='op'>=</span> <span class='number'>4003</span>,
-    <span class='ident'>MIPSol_ObjBnd</span> <span class='op'>=</span> <span class='number'>4004</span>,
-    <span class='ident'>MIPSol_NodCnt</span> <span class='op'>=</span> <span class='number'>4005</span>,
+  <span class='doccomment'>/// a</span>
+  <span class='ident'>PreSolve</span> {
+    <span class='doccomment'>/// The number of columns removed by presolve to this point.</span>
+    <span class='ident'>coldel</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// The number of rows removed by presolve to this point.</span>
+    <span class='ident'>rowdel</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// The number of constraint senses changed by presolve to this point.</span>
+    <span class='ident'>senchg</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// The number of variable bounds changed by presolve to this point.</span>
+    <span class='ident'>bndchg</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// The number of coefficients changed by presolve to this point.</span>
+    <span class='ident'>coecfg</span>: <span class='ident'>i32</span>
+  },
 
-    <span class='ident'>MIPNode_ObjBst</span> <span class='op'>=</span> <span class='number'>5003</span>,
-    <span class='ident'>MIPNode_ObjBnd</span> <span class='op'>=</span> <span class='number'>5004</span>,
-    <span class='ident'>MIPNode_NodCnt</span> <span class='op'>=</span> <span class='number'>5005</span>,
+  <span class='doccomment'>/// c</span>
+  <span class='ident'>Simplex</span> {
+    <span class='doccomment'>/// Current simplex iteration count.</span>
+    <span class='ident'>itrcnt</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current simplex objective value.</span>
+    <span class='ident'>objval</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current primal infeasibility.</span>
+    <span class='ident'>priminf</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current dual infeasibility.</span>
+    <span class='ident'>dualinf</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Is problem current perturbed?</span>
+    <span class='ident'>ispert</span>: <span class='ident'>i32</span>
+  },
 
-    <span class='ident'>Barrier_PrimObj</span> <span class='op'>=</span> <span class='number'>7002</span>,
-    <span class='ident'>Barrier_DualObj</span> <span class='op'>=</span> <span class='number'>7003</span>,
-    <span class='ident'>Barrier_PrimInf</span> <span class='op'>=</span> <span class='number'>7004</span>,
-    <span class='ident'>Barrier_DualInf</span> <span class='op'>=</span> <span class='number'>7005</span>,
-    <span class='ident'>Barrier_Compl</span> <span class='op'>=</span> <span class='number'>7006</span>
-  }
+  <span class='doccomment'>/// d</span>
+  <span class='ident'>MIP</span> {
+    <span class='doccomment'>/// Current best objective.</span>
+    <span class='ident'>objbst</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current best objective bound.</span>
+    <span class='ident'>objbnd</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current explored node count.</span>
+    <span class='ident'>nodcnt</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current count of feasible solutions found.</span>
+    <span class='ident'>solcnt</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current count of cutting planes applied.</span>
+    <span class='ident'>cutcnt</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// Current unexplored node count.</span>
+    <span class='ident'>nodleft</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current simplex iteration count.</span>
+    <span class='ident'>itrcnt</span>: <span class='ident'>f64</span>
+  },
 
-  <span class='comment'>// re-exports</span>
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>Where</span>::<span class='op'>*</span>;
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>WhatInt</span>::<span class='op'>*</span>;
-  <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>WhatDouble</span>::<span class='op'>*</span>;
-}
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>exports</span>::{<span class='ident'>Where</span>, <span class='ident'>WhatInt</span>, <span class='ident'>WhatDouble</span>};
+  <span class='doccomment'>/// e</span>
+  <span class='ident'>MIPSol</span> {
+    <span class='doccomment'>/// Objective value for new solution.</span>
+    <span class='ident'>obj</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current best objective.</span>
+    <span class='ident'>objbst</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current best objective bound.</span>
+    <span class='ident'>objbnd</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current explored node count.</span>
+    <span class='ident'>nodcnt</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current count of feasible solutions found.</span>
+    <span class='ident'>solcnt</span>: <span class='ident'>f64</span>
+  },
 
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>What</span>: <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> {
-  <span class='kw'>type</span> <span class='ident'>Out</span>;
-  <span class='kw'>type</span> <span class='ident'>Buf</span>: <span class='ident'>Default</span> <span class='op'>+</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='self'>Self</span>::<span class='ident'>Out</span><span class='op'>&gt;</span>;
-}
+  <span class='doccomment'>/// f</span>
+  <span class='ident'>MIPNode</span> {
+    <span class='doccomment'>/// Optimization status of current MIP node (see the Status Code section for further information).</span>
+    <span class='ident'>status</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// Current best objective.</span>
+    <span class='ident'>objbst</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current best objective bound.</span>
+    <span class='ident'>objbnd</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current explored node count.</span>
+    <span class='ident'>nodcnt</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Current count of feasible solutions found.</span>
+    <span class='ident'>solcnt</span>: <span class='ident'>i32</span>
+  },
 
-<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Where</span> {
-  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>val</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>Where</span> {
-    <span class='kw'>match</span> <span class='ident'>val</span> {
-      <span class='number'>0</span>...<span class='number'>7</span> <span class='op'>=&gt;</span> <span class='kw'>unsafe</span> { <span class='ident'>transmute</span>(<span class='ident'>val</span> <span class='kw'>as</span> <span class='ident'>u8</span>) },
-      _ <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;invalid conversion&quot;</span>)
-    }
+  <span class='doccomment'>/// f</span>
+  <span class='ident'>Message</span>(<span class='ident'>String</span>),
+
+  <span class='doccomment'>/// d</span>
+  <span class='ident'>Barrier</span> {
+    <span class='doccomment'>/// Current barrier iteration count.</span>
+    <span class='ident'>itrcnt</span>: <span class='ident'>i32</span>,
+    <span class='doccomment'>/// Primal objective value for current barrier iterate.</span>
+    <span class='ident'>primobj</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Dual objective value for current barrier iterate.</span>
+    <span class='ident'>dualobj</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Primal infeasibility for current barrier iterate.</span>
+    <span class='ident'>priminf</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Dual infeasibility for current barrier iterate.</span>
+    <span class='ident'>dualinf</span>: <span class='ident'>f64</span>,
+    <span class='doccomment'>/// Complementarity violation for current barrier iterate.</span>
+    <span class='ident'>compl</span>: <span class='ident'>f64</span>
   }
 }
 
 <span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Where</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span> <span class='kw'>as</span> <span class='ident'>i32</span> }
+  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
+    <span class='kw'>match</span> <span class='self'>self</span> {
+      <span class='ident'>Where</span>::<span class='ident'>Polling</span> <span class='op'>=&gt;</span> <span class='ident'>POLLING</span>,
+      <span class='ident'>Where</span>::<span class='ident'>PreSolve</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>PRESOLVE</span>,
+      <span class='ident'>Where</span>::<span class='ident'>Simplex</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>SIMPLEX</span>,
+      <span class='ident'>Where</span>::<span class='ident'>MIP</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>MIP</span>,
+      <span class='ident'>Where</span>::<span class='ident'>MIPSol</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>MIPSOL</span>,
+      <span class='ident'>Where</span>::<span class='ident'>MIPNode</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>MIPNODE</span>,
+      <span class='ident'>Where</span>::<span class='ident'>Message</span>(_) <span class='op'>=&gt;</span> <span class='ident'>MESSAGE</span>,
+      <span class='ident'>Where</span>::<span class='ident'>Barrier</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>BARRIER</span>,
+    }
+  }
 }
 
 
-<span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>WhatInt</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span> <span class='kw'>as</span> <span class='ident'>i32</span> }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>WhatDouble</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span> <span class='kw'>as</span> <span class='ident'>i32</span> }
-}
-
-<span class='kw'>impl</span> <span class='ident'>What</span> <span class='kw'>for</span> <span class='ident'>WhatInt</span> {
-  <span class='kw'>type</span> <span class='ident'>Out</span> <span class='op'>=</span> <span class='ident'>i32</span>;
-  <span class='kw'>type</span> <span class='ident'>Buf</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>;
-}
-
-<span class='kw'>impl</span> <span class='ident'>What</span> <span class='kw'>for</span> <span class='ident'>WhatDouble</span> {
-  <span class='kw'>type</span> <span class='ident'>Out</span> <span class='op'>=</span> <span class='ident'>f64</span>;
-  <span class='kw'>type</span> <span class='ident'>Buf</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>c_double</span>;
-}
-
-
-<span class='doccomment'>/// a</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Gurobi callback object</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
   <span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>,
   <span class='ident'>where_</span>: <span class='ident'>Where</span>,
   <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_where</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Where</span> { <span class='self'>self</span>.<span class='ident'>where_</span> }
 
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_model</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Model</span> { <span class='self'>self</span>.<span class='ident'>model</span> }
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>New</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span>;
+}
 
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span><span class='op'>&lt;</span><span class='ident'>C</span>: <span class='ident'>What</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>what</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>C</span>::<span class='ident'>Out</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='ident'>C</span>::<span class='ident'>Buf</span>::<span class='ident'>default</span>();
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
-      <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>,
-                    <span class='self'>self</span>.<span class='ident'>where_</span>.<span class='ident'>clone</span>().<span class='ident'>into</span>(),
-                    <span class='ident'>what</span>.<span class='ident'>into</span>(),
-                    <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buf</span>))
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>New</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>callback</span> <span class='op'>=</span> <span class='ident'>Callback</span> {
+      <span class='ident'>cbdata</span>: <span class='ident'>cbdata</span>,
+      <span class='ident'>where_</span>: <span class='ident'>Where</span>::<span class='ident'>Polling</span>,
+      <span class='ident'>model</span>: <span class='ident'>model</span>
     };
-    <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
-      <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
-    }
-    <span class='prelude-val'>Ok</span>(<span class='ident'>buf</span>.<span class='ident'>into</span>())
-  }
 
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_msg_string</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
-    <span class='kw'>const</span> <span class='ident'>MSG_STRING</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>6002</span>;
+    <span class='kw'>let</span> <span class='ident'>where_</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>where_</span> {
+      <span class='ident'>POLLING</span> <span class='op'>=&gt;</span> <span class='ident'>Where</span>::<span class='ident'>Polling</span>,
+      <span class='ident'>PRESOLVE</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>PreSolve</span> {
+          <span class='ident'>coldel</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>PRESOLVE</span>, <span class='ident'>PRE_COLDEL</span>)),
+          <span class='ident'>rowdel</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>PRESOLVE</span>, <span class='ident'>PRE_ROWDEL</span>)),
+          <span class='ident'>senchg</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>PRESOLVE</span>, <span class='ident'>PRE_SENCHG</span>)),
+          <span class='ident'>bndchg</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>PRESOLVE</span>, <span class='ident'>PRE_BNDCHG</span>)),
+          <span class='ident'>coecfg</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>PRESOLVE</span>, <span class='ident'>PRE_COECHG</span>))
+        }
+      }
 
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='ident'>null</span>();
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
-      <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>,
-                    <span class='self'>self</span>.<span class='ident'>where_</span>.<span class='ident'>clone</span>().<span class='ident'>into</span>(),
-                    <span class='ident'>MSG_STRING</span>,
-                    <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buf</span>))
+      <span class='ident'>SIMPLEX</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>Simplex</span> {
+          <span class='ident'>itrcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>SIMPLEX</span>, <span class='ident'>SPX_ITRCNT</span>)),
+          <span class='ident'>objval</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>SIMPLEX</span>, <span class='ident'>SPX_OBJVAL</span>)),
+          <span class='ident'>priminf</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>SIMPLEX</span>, <span class='ident'>SPX_PRIMINF</span>)),
+          <span class='ident'>dualinf</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>SIMPLEX</span>, <span class='ident'>SPX_DUALINF</span>)),
+          <span class='ident'>ispert</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>SIMPLEX</span>, <span class='ident'>SPX_ISPERT</span>))
+        }
+      }
+      <span class='ident'>MIP</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>MIP</span> {
+          <span class='ident'>objbst</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_OBJBST</span>)),
+          <span class='ident'>objbnd</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_OBJBND</span>)),
+          <span class='ident'>nodcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_NODCNT</span>)),
+          <span class='ident'>solcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_SOLCNT</span>)),
+          <span class='ident'>cutcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_CUTCNT</span>)),
+          <span class='ident'>nodleft</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_NODLFT</span>)),
+          <span class='ident'>itrcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIP</span>, <span class='ident'>MIP_ITRCNT</span>))
+        }
+      }
+      <span class='ident'>MIPSOL</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>MIPSol</span> {
+          <span class='ident'>obj</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_OBJ</span>)),
+          <span class='ident'>objbst</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_OBJBST</span>)),
+          <span class='ident'>objbnd</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_OBJBND</span>)),
+          <span class='ident'>nodcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_NODCNT</span>)),
+          <span class='ident'>solcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_SOLCNT</span>)),
+        }
+      }
+      <span class='ident'>MIPNODE</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>MIPNode</span> {
+          <span class='ident'>status</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_STATUS</span>)),
+          <span class='ident'>objbst</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_OBJBST</span>)),
+          <span class='ident'>objbnd</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_OBJBND</span>)),
+          <span class='ident'>nodcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_NODCNT</span>)),
+          <span class='ident'>solcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_SOLCNT</span>)),
+        }
+      }
+      <span class='ident'>MESSAGE</span> <span class='op'>=&gt;</span> <span class='ident'>Where</span>::<span class='ident'>Message</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_string</span>(<span class='ident'>MESSAGE</span>, <span class='ident'>MSG_STRING</span>)).<span class='ident'>trim</span>().<span class='ident'>to_owned</span>()),
+      <span class='ident'>BARRIER</span> <span class='op'>=&gt;</span> {
+        <span class='ident'>Where</span>::<span class='ident'>Barrier</span> {
+          <span class='ident'>itrcnt</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_int</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_ITRCNT</span>)),
+          <span class='ident'>primobj</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_PRIMOBJ</span>)),
+          <span class='ident'>dualobj</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_DUALOBJ</span>)),
+          <span class='ident'>priminf</span>:<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_PRIMINF</span>)),
+          <span class='ident'>dualinf</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_DUALINF</span>)),
+          <span class='ident'>compl</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>callback</span>.<span class='ident'>get_double</span>(<span class='ident'>BARRIER</span>, <span class='ident'>BARRIER_COMPL</span>)),
+        }
+      }
+      _ <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Invalid callback location. {}&quot;</span>, <span class='ident'>where_</span>)
     };
-    <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
-      <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
-    }
 
-    <span class='prelude-val'>Ok</span>(<span class='kw'>unsafe</span> { <span class='ident'>util</span>::<span class='ident'>from_c_str</span>(<span class='ident'>buf</span>) })
+    <span class='ident'>callback</span>.<span class='ident'>where_</span> <span class='op'>=</span> <span class='ident'>where_</span>;
+    <span class='prelude-val'>Ok</span>(<span class='ident'>callback</span>)
   }
+}
 
-  <span class='doccomment'>/// a</span>
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+  <span class='doccomment'>/// Retrieve the location where the callback called.</span>
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_where</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Where</span> { <span class='self'>self</span>.<span class='ident'>where_</span>.<span class='ident'>clone</span>() }
+
+  <span class='doccomment'>/// Retrive node relaxation solution values at the current node.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_node_rel</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>vars</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Var</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span> {
-    <span class='kw'>const</span> <span class='ident'>MIPNODE_REL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>5002</span>;
-    <span class='self'>self</span>.<span class='ident'>get_double_array</span>(<span class='ident'>vars</span>, <span class='ident'>MIPNODE_REL</span>)
+    <span class='comment'>// memo: only MIPNode &amp;&amp; status == Optimal</span>
+    <span class='self'>self</span>.<span class='ident'>get_double_array</span>(<span class='ident'>MIPNODE</span>, <span class='ident'>MIPNODE_REL</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>buf</span><span class='op'>|</span> <span class='ident'>vars</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>buf</span>[<span class='ident'>v</span>.<span class='ident'>index</span>() <span class='kw'>as</span> <span class='ident'>usize</span>]).<span class='ident'>collect_vec</span>())
   }
 
-  <span class='doccomment'>/// a</span>
+  <span class='doccomment'>/// Retrieve values from the current solution vector.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_solution</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>vars</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Var</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span> {
-    <span class='kw'>const</span> <span class='ident'>MIPSOL_SOL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>4001</span>;
-    <span class='self'>self</span>.<span class='ident'>get_double_array</span>(<span class='ident'>vars</span>, <span class='ident'>MIPSOL_SOL</span>)
-  }
-
-  <span class='kw'>fn</span> <span class='ident'>get_double_array</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>vars</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Var</span>], <span class='ident'>what</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span> {
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>0.0</span>; <span class='self'>self</span>.<span class='ident'>model</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>()];
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
-      <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>,
-                    <span class='self'>self</span>.<span class='ident'>where_</span>.<span class='ident'>clone</span>().<span class='ident'>into</span>(),
-                    <span class='ident'>what</span>,
-                    <span class='ident'>transmute</span>(<span class='ident'>buf</span>.<span class='ident'>as_mut_ptr</span>()))
-    };
-    <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
-      <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
-    }
-
-    <span class='prelude-val'>Ok</span>(<span class='ident'>vars</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>buf</span>[<span class='ident'>v</span>.<span class='ident'>index</span>() <span class='kw'>as</span> <span class='ident'>usize</span>]).<span class='ident'>collect_vec</span>())
+    <span class='self'>self</span>.<span class='ident'>get_double_array</span>(<span class='ident'>MIPSOL</span>, <span class='ident'>MIPSOL_SOL</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>buf</span><span class='op'>|</span> <span class='ident'>vars</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>buf</span>[<span class='ident'>v</span>.<span class='ident'>index</span>() <span class='kw'>as</span> <span class='ident'>usize</span>]).<span class='ident'>collect_vec</span>())
   }
 
   <span class='doccomment'>/// Provide a new feasible solution for a MIP model.</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_solution</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>solution</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='kw'>if</span> <span class='ident'>solution</span>.<span class='ident'>len</span>() <span class='op'>&lt;</span> <span class='self'>self</span>.<span class='ident'>model</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() {
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_solution</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>vars</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Var</span>], <span class='ident'>solution</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+    <span class='kw'>if</span> <span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='op'>!=</span> <span class='ident'>solution</span>.<span class='ident'>len</span>() <span class='op'>||</span> <span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='op'>&lt;</span> <span class='self'>self</span>.<span class='ident'>model</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InconsitentDims</span>);
     }
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbsolution</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>solution</span>.<span class='ident'>as_ptr</span>()) };
 
-    <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
-      <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>0.0</span>; <span class='self'>self</span>.<span class='ident'>model</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>()];
+    <span class='kw'>for</span> (<span class='ident'>v</span>, <span class='kw-2'>&amp;</span><span class='ident'>sol</span>) <span class='kw'>in</span> <span class='ident'>Zip</span>::<span class='ident'>new</span>((<span class='ident'>vars</span>.<span class='ident'>iter</span>(), <span class='ident'>solution</span>.<span class='ident'>iter</span>())) {
+      <span class='kw'>let</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='ident'>v</span>.<span class='ident'>index</span>() <span class='kw'>as</span> <span class='ident'>usize</span>;
+      <span class='ident'>buf</span>[<span class='ident'>i</span>] <span class='op'>=</span> <span class='ident'>sol</span>;
     }
-    <span class='prelude-val'>Ok</span>(())
+
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbsolution</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>buf</span>.<span class='ident'>as_ptr</span>()) })
+  }
+
+  <span class='doccomment'>///</span>
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_runtime</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> {
+    <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>get_where</span>() {
+      <span class='ident'>Where</span>::<span class='ident'>Polling</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;bad call in callback&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40001</span>)),
+      _ <span class='op'>=&gt;</span> ()
+    }
+    <span class='self'>self</span>.<span class='ident'>get_double</span>(<span class='self'>self</span>.<span class='ident'>get_where</span>().<span class='ident'>into</span>(), <span class='ident'>RUNTIME</span>)
   }
 
   <span class='doccomment'>/// Add a new cutting plane to the MIP model.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_cut</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>lhs</span>: <span class='ident'>LinExpr</span>, <span class='ident'>sense</span>: <span class='ident'>ConstrSense</span>, <span class='ident'>rhs</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>ffi</span>::<span class='ident'>GRBcbcut</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>,
                     <span class='ident'>lhs</span>.<span class='ident'>coeff</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                     <span class='ident'>lhs</span>.<span class='ident'>vars</span>.<span class='ident'>into_iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_ptr</span>(),
                     <span class='ident'>lhs</span>.<span class='ident'>coeff</span>.<span class='ident'>as_ptr</span>(),
                     <span class='ident'>sense</span>.<span class='ident'>into</span>(),
                     <span class='ident'>rhs</span> <span class='op'>-</span> <span class='ident'>lhs</span>.<span class='ident'>offset</span>)
-    };
-    <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
-      <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
-    }
-    <span class='prelude-val'>Ok</span>(())
+    })
   }
 
   <span class='doccomment'>/// Add a new lazy constraint to the MIP model.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_lazy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>lhs</span>: <span class='ident'>LinExpr</span>, <span class='ident'>sense</span>: <span class='ident'>ConstrSense</span>, <span class='ident'>rhs</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>error</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>ffi</span>::<span class='ident'>GRBcblazy</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>,
                      <span class='ident'>lhs</span>.<span class='ident'>coeff</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                      <span class='ident'>lhs</span>.<span class='ident'>vars</span>.<span class='ident'>into_iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_ptr</span>(),
                      <span class='ident'>lhs</span>.<span class='ident'>coeff</span>.<span class='ident'>as_ptr</span>(),
                      <span class='ident'>sense</span>.<span class='ident'>into</span>(),
                      <span class='ident'>rhs</span> <span class='op'>-</span> <span class='ident'>lhs</span>.<span class='ident'>offset</span>)
-    };
+    })
+  }
+
+
+  <span class='kw'>fn</span> <span class='ident'>get_int</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>what</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='number'>0</span>;
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>where_</span>, <span class='ident'>what</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buf</span>)) }).<span class='ident'>and</span>(<span class='prelude-val'>Ok</span>(<span class='ident'>buf</span>.<span class='ident'>into</span>()))
+  }
+
+  <span class='kw'>fn</span> <span class='ident'>get_double</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>what</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='number'>0.0</span>;
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>where_</span>, <span class='ident'>what</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buf</span>)) }).<span class='ident'>and</span>(<span class='prelude-val'>Ok</span>(<span class='ident'>buf</span>.<span class='ident'>into</span>()))
+  }
+
+  <span class='kw'>fn</span> <span class='ident'>get_double_array</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>what</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>0.0</span>; <span class='self'>self</span>.<span class='ident'>model</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>()];
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>where_</span>, <span class='ident'>what</span>, <span class='ident'>transmute</span>(<span class='ident'>buf</span>.<span class='ident'>as_mut_ptr</span>())) }).<span class='ident'>and</span>(<span class='prelude-val'>Ok</span>(<span class='ident'>buf</span>))
+  }
+
+  <span class='kw'>fn</span> <span class='ident'>get_string</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>where_</span>: <span class='ident'>i32</span>, <span class='ident'>what</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='ident'>null</span>();
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbget</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>where_</span>, <span class='ident'>what</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buf</span>)) })
+      .<span class='ident'>and</span>(<span class='prelude-val'>Ok</span>(<span class='kw'>unsafe</span> { <span class='ident'>util</span>::<span class='ident'>from_c_str</span>(<span class='ident'>buf</span>) }))
+  }
+
+  <span class='kw'>fn</span> <span class='ident'>check_apicall</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>error</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Callback error&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40000</span>));
     }
@@ -574,22 +808,8 @@
   }
 }
 
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>New</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>where_</span>: <span class='ident'>Where</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>;
-}
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>New</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>where_</span>: <span class='ident'>Where</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='ident'>Context</span> {
-      <span class='ident'>cbdata</span>: <span class='ident'>cbdata</span>,
-      <span class='ident'>where_</span>: <span class='ident'>where_</span>,
-      <span class='ident'>model</span>: <span class='ident'>model</span>
-    }
-  }
-}
-
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>Context</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
   <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>;
   <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> { <span class='self'>self</span>.<span class='ident'>model</span> }
 }

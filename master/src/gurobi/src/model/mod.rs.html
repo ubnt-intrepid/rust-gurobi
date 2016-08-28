@@ -1378,6 +1378,32 @@
 <span id="1334">1334</span>
 <span id="1335">1335</span>
 <span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
+<span id="1359">1359</span>
+<span id="1360">1360</span>
+<span id="1361">1361</span>
+<span id="1362">1362</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -1387,8 +1413,8 @@
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>attr</span>;
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>callback</span>;
 
-<span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>ffi</span>;
-<span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>itertools</span>::{<span class='ident'>Itertools</span>, <span class='ident'>Zip</span>};
+<span class='kw'>use</span> <span class='ident'>ffi</span>;
+<span class='kw'>use</span> <span class='ident'>itertools</span>::{<span class='ident'>Itertools</span>, <span class='ident'>Zip</span>};
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>CString</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
@@ -1399,7 +1425,7 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>Cell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::<span class='ident'>Iter</span>;
 
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::{<span class='ident'>Context</span>, <span class='ident'>New</span>};
+<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::{<span class='ident'>Callback</span>, <span class='ident'>New</span>};
 <span class='kw'>use</span> <span class='ident'>env</span>::{<span class='ident'>Env</span>, <span class='ident'>FromRaw</span>, <span class='ident'>ErrorFromAPI</span>};
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 <span class='kw'>use</span> <span class='ident'>util</span>;
@@ -1853,32 +1879,39 @@
 }
 
 
+<span class='kw'>struct</span> <span class='ident'>CallbackData</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+  <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>,
+  <span class='ident'>callback</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>FnMut</span>(<span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>
+}
 
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Callback</span> <span class='op'>=</span> <span class='kw'>fn</span>(<span class='ident'>Context</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>;
-
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused_variables</span>)]</span>
 <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> <span class='ident'>callback_wrapper</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>, <span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>loc</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                                <span class='ident'>usrdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>)
                                <span class='op'>-&gt;</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span> {
-  <span class='comment'>// null callback</span>
-  <span class='kw'>if</span> <span class='ident'>usrdata</span>.<span class='ident'>is_null</span>() {
-    <span class='kw'>return</span> <span class='number'>0</span>;
-  }
 
-  <span class='kw'>let</span> <span class='ident'>themodel</span>: <span class='kw-2'>&amp;</span><span class='ident'>Model</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>transmute</span>(<span class='ident'>usrdata</span>) };
-  <span class='kw'>if</span> <span class='ident'>themodel</span>.<span class='ident'>model</span> <span class='op'>!=</span> <span class='ident'>model</span> {
-    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;invalid callback context.&quot;</span>);
+  <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>usrdata</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CallbackData</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>transmute</span>(<span class='ident'>usrdata</span>) };
+
+  <span class='kw'>let</span> <span class='ident'>callback</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>FnMut</span>(<span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>usrdata</span>.<span class='ident'>callback</span>;
+
+  <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>Callback</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='kw-2'>&amp;</span><span class='ident'>usrdata</span>.<span class='ident'>model</span>);
+  <span class='kw'>if</span> <span class='ident'>context</span>.<span class='ident'>is_err</span>() {
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;failed to create context: {:?}&quot;</span>, <span class='ident'>context</span>.<span class='ident'>err</span>().<span class='ident'>unwrap</span>());
     <span class='kw'>return</span> <span class='op'>-</span><span class='number'>1</span>;
   }
+  <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>context</span>.<span class='ident'>unwrap</span>();
 
-  <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>callback</span>) <span class='op'>=</span> <span class='ident'>themodel</span>.<span class='ident'>callback</span> {
-    <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>Context</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='kw-2'>&amp;</span><span class='ident'>themodel</span>);
-    <span class='kw'>match</span> <span class='ident'>callback</span>(<span class='ident'>context</span>) {
-      <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> <span class='number'>0</span>,
-      <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>1</span>,
-    }
-  } <span class='kw'>else</span> {
-    <span class='number'>0</span>
+  <span class='kw'>let</span> <span class='ident'>ret</span> <span class='op'>=</span> <span class='ident'>callback</span>(<span class='ident'>context</span>);
+  <span class='kw'>match</span> <span class='ident'>ret</span> {
+    <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> <span class='number'>0</span>,
+    <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>1</span>,
   }
+}
+
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused_variables</span>)]</span>
+<span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> <span class='ident'>null_callback_wrapper</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>, <span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>, <span class='ident'>loc</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
+                                    <span class='ident'>usrdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>)
+                                    <span class='op'>-&gt;</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span> {
+  <span class='number'>0</span>
 }
 
 
@@ -1889,8 +1922,7 @@
   <span class='ident'>vars</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Var</span><span class='op'>&gt;</span>,
   <span class='ident'>constrs</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Constr</span><span class='op'>&gt;</span>,
   <span class='ident'>qconstrs</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>QConstr</span><span class='op'>&gt;</span>,
-  <span class='ident'>sos</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>SOS</span><span class='op'>&gt;</span>,
-  <span class='ident'>callback</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Callback</span><span class='op'>&gt;</span>
+  <span class='ident'>sos</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>SOS</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Model</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
@@ -1902,8 +1934,7 @@
       <span class='ident'>vars</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
       <span class='ident'>constrs</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
       <span class='ident'>qconstrs</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
-      <span class='ident'>sos</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
-      <span class='ident'>callback</span>: <span class='prelude-val'>None</span>
+      <span class='ident'>sos</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>()
     };
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>populate</span>());
     <span class='prelude-val'>Ok</span>(<span class='ident'>model</span>)
@@ -1916,10 +1947,7 @@
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Failed to create a copy of the model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
 
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>env</span>, <span class='ident'>copied</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='kw-2'>mut</span> <span class='ident'>model</span><span class='op'>|</span> {
-      <span class='ident'>model</span>.<span class='ident'>callback</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>callback</span>;
-      <span class='ident'>model</span>
-    })
+    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>env</span>, <span class='ident'>copied</span>)
   }
 
   <span class='doccomment'>/// Create an fixed model associated with the model.</span>
@@ -1975,6 +2003,24 @@
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>optimize_async</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
     <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBoptimizeasync</span>(<span class='self'>self</span>.<span class='ident'>model</span>) })
+  }
+
+  <span class='doccomment'>/// Optimize the model with a callback function</span>
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>optimize_with_callback</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>mut</span> <span class='ident'>callback</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>
+    <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> <span class='op'>+</span> <span class='lifetime'>&#39;static</span>
+  {
+    <span class='kw'>let</span> <span class='ident'>usrdata</span> <span class='op'>=</span> <span class='ident'>CallbackData</span> {
+      <span class='ident'>model</span>: <span class='self'>self</span>,
+      <span class='ident'>callback</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>callback</span>
+    };
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBsetcallbackfunc</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>callback_wrapper</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='ident'>usrdata</span>)) }));
+
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBoptimize</span>(<span class='self'>self</span>.<span class='ident'>model</span>) }));
+
+    <span class='comment'>// clear callback from the model.</span>
+    <span class='comment'>// Notice: Rust does not have approproate mechanism which treats &quot;null&quot; C-style function</span>
+    <span class='comment'>// pointer.</span>
+    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBsetcallbackfunc</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>null_callback_wrapper</span>, <span class='ident'>null_mut</span>()) })
   }
 
   <span class='doccomment'>/// Wait for a optimization called asynchronously.</span>
@@ -2063,6 +2109,7 @@
                      <span class='ident'>vtype</span>,
                      <span class='ident'>name</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>col_no</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>i32</span>;
     <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>push</span>(<span class='ident'>Var</span>::<span class='ident'>new</span>(<span class='ident'>col_no</span>));
@@ -2103,6 +2150,7 @@
                       <span class='ident'>_vtypes</span>.<span class='ident'>as_ptr</span>(),
                       <span class='ident'>_names</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>xcols</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>();
     <span class='kw'>let</span> <span class='ident'>cols</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='ident'>_names</span>.<span class='ident'>len</span>();
@@ -2126,6 +2174,7 @@
                         <span class='ident'>rhs</span> <span class='op'>-</span> <span class='ident'>expr</span>.<span class='ident'>offset</span>,
                         <span class='ident'>constrname</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>row_no</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>constrs</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>i32</span>;
     <span class='self'>self</span>.<span class='ident'>constrs</span>.<span class='ident'>push</span>(<span class='ident'>Constr</span>::<span class='ident'>new</span>(<span class='ident'>row_no</span>));
@@ -2171,6 +2220,7 @@
                          <span class='ident'>rhs</span>.<span class='ident'>as_ptr</span>(),
                          <span class='ident'>constrnames</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>xrows</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>constrs</span>.<span class='ident'>len</span>();
     <span class='kw'>let</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>constrs</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='ident'>constrnames</span>.<span class='ident'>len</span>();
@@ -2200,6 +2250,7 @@
                              <span class='ident'>ub</span> <span class='op'>-</span> <span class='ident'>expr</span>.<span class='ident'>offset</span>,
                              <span class='ident'>constrname</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>col_no</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>i32</span>;
     <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>push</span>(<span class='ident'>Var</span>::<span class='ident'>new</span>(<span class='ident'>col_no</span>));
@@ -2249,6 +2300,7 @@
                               <span class='ident'>rhs</span>.<span class='ident'>as_ptr</span>(),
                               <span class='ident'>constrnames</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>xcols</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>();
     <span class='kw'>let</span> <span class='ident'>cols</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='op'>+</span> <span class='ident'>names</span>.<span class='ident'>len</span>();
@@ -2281,6 +2333,7 @@
                          <span class='ident'>rhs</span>,
                          <span class='ident'>constrname</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>qrow_no</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>qconstrs</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>i32</span>;
     <span class='self'>self</span>.<span class='ident'>qconstrs</span>.<span class='ident'>push</span>(<span class='ident'>QConstr</span>::<span class='ident'>new</span>(<span class='ident'>qrow_no</span>));
@@ -2306,6 +2359,7 @@
                      <span class='ident'>vars</span>.<span class='ident'>as_ptr</span>(),
                      <span class='ident'>weights</span>.<span class='ident'>as_ptr</span>())
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>sos_no</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>sos</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>i32</span>;
     <span class='self'>self</span>.<span class='ident'>sos</span>.<span class='ident'>push</span>(<span class='ident'>SOS</span>::<span class='ident'>new</span>(<span class='ident'>sos_no</span>));
@@ -2321,10 +2375,9 @@
     <span class='kw'>let</span> <span class='ident'>qcol</span> <span class='op'>=</span> <span class='ident'>expr</span>.<span class='ident'>qcol</span>.<span class='ident'>into_iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>v</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>();
 
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>del_qpterms</span>());
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>add_qpterms</span>(<span class='ident'>qrow</span>.<span class='ident'>as_slice</span>(), <span class='ident'>qcol</span>.<span class='ident'>as_slice</span>(), <span class='ident'>expr</span>.<span class='ident'>qval</span>.<span class='ident'>as_slice</span>()));
 
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>set_list</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>Obj</span>, <span class='ident'>lind</span>.<span class='ident'>as_slice</span>(), <span class='ident'>expr</span>.<span class='ident'>lval</span>.<span class='ident'>as_slice</span>()));
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>add_qpterms</span>(<span class='ident'>qrow</span>.<span class='ident'>as_slice</span>(), <span class='ident'>qcol</span>.<span class='ident'>as_slice</span>(), <span class='ident'>expr</span>.<span class='ident'>qval</span>.<span class='ident'>as_slice</span>()));
 
     <span class='self'>self</span>.<span class='ident'>set</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>ModelSense</span>, <span class='ident'>sense</span>.<span class='ident'>into</span>())
   }
@@ -2343,7 +2396,8 @@
 
   <span class='doccomment'>/// Set the value of attributes which associated with variable/constraints.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrBase</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>value</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>A</span>::<span class='ident'>set_attr</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>attr</span>.<span class='ident'>into</span>().<span class='ident'>as_ptr</span>(), <span class='ident'>util</span>::<span class='ident'>From</span>::<span class='ident'>from</span>(<span class='ident'>value</span>)) })
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>A</span>::<span class='ident'>set_attr</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>attr</span>.<span class='ident'>into</span>().<span class='ident'>as_ptr</span>(), <span class='ident'>util</span>::<span class='ident'>From</span>::<span class='ident'>from</span>(<span class='ident'>value</span>)) }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
 
@@ -2359,12 +2413,13 @@
   }
 
   <span class='kw'>fn</span> <span class='ident'>set_element</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrArrayBase</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>element</span>: <span class='ident'>i32</span>, <span class='ident'>value</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>A</span>::<span class='ident'>set_attrelement</span>(<span class='self'>self</span>.<span class='ident'>model</span>,
                          <span class='ident'>attr</span>.<span class='ident'>into</span>().<span class='ident'>as_ptr</span>(),
                          <span class='ident'>element</span>,
                          <span class='ident'>util</span>::<span class='ident'>From</span>::<span class='ident'>from</span>(<span class='ident'>value</span>))
-    })
+    }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='doccomment'>/// Query the value of attributes which associated with variable/constraints.</span>
@@ -2390,9 +2445,10 @@
 
   <span class='doccomment'>/// Set the value of attributes which associated with variable/constraints.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_values</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrArrayBase</span>, <span class='ident'>P</span>: <span class='ident'>Proxy</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>item</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>P</span>], <span class='ident'>val</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>A</span>::<span class='ident'>Out</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>set_list</span>(<span class='ident'>attr</span>,
-                  <span class='ident'>item</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_slice</span>(),
-                  <span class='ident'>val</span>)
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>set_list</span>(<span class='ident'>attr</span>,
+                       <span class='ident'>item</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_slice</span>(),
+                       <span class='ident'>val</span>));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='kw'>fn</span> <span class='ident'>set_list</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrArrayBase</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>ind</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>i32</span>], <span class='ident'>values</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>A</span>::<span class='ident'>Out</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
@@ -2474,6 +2530,7 @@
                         <span class='ident'>pen_rhs</span>.<span class='ident'>as_ptr</span>(),
                         <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>feasobj</span>)
     }));
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
     <span class='kw'>let</span> <span class='ident'>cols</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>NumVars</span>)) <span class='kw'>as</span> <span class='ident'>usize</span>;
     <span class='kw'>let</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>NumConstrs</span>)) <span class='kw'>as</span> <span class='ident'>usize</span>;
@@ -2495,13 +2552,14 @@
     <span class='kw'>if</span> <span class='ident'>x</span>.<span class='ident'>len</span>() <span class='op'>!=</span> <span class='ident'>y</span>.<span class='ident'>len</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InconsitentDims</span>);
     }
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>ffi</span>::<span class='ident'>GRBsetpwlobj</span>(<span class='self'>self</span>.<span class='ident'>model</span>,
                         <span class='ident'>var</span>.<span class='ident'>index</span>(),
                         <span class='ident'>x</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                         <span class='ident'>x</span>.<span class='ident'>as_ptr</span>(),
                         <span class='ident'>y</span>.<span class='ident'>as_ptr</span>())
-    })
+    }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='doccomment'>/// Retrieve the status of the model.</span>
@@ -2528,6 +2586,7 @@
 
     <span class='kw'>if</span> <span class='ident'>index</span> <span class='op'>!=</span> <span class='op'>-</span><span class='number'>1</span> {
       <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelvars</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>index</span>) }));
+      <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
       <span class='self'>self</span>.<span class='ident'>vars</span>.<span class='ident'>remove</span>(<span class='ident'>index</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
       <span class='ident'>item</span>.<span class='ident'>set_index</span>(<span class='op'>-</span><span class='number'>1</span>);
@@ -2549,6 +2608,7 @@
 
     <span class='kw'>if</span> <span class='ident'>index</span> <span class='op'>!=</span> <span class='op'>-</span><span class='number'>1</span> {
       <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelconstrs</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>index</span>) }));
+      <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
       <span class='self'>self</span>.<span class='ident'>constrs</span>.<span class='ident'>remove</span>(<span class='ident'>index</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
       <span class='ident'>item</span>.<span class='ident'>set_index</span>(<span class='op'>-</span><span class='number'>1</span>);
@@ -2570,6 +2630,7 @@
 
     <span class='kw'>if</span> <span class='ident'>index</span> <span class='op'>!=</span> <span class='op'>-</span><span class='number'>1</span> {
       <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelqconstrs</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>index</span>) }));
+      <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
       <span class='self'>self</span>.<span class='ident'>qconstrs</span>.<span class='ident'>remove</span>(<span class='ident'>index</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
       <span class='ident'>item</span>.<span class='ident'>set_index</span>(<span class='op'>-</span><span class='number'>1</span>);
@@ -2591,6 +2652,7 @@
 
     <span class='kw'>if</span> <span class='ident'>index</span> <span class='op'>!=</span> <span class='op'>-</span><span class='number'>1</span> {
       <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelsos</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>index</span>) }));
+      <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>update</span>());
 
       <span class='self'>self</span>.<span class='ident'>sos</span>.<span class='ident'>remove</span>(<span class='ident'>index</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
       <span class='ident'>item</span>.<span class='ident'>set_index</span>(<span class='op'>-</span><span class='number'>1</span>);
@@ -2603,20 +2665,6 @@
     <span class='prelude-val'>Ok</span>(())
   }
 
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_callback</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>callback</span>: <span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBsetcallbackfunc</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>callback_wrapper</span>, <span class='ident'>transmute</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>)) }));
-    <span class='self'>self</span>.<span class='ident'>callback</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>callback</span>);
-    <span class='prelude-val'>Ok</span>(())
-  }
-
-  <span class='doccomment'>/// a</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reset_callback</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBsetcallbackfunc</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>callback_wrapper</span>, <span class='ident'>null_mut</span>()) }));
-    <span class='self'>self</span>.<span class='ident'>callback</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
-    <span class='prelude-val'>Ok</span>(())
-  }
-
   <span class='doccomment'>/// Retrieve a single constant matrix coefficient of the model.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_coeff</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>var</span>: <span class='kw-2'>&amp;</span><span class='ident'>Var</span>, <span class='ident'>constr</span>: <span class='kw-2'>&amp;</span><span class='ident'>Constr</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> {
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='number'>0.0</span>;
@@ -2626,7 +2674,8 @@
 
   <span class='doccomment'>/// Change a single constant matrix coefficient of the model.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_coeff</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>var</span>: <span class='kw-2'>&amp;</span><span class='ident'>Var</span>, <span class='ident'>constr</span>: <span class='kw-2'>&amp;</span><span class='ident'>Constr</span>, <span class='ident'>value</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBchgcoeffs</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>var</span>.<span class='ident'>index</span>(), <span class='kw-2'>&amp;</span><span class='ident'>constr</span>.<span class='ident'>index</span>(), <span class='kw-2'>&amp;</span><span class='ident'>value</span>) })
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBchgcoeffs</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='ident'>var</span>.<span class='ident'>index</span>(), <span class='kw-2'>&amp;</span><span class='ident'>constr</span>.<span class='ident'>index</span>(), <span class='kw-2'>&amp;</span><span class='ident'>value</span>) }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='doccomment'>/// Change a set of constant matrix coefficients of the model.</span>
@@ -2638,18 +2687,17 @@
     <span class='kw'>let</span> <span class='ident'>vars</span> <span class='op'>=</span> <span class='ident'>vars</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>v</span><span class='op'>|</span> <span class='ident'>v</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>();
     <span class='kw'>let</span> <span class='ident'>constrs</span> <span class='op'>=</span> <span class='ident'>constrs</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>c</span><span class='op'>|</span> <span class='ident'>c</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>();
 
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>ffi</span>::<span class='ident'>GRBchgcoeffs</span>(<span class='self'>self</span>.<span class='ident'>model</span>,
                         <span class='ident'>vars</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                         <span class='ident'>vars</span>.<span class='ident'>as_ptr</span>(),
                         <span class='ident'>constrs</span>.<span class='ident'>as_ptr</span>(),
                         <span class='ident'>values</span>.<span class='ident'>as_ptr</span>())
-    })
+    }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='kw'>fn</span> <span class='ident'>populate</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>callback</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
-
     <span class='kw'>let</span> <span class='ident'>cols</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>NumVars</span>)) <span class='kw'>as</span> <span class='ident'>usize</span>;
     <span class='kw'>let</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>NumConstrs</span>)) <span class='kw'>as</span> <span class='ident'>usize</span>;
     <span class='kw'>let</span> <span class='ident'>numqconstrs</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>exports</span>::<span class='ident'>NumQConstrs</span>)) <span class='kw'>as</span> <span class='ident'>usize</span>;
@@ -2666,17 +2714,21 @@
 
   <span class='comment'>// add quadratic terms of objective function.</span>
   <span class='kw'>fn</span> <span class='ident'>add_qpterms</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>qrow</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>i32</span>], <span class='ident'>qcol</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>i32</span>], <span class='ident'>qval</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-    <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
       <span class='ident'>ffi</span>::<span class='ident'>GRBaddqpterms</span>(<span class='self'>self</span>.<span class='ident'>model</span>,
                          <span class='ident'>qrow</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span>,
                          <span class='ident'>qrow</span>.<span class='ident'>as_ptr</span>(),
                          <span class='ident'>qcol</span>.<span class='ident'>as_ptr</span>(),
                          <span class='ident'>qval</span>.<span class='ident'>as_ptr</span>())
-    })
+    }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
   }
 
   <span class='comment'>// remove quadratic terms of objective function.</span>
-  <span class='kw'>fn</span> <span class='ident'>del_qpterms</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> { <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelq</span>(<span class='self'>self</span>.<span class='ident'>model</span>) }) }
+  <span class='kw'>fn</span> <span class='ident'>del_qpterms</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBdelq</span>(<span class='self'>self</span>.<span class='ident'>model</span>) }));
+    <span class='self'>self</span>.<span class='ident'>update</span>()
+  }
 
   <span class='kw'>fn</span> <span class='ident'>check_apicall</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>error</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {

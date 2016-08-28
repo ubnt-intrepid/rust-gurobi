@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `Model` struct in crate `gurobi`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, Model">
+    <meta name="description" content="API documentation for the Rust `Callback` struct in crate `gurobi`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Callback">
 
-    <title>gurobi::Model - Rust</title>
+    <title>gurobi::Callback - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
@@ -28,7 +28,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>gurobi</a></p><script>window.sidebarCurrent = {name: 'Model', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='index.html'>gurobi</a></p><script>window.sidebarCurrent = {name: 'Callback', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -43,18 +43,29 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>gurobi</a>::<wbr><a class='struct' href=''>Model</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>gurobi</a>::<wbr><a class='struct' href=''>Callback</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-1204' class='srclink' href='../src/gurobi/src/model/mod.rs.html#512-519' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct Model&lt;'a&gt; {
+               </span><a id='src-596' class='srclink' href='../src/gurobi/src/model/callback.rs.html#199-203' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Callback&lt;'a&gt; {
     // some fields omitted
-}</pre><div class='docblock'><p>Gurobi model object associated with certain environment.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1212' class='srclink' href='../src/gurobi/src/model/mod.rs.html#521-1332' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(env: &amp;'a <a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a>, model: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a>GRBmodel) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
-<div class='docblock'><p>create an empty model which associated with certain environment.</p>
-</div><h4 id='method.copy' class='method'><code>fn <a href='#method.copy' class='fnname'>copy</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+}</pre><div class='docblock'><p>Gurobi callback object</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='struct' href='../gurobi/struct.Callback.html' title='gurobi::Callback'>Callback</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-694' class='srclink' href='../src/gurobi/src/model/callback.rs.html#288-379' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.get_where' class='method'><code>fn <a href='#method.get_where' class='fnname'>get_where</a>(&amp;self) -&gt; <a class='enum' href='../gurobi/enum.Where.html' title='gurobi::Where'>Where</a></code></h4>
+<div class='docblock'><p>Retrieve the location where the callback called.</p>
+</div><h4 id='method.get_node_rel' class='method'><code>fn <a href='#method.get_node_rel' class='fnname'>get_node_rel</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Retrive node relaxation solution values at the current node.</p>
+</div><h4 id='method.get_solution' class='method'><code>fn <a href='#method.get_solution' class='fnname'>get_solution</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Retrieve values from the current solution vector.</p>
+</div><h4 id='method.set_solution' class='method'><code>fn <a href='#method.set_solution' class='fnname'>set_solution</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, solution: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Provide a new feasible solution for a MIP model.</p>
+</div><h4 id='method.get_runtime' class='method'><code>fn <a href='#method.get_runtime' class='fnname'>get_runtime</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;</code></h4>
+<div class='docblock'></div><h4 id='method.add_cut' class='method'><code>fn <a href='#method.add_cut' class='fnname'>add_cut</a>(&amp;self, lhs: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Add a new cutting plane to the MIP model.</p>
+</div><h4 id='method.add_lazy' class='method'><code>fn <a href='#method.add_lazy' class='fnname'>add_lazy</a>(&amp;self, lhs: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Add a new lazy constraint to the MIP model.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;&gt;</h2><div class='impl-items'><h4 id='method.copy' class='method'><code>fn <a href='#method.copy' class='fnname'>copy</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
 <div class='docblock'><p>create a copy of the model</p>
 </div><h4 id='method.fixed' class='method'><code>fn <a href='#method.fixed' class='fnname'>fixed</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
 <div class='docblock'><p>Create an fixed model associated with the model.</p>
@@ -200,9 +211,11 @@ See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
 <div class='docblock'><p>Change a single constant matrix coefficient of the model.</p>
 </div><h4 id='method.set_coeffs' class='method'><code>fn <a href='#method.set_coeffs' class='fnname'>set_coeffs</a>(&amp;mut self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, constrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, values: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
 <div class='docblock'><p>Change a set of constant matrix coefficients of the model.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1726' class='srclink' href='../src/gurobi/src/model/mod.rs.html#1335-1340' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
-<div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../gurobi/struct.Callback.html' title='gurobi::Callback'>Callback</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-759' class='srclink' href='../src/gurobi/src/model/callback.rs.html#382-385' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#associatedtype.Target' class='type'>Target</a> = <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>The resulting type after dereferencing</p>
+</div><h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>The method called to dereference a value</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
 
