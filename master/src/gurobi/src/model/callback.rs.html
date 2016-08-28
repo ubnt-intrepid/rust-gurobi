@@ -427,6 +427,9 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -475,7 +478,6 @@
 <span class='kw'>const</span> <span class='ident'>MIP_CUTCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3004</span>;
 <span class='kw'>const</span> <span class='ident'>MIP_NODLFT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3005</span>;
 <span class='kw'>const</span> <span class='ident'>MIP_ITRCNT</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3006</span>;
-
 <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
 <span class='kw'>const</span> <span class='ident'>MIP_OBJBNDC</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>3007</span>;
 
@@ -510,12 +512,16 @@
 <span class='kw'>const</span> <span class='ident'>BARRIER_COMPL</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='number'>7006</span>;
 
 
+<span class='doccomment'>/// Location where the callback called</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If you want to get more information, see [official</span>
+<span class='doccomment'>/// manual](https://www.gurobi.com/documentation/6.5/refman/callback_codes.html).</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Where</span> {
-  <span class='doccomment'>/// b</span>
+  <span class='doccomment'>/// Periodic polling callback</span>
   <span class='ident'>Polling</span>,
 
-  <span class='doccomment'>/// a</span>
+  <span class='doccomment'>/// Currently performing presolve</span>
   <span class='ident'>PreSolve</span> {
     <span class='doccomment'>/// The number of columns removed by presolve to this point.</span>
     <span class='ident'>coldel</span>: <span class='ident'>i32</span>,
@@ -529,7 +535,7 @@
     <span class='ident'>coecfg</span>: <span class='ident'>i32</span>
   },
 
-  <span class='doccomment'>/// c</span>
+  <span class='doccomment'>/// Currently in simplex</span>
   <span class='ident'>Simplex</span> {
     <span class='doccomment'>/// Current simplex iteration count.</span>
     <span class='ident'>itrcnt</span>: <span class='ident'>f64</span>,
@@ -543,7 +549,7 @@
     <span class='ident'>ispert</span>: <span class='ident'>i32</span>
   },
 
-  <span class='doccomment'>/// d</span>
+  <span class='doccomment'>/// Currently in MIP</span>
   <span class='ident'>MIP</span> {
     <span class='doccomment'>/// Current best objective.</span>
     <span class='ident'>objbst</span>: <span class='ident'>f64</span>,
@@ -561,7 +567,7 @@
     <span class='ident'>itrcnt</span>: <span class='ident'>f64</span>
   },
 
-  <span class='doccomment'>/// e</span>
+  <span class='doccomment'>/// Found a new MIP incumbent</span>
   <span class='ident'>MIPSol</span> {
     <span class='doccomment'>/// Objective value for new solution.</span>
     <span class='ident'>obj</span>: <span class='ident'>f64</span>,
@@ -575,7 +581,7 @@
     <span class='ident'>solcnt</span>: <span class='ident'>f64</span>
   },
 
-  <span class='doccomment'>/// f</span>
+  <span class='doccomment'>/// Currently exploring a MIP node</span>
   <span class='ident'>MIPNode</span> {
     <span class='doccomment'>/// Optimization status of current MIP node (see the Status Code section for further information).</span>
     <span class='ident'>status</span>: <span class='ident'>i32</span>,
@@ -589,10 +595,10 @@
     <span class='ident'>solcnt</span>: <span class='ident'>i32</span>
   },
 
-  <span class='doccomment'>/// f</span>
+  <span class='doccomment'>/// Printing a log message</span>
   <span class='ident'>Message</span>(<span class='ident'>String</span>),
 
-  <span class='doccomment'>/// d</span>
+  <span class='doccomment'>/// Currently in barrier.</span>
   <span class='ident'>Barrier</span> {
     <span class='doccomment'>/// Current barrier iteration count.</span>
     <span class='ident'>itrcnt</span>: <span class='ident'>i32</span>,
@@ -625,7 +631,7 @@
 }
 
 
-<span class='doccomment'>/// Gurobi callback object</span>
+<span class='doccomment'>/// The context object for Gurobi callback.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Callback</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
   <span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>,
   <span class='ident'>where_</span>: <span class='ident'>Where</span>,
@@ -745,7 +751,7 @@
     <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBcbsolution</span>(<span class='self'>self</span>.<span class='ident'>cbdata</span>, <span class='ident'>buf</span>.<span class='ident'>as_ptr</span>()) })
   }
 
-  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// Retrieve the elapsed solver runtime [sec].</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_runtime</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> {
     <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>get_where</span>() {
       <span class='ident'>Where</span>::<span class='ident'>Polling</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;bad call in callback&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>40001</span>)),
