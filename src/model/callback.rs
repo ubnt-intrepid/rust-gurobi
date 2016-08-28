@@ -6,10 +6,10 @@
 #![allow(dead_code)]
 
 use ffi;
-use itertools::Itertools;
+use itertools::{Itertools,Zip};
 
-use std::ops::Deref;
 use std::mem::transmute;
+use std::ops::Deref;
 use std::ptr::null;
 
 use error::{Error, Result};
@@ -104,8 +104,8 @@ impl Into<i32> for Where {
 }
 
 
-/// a
-pub struct Context<'a> {
+/// Gurobi callback object
+pub struct Callback<'a> {
   cbdata: *mut ffi::c_void,
   where_: Where,
   model: &'a Model<'a>
@@ -113,11 +113,11 @@ pub struct Context<'a> {
 
 
 pub trait New<'a> {
-  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Context<'a>;
+  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Callback<'a>;
 }
 
-impl<'a> New<'a> for Context<'a> {
-  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Context<'a> {
+impl<'a> New<'a> for Callback<'a> {
+  fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model<'a>) -> Callback<'a> {
     let where_ = match where_ {
       POLLING => Where::Polling,
       PRESOLVE => Where::PreSolve(0),
@@ -130,7 +130,7 @@ impl<'a> New<'a> for Context<'a> {
       _ => panic!("Invalid callback location. {}", where_),
     };
 
-    Context {
+    Callback {
       cbdata: cbdata,
       where_: where_,
       model: model
@@ -139,28 +139,34 @@ impl<'a> New<'a> for Context<'a> {
 }
 
 
-impl<'a> Context<'a> {
-  /// a
+impl<'a> Callback<'a> {
+  /// Retrieve the location where the callback called.
   pub fn get_where(&self) -> Where { self.where_.clone() }
 
-  /// a
+  /// Retrive node relaxation solution values at the current node.
   pub fn get_node_rel(&self, vars: &[Var]) -> Result<Vec<f64>> {
     // memo: only MIPNode && status == Optimal
     self.get_double_array(MIPNODE, MIPNODE_REL).map(|buf| vars.iter().map(|v| buf[v.index() as usize]).collect_vec())
   }
 
-  /// a
+  /// Retrieve values from the current solution vector.
   pub fn get_solution(&self, vars: &[Var]) -> Result<Vec<f64>> {
     self.get_double_array(MIPSOL, MIPSOL_SOL).map(|buf| vars.iter().map(|v| buf[v.index() as usize]).collect_vec())
   }
 
   /// Provide a new feasible solution for a MIP model.
-  pub fn set_solution(&self, solution: &[f64]) -> Result<()> {
-    if solution.len() < self.model.vars.len() {
+  pub fn set_solution(&self, vars: &[Var], solution: &[f64]) -> Result<()> {
+    if vars.len() != solution.len() || vars.len() < self.model.vars.len() {
       return Err(Error::InconsitentDims);
     }
 
-    self.check_apicall(unsafe { ffi::GRBcbsolution(self.cbdata, solution.as_ptr()) })
+    let mut buf = vec![0.0; self.model.vars.len()];
+    for (v, &sol) in Zip::new((vars.iter(), solution.iter())) {
+      let i = v.index() as usize;
+      buf[i] = sol;
+    }
+
+    self.check_apicall(unsafe { ffi::GRBcbsolution(self.cbdata, buf.as_ptr()) })
   }
 
   /// Add a new cutting plane to the MIP model.
@@ -218,7 +224,7 @@ impl<'a> Context<'a> {
 }
 
 
-impl<'a> Deref for Context<'a> {
+impl<'a> Deref for Callback<'a> {
   type Target = Model<'a>;
   fn deref(&self) -> &Model<'a> { self.model }
 }

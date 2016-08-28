@@ -18,7 +18,7 @@ use std::rc::Rc;
 use std::cell::Cell;
 use std::slice::Iter;
 
-use self::callback::{Context, New};
+use self::callback::{Callback, New};
 use env::{Env, FromRaw, ErrorFromAPI};
 use error::{Error, Result};
 use util;
@@ -474,7 +474,7 @@ impl<'a> Add<&'a Var> for LinExpr {
 
 struct CallbackData<'a> {
   model: &'a Model<'a>,
-  callback: &'a mut FnMut(Context) -> Result<()>
+  callback: &'a mut FnMut(Callback) -> Result<()>
 }
 
 #[allow(dead_code)]
@@ -485,8 +485,8 @@ extern "C" fn callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi::c_vo
 
   let mut usrdata: &mut CallbackData = unsafe { transmute(usrdata) };
 
-  let callback: &mut FnMut(Context) -> Result<()> = usrdata.callback;
-  let context = Context::new(cbdata, loc.into(), &usrdata.model);
+  let callback: &mut FnMut(Callback) -> Result<()> = usrdata.callback;
+  let context = Callback::new(cbdata, loc.into(), &usrdata.model);
 
   let ret = callback(context);
   match ret {
@@ -596,7 +596,7 @@ impl<'a> Model<'a> {
 
   /// Optimize the model with a callback function
   pub fn optimize_with_callback<F>(&mut self, mut callback: F) -> Result<()>
-    where F: FnMut(Context) -> Result<()> + 'static
+    where F: FnMut(Callback) -> Result<()> + 'static
   {
     let usrdata = CallbackData {
       model: self,

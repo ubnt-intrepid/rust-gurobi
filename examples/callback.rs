@@ -19,7 +19,7 @@ fn main() {
     let mut lastnode = -INFINITY;
     let vars: Vec<_> = model.get_vars().cloned().collect();
 
-    move |ctx: Context| {
+    move |ctx: Callback| {
       use gurobi::Where::*;
       match ctx.get_where() {
         // Periodic polling callback
