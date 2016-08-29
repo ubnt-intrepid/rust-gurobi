@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/model/mod.rs`.">
+    <meta name="description" content="Source to the Rust file `src\model/mod.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>mod.rs.html -- source</title>
@@ -1404,6 +1404,15 @@
 <span id="1360">1360</span>
 <span id="1361">1361</span>
 <span id="1362">1362</span>
+<span id="1363">1363</span>
+<span id="1364">1364</span>
+<span id="1365">1365</span>
+<span id="1366">1366</span>
+<span id="1367">1367</span>
+<span id="1368">1368</span>
+<span id="1369">1369</span>
+<span id="1370">1370</span>
+<span id="1371">1371</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -1574,7 +1583,7 @@
   }
 
   <span class='doccomment'>/// Set the value of attribute.</span>
-  <span class='kw'>fn</span> <span class='ident'>set</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrArrayBase</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>val</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+  <span class='kw'>fn</span> <span class='ident'>set</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>attr</span>::<span class='ident'>AttrArrayBase</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>val</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='ident'>model</span>.<span class='ident'>set_element</span>(<span class='ident'>attr</span>, <span class='self'>self</span>.<span class='ident'>index</span>(), <span class='ident'>val</span>)
   }
 }
@@ -1628,6 +1637,17 @@
 
 <span class='kw'>impl</span> <span class='ident'>Proxy</span> <span class='kw'>for</span> <span class='ident'>SOS</span> {}
 
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_eq</span> {
+  ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>)<span class='op'>*</span>) <span class='op'>=&gt;</span> { $(
+    <span class='kw'>impl</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
+      <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='op'>==</span> <span class='ident'>other</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span>
+      }
+    }
+    <span class='kw'>impl</span> <span class='ident'>Eq</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {}
+  )<span class='op'>*</span> }
+}
+<span class='macro'>impl_eq</span><span class='macro'>!</span> { <span class='ident'>Var</span> }
 
 
 <span class='doccomment'>/// Linear expression of variables</span>
@@ -2040,13 +2060,11 @@
   <span class='doccomment'>/// Perform an automated search for parameter settings that improve performance on the model.</span>
   <span class='doccomment'>/// See also references [on official</span>
   <span class='doccomment'>/// manual](https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning).</span>
-  <span class='attribute'>#[<span class='ident'>deprecated</span>]</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>tune</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> { <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBtunemodel</span>(<span class='self'>self</span>.<span class='ident'>model</span>) }) }
 
   <span class='doccomment'>/// Prepare to retrieve the results of `tune()`.</span>
   <span class='doccomment'>/// See also references [on official</span>
   <span class='doccomment'>/// manual](https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning).</span>
-  <span class='attribute'>#[<span class='ident'>deprecated</span>]</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_tune_result</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBgettuneresult</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>n</span>) })
   }
