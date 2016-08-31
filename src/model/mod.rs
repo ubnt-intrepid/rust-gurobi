@@ -144,6 +144,13 @@ impl Into<i32> for RelaxType {
 #[derive(Clone)]
 pub struct Proxy(Rc<Cell<i32>>);
 
+// MEMO:
+// 0,1,2,...,INTMAX   : active
+// -1                 : wait for adding (before calling update())
+// -2                 : removed from the model.
+// -3,-4,...          : wait for removing (before calling update())
+//  * -3 - index  => indices
+
 impl Proxy {
   fn new(idx: i32) -> Proxy { Proxy(Rc::new(Cell::new(idx))) }
   fn index(&self) -> i32 { self.0.get() }
