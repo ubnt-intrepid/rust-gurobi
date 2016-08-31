@@ -18,7 +18,7 @@ fn main() {
   let callback = {
     let mut lastiter = -INFINITY;
     let mut lastnode = -INFINITY;
-    let vars: Vec<_> = model.get_vars().cloned().collect();
+    let vars: Vec<_> = model.get_vars();
 
     let file = OpenOptions::new().write(true).create(true).open("cb.log").unwrap();
     let mut writer = BufWriter::new(file);

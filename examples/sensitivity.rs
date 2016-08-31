@@ -22,13 +22,13 @@ fn main() {
 
   // store the optimal solution.
   let orig_obj = model.get(attr::ObjVal).unwrap();
-  let orig_sol: Vec<_> = model.get_vars().map(|v| v.get(&model, attr::X).unwrap()).collect();
+  let orig_sol: Vec<_> = model.get_vars().into_iter().map(|v| v.get(&model, attr::X).unwrap()).collect();
 
   // disable solver output for subsequent solvers.
   model.get_env_mut().set(param::OutputFlag, 0).unwrap();
 
   // iterate through unfixed, binary variables in model
-  let vars: Vec<_> = model.get_vars().cloned().collect();
+  let vars: Vec<_> = model.get_vars();
   for (v, &orig_x) in vars.iter().zip(orig_sol.iter()) {
     let (vtype, lb, ub) = v.get_type(&model).unwrap();
 
