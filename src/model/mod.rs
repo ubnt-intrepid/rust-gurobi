@@ -140,49 +140,33 @@ impl Into<i32> for RelaxType {
 }
 
 
-/// internal type for proxy indices.
-#[derive(Debug, Copy, Clone)]
-pub enum ProxyValue {
-  Added(i32),
-  Removed
-}
-use self::ProxyValue::*;
-
 /// Provides methods to query/modify attributes associated with certain element.
 #[derive(Clone)]
-pub struct Proxy(Rc<Cell<ProxyValue>>);
+pub struct Proxy(Rc<Cell<i32>>);
 
 impl Proxy {
-  fn new(idx: ProxyValue) -> Proxy { Proxy(Rc::new(Cell::new(idx))) }
-  fn index(&self) -> ProxyValue { self.0.get() }
-  fn set_index(&mut self, value: ProxyValue) { self.0.set(value) }
+  fn new(idx: i32) -> Proxy { Proxy(Rc::new(Cell::new(idx))) }
+  fn index(&self) -> i32 { self.0.get() }
+  fn set_index(&mut self, value: i32) { self.0.set(value) }
 
   /// Query the value of attribute.
-  pub fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> {
-    match self.index() {
-      ProxyValue::Added(index) => model.get_element(attr, index),
-      _ => unreachable!()
-    }
-  }
+  pub fn get<A: AttrArray>(&self, model: &Model, attr: A) -> Result<A::Out> { model.get_element(attr, self.index()) }
 
   /// Set the value of attribute.
   pub fn set<A: AttrArray>(&self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
-    match self.index() {
-      ProxyValue::Added(index) => model.set_element(attr, index, val),
-      _ => unreachable!()
-    }
+    model.set_element(attr, self.index(), val)
   }
 }
 
 impl PartialEq for Proxy {
-  fn eq(&self, other: &Proxy) -> bool { self.0.as_ref() as *const Cell<_> == other.0.as_ref() as *const Cell<_> }
+  fn eq(&self, other: &Proxy) -> bool { self.0.as_ref() as *const Cell<i32> == other.0.as_ref() as *const Cell<i32> }
 }
 
 
 macro_rules! impl_traits_for_proxy {
   {$($t:ident)*} => { $(
     impl $t {
-      fn new(idx: ProxyValue) -> $t { $t(Proxy::new(idx)) }
+      fn new(idx: i32) -> $t { $t(Proxy::new(idx)) }
     }
 
     impl Deref for $t {
@@ -531,7 +515,7 @@ impl Model {
     try!(self.update());
 
     let col_no = self.vars.len() as i32;
-    self.vars.push(Var::new(Added(col_no)));
+    self.vars.push(Var::new(col_no));
 
     Ok(self.vars.last().cloned().unwrap())
   }
@@ -574,7 +558,7 @@ impl Model {
     let xcols = self.vars.len();
     let cols = self.vars.len() + _names.len();
     for col_no in xcols..cols {
-      self.vars.push(Var::new(Added(col_no as i32)));
+      self.vars.push(Var::new(col_no as i32));
     }
 
     Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -585,16 +569,6 @@ impl Model {
   pub fn add_constr(&mut self, name: &str, expr: LinExpr, sense: ConstrSense, rhs: f64) -> Result<Constr> {
     let constrname = try!(CString::new(name));
     let (vars, coeff, offset) = expr.into();
-    let vars = {
-      let mut buf = Vec::with_capacity(vars.len());
-      for elem in vars.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
     try!(self.check_apicall(unsafe {
       ffi::GRBaddconstr(self.model,
                         coeff.len() as ffi::c_int,
@@ -607,7 +581,7 @@ impl Model {
     try!(self.update());
 
     let row_no = self.constrs.len() as i32;
-    self.constrs.push(Constr::new(Added(row_no)));
+    self.constrs.push(Constr::new(row_no));
 
     Ok(self.constrs.last().cloned().unwrap())
   }
@@ -639,17 +613,6 @@ impl Model {
       val.extend(&expr.1);
     }
 
-    let ind = {
-      let mut buf = Vec::with_capacity(ind.len());
-      for elem in ind.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
     try!(self.check_apicall(unsafe {
       ffi::GRBaddconstrs(self.model,
                          constrnames.len() as ffi::c_int,
@@ -666,7 +629,7 @@ impl Model {
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
     for row_no in xrows..rows {
-      self.constrs.push(Constr::new(Added(row_no as i32)));
+      self.constrs.push(Constr::new(row_no as i32));
     }
 
     Ok(self.constrs[xrows..].iter().cloned().collect_vec())
@@ -683,17 +646,6 @@ impl Model {
   pub fn add_range(&mut self, name: &str, expr: LinExpr, lb: f64, ub: f64) -> Result<(Var, Constr)> {
     let constrname = try!(CString::new(name));
     let (vars, coeff, offset) = expr.into();
-    let vars = {
-      let mut buf = Vec::with_capacity(vars.len());
-      for elem in vars.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
     try!(self.check_apicall(unsafe {
       ffi::GRBaddrangeconstr(self.model,
                              coeff.len() as ffi::c_int,
@@ -706,10 +658,10 @@ impl Model {
     try!(self.update());
 
     let col_no = self.vars.len() as i32;
-    self.vars.push(Var::new(Added(col_no)));
+    self.vars.push(Var::new(col_no));
 
     let row_no = self.constrs.len() as i32;
-    self.constrs.push(Constr::new(Added(row_no)));
+    self.constrs.push(Constr::new(row_no));
 
     Ok((self.vars.last().cloned().unwrap(), self.constrs.last().cloned().unwrap()))
   }
@@ -742,17 +694,6 @@ impl Model {
       val.extend(&expr.1);
     }
 
-    let ind = {
-      let mut buf = Vec::with_capacity(ind.len());
-      for elem in ind.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
     try!(self.check_apicall(unsafe {
       ffi::GRBaddrangeconstrs(self.model,
                               constrnames.len() as ffi::c_int,
@@ -769,13 +710,13 @@ impl Model {
     let xcols = self.vars.len();
     let cols = self.vars.len() + names.len();
     for col_no in xcols..cols {
-      self.vars.push(Var::new(Added(col_no as i32)));
+      self.vars.push(Var::new(col_no as i32));
     }
 
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
     for row_no in xrows..rows {
-      self.constrs.push(Constr::new(Added(row_no as i32)));
+      self.constrs.push(Constr::new(row_no as i32));
     }
 
     Ok((self.vars[xcols..].iter().cloned().collect_vec(), self.constrs[xrows..].iter().cloned().collect_vec()))
@@ -785,39 +726,6 @@ impl Model {
   pub fn add_qconstr(&mut self, constrname: &str, expr: QuadExpr, sense: ConstrSense, rhs: f64) -> Result<QConstr> {
     let constrname = try!(CString::new(constrname));
     let (lind, lval, qrow, qcol, qval, offset) = expr.into();
-    let lind = {
-      let mut buf = Vec::with_capacity(lind.len());
-      for elem in lind.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    let qrow = {
-      let mut buf = Vec::with_capacity(qrow.len());
-      for elem in qrow.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    let qcol = {
-      let mut buf = Vec::with_capacity(qcol.len());
-      for elem in qcol.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
     try!(self.check_apicall(unsafe {
       ffi::GRBaddqconstr(self.model,
                          lval.len() as ffi::c_int,
@@ -834,7 +742,7 @@ impl Model {
     try!(self.update());
 
     let qrow_no = self.qconstrs.len() as i32;
-    self.qconstrs.push(QConstr::new(Added(qrow_no)));
+    self.qconstrs.push(QConstr::new(qrow_no));
 
     Ok(self.qconstrs.last().cloned().unwrap())
   }
@@ -845,17 +753,7 @@ impl Model {
       return Err(Error::InconsitentDims);
     }
 
-    let vars = {
-    let mut buf = Vec::with_capacity(vars.len());
-    for elem in vars.iter() {
-      match elem.index() {
-        Added(idx) => buf.push(idx),
-        _ => unreachable!()
-      }
-    }
-    buf
-    };
-
+    let vars = vars.iter().map(|v| v.index()).collect_vec();
     let beg = 0;
 
     try!(self.check_apicall(unsafe {
@@ -870,7 +768,7 @@ impl Model {
     try!(self.update());
 
     let sos_no = self.sos.len() as i32;
-    self.sos.push(SOS::new(Added(sos_no)));
+    self.sos.push(SOS::new(sos_no));
 
     Ok(self.sos.last().cloned().unwrap())
   }
@@ -878,39 +776,6 @@ impl Model {
   /// Set the objective function of the model.
   pub fn set_objective<Expr: Into<QuadExpr>>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
     let (lind, lval, qrow, qcol, qval, _) = Into::<QuadExpr>::into(expr).into();
-    let lind = {
-      let mut buf = Vec::with_capacity(lind.len());
-      for elem in lind.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    let qrow = {
-      let mut buf = Vec::with_capacity(qrow.len());
-      for elem in qrow.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    let qcol = {
-      let mut buf = Vec::with_capacity(qcol.len());
-      for elem in qcol.into_iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
     try!(self.del_qpterms());
     try!(self.add_qpterms(qrow.as_slice(), qcol.as_slice(), qval.as_slice()));
 
@@ -963,17 +828,8 @@ impl Model {
   pub fn get_values<A: AttrArray, P>(&self, attr: A, item: &[P]) -> Result<Vec<A::Out>>
     where P: Deref<Target = Proxy>
   {
-    let item = {
-    let mut buf = Vec::with_capacity(item.len());
-    for elem in item.iter() {
-      match elem.index() {
-        Added(idx) => buf.push(idx),
-        _ => unreachable!()
-      }
-    }
-    buf
-    };
-    self.get_list(attr, item.as_slice())
+    self.get_list(attr,
+                  item.iter().map(|e| e.index()).collect_vec().as_slice())
   }
 
   fn get_list<A: AttrArray>(&self, attr: A, ind: &[i32]) -> Result<Vec<A::Out>> {
@@ -995,18 +851,9 @@ impl Model {
   pub fn set_values<A: AttrArray, P>(&mut self, attr: A, item: &[P], val: &[A::Out]) -> Result<()>
     where P: Deref<Target = Proxy>
   {
-    let item = {
-      let mut buf = Vec::with_capacity(item.len());
-      for elem in item.iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    try!(self.set_list(attr, item.as_slice(), val));
+    try!(self.set_list(attr,
+                       item.iter().map(|e| e.index()).collect_vec().as_slice(),
+                       val));
     self.update()
   }
 
@@ -1059,10 +906,7 @@ impl Model {
     let mut pen_lb = vec![super::INFINITY; self.vars.len()];
     let mut pen_ub = vec![super::INFINITY; self.vars.len()];
     for (ref v, &lb, &ub) in Zip::new((vars, lbpen, ubpen)) {
-      let idx = match v.index() {
-        Added(idx) => idx,
-        _ => unreachable!()
-      };
+      let idx = v.index();
       if idx >= self.vars.len() as i32 {
         return Err(Error::InconsitentDims);
       }
@@ -1072,10 +916,7 @@ impl Model {
 
     let mut pen_rhs = vec![super::INFINITY; self.constrs.len()];
     for (ref c, &rhs) in Zip::new((constrs, rhspen)) {
-      let idx = match c.index() {
-        Added(idx) => idx,
-        _ => unreachable!()
-      };
+      let idx = c.index();
       if idx >= self.constrs.len() as i32 {
         return Err(Error::InconsitentDims);
       }
@@ -1105,9 +946,9 @@ impl Model {
     let xrows = self.constrs.len();
     let xqrows = self.qconstrs.len();
 
-    self.vars.extend((xcols..cols).map(|idx| Var::new(Added(idx as i32))));
-    self.constrs.extend((xrows..rows).map(|idx| Constr::new(Added(idx as i32))));
-    self.qconstrs.extend((xqrows..qrows).map(|idx| QConstr::new(Added(idx as i32))));
+    self.vars.extend((xcols..cols).map(|idx| Var::new(idx as i32)));
+    self.constrs.extend((xrows..rows).map(|idx| Constr::new(idx as i32)));
+    self.qconstrs.extend((xqrows..qrows).map(|idx| QConstr::new(idx as i32)));
 
     Ok((feasobj, self.vars[xcols..].iter(), self.constrs[xrows..].iter(), self.qconstrs[xqrows..].iter()))
   }
@@ -1119,10 +960,7 @@ impl Model {
     }
     try!(self.check_apicall(unsafe {
       ffi::GRBsetpwlobj(self.model,
-                        match var.index() {
-                          Added(idx) => idx,
-                          _ => unreachable!()
-                        },
+                        var.index(),
                         x.len() as ffi::c_int,
                         x.as_ptr(),
                         y.as_ptr())
@@ -1147,92 +985,88 @@ impl Model {
 
   /// Remove a variable from the model.
   pub fn remove_var(&mut self, mut item: Var) -> Result<()> {
-    let index = match item.index() {
-      Added(idx) => idx,
-      Removed => return Ok(()),
-    };
+    let index = item.index();
     if index >= self.vars.len() as i32 {
       return Err(Error::InconsitentDims);
     }
 
-    try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, 1, &index) }));
-    try!(self.update());
+    if index != -1 {
+      try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, 1, &index) }));
+      try!(self.update());
 
-    self.vars.remove(index as usize);
-    item.set_index(Removed);
+      self.vars.remove(index as usize);
+      item.set_index(-1);
 
-    // reset all of the remaining items.
-    for (idx, ref mut v) in self.vars.iter_mut().enumerate().skip(index as usize) {
-      v.set_index(Added(idx as i32));
+      // reset all of the remaining items.
+      for (idx, ref mut v) in self.vars.iter_mut().enumerate().skip(index as usize) {
+        v.set_index(idx as i32);
+      }
     }
     Ok(())
   }
 
   /// Remove a linear constraint from the model.
   pub fn remove_constr(&mut self, mut item: Constr) -> Result<()> {
-    let index = match item.index() {
-      Added(idx) => idx,
-      Removed => return Ok(()),
-    };
+    let index = item.index();
     if index >= self.constrs.len() as i32 {
       return Err(Error::InconsitentDims);
     }
 
-    try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, 1, &index) }));
-    try!(self.update());
+    if index != -1 {
+      try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, 1, &index) }));
+      try!(self.update());
 
-    self.constrs.remove(index as usize);
-    item.set_index(Removed);
+      self.constrs.remove(index as usize);
+      item.set_index(-1);
 
-    // reset all of the remaining items.
-    for (idx, ref mut c) in self.constrs.iter_mut().enumerate().skip(index as usize) {
-      c.set_index(Added(idx as i32));
+      // reset all of the remaining items.
+      for (idx, ref mut c) in self.constrs.iter_mut().enumerate().skip(index as usize) {
+        c.set_index(idx as i32);
+      }
     }
     Ok(())
   }
 
   /// Remove a quadratic constraint from the model.
   pub fn remove_qconstr(&mut self, mut item: QConstr) -> Result<()> {
-    let index = match item.index() {
-      Added(idx) => idx,
-      Removed => return Ok(()),
-    };
+    let index = item.index();
     if index >= self.qconstrs.len() as i32 {
       return Err(Error::InconsitentDims);
     }
 
-    try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, 1, &index) }));
-    try!(self.update());
+    if index != -1 {
+      try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, 1, &index) }));
+      try!(self.update());
 
-    self.qconstrs.remove(index as usize);
-    item.set_index(Removed);
+      self.qconstrs.remove(index as usize);
+      item.set_index(-1);
 
-    // reset all of the remaining items.
-    for (idx, ref mut qc) in self.qconstrs.iter_mut().enumerate().skip(index as usize) {
-      qc.set_index(Added(idx as i32));
+      // reset all of the remaining items.
+      for (idx, ref mut qc) in self.qconstrs.iter_mut().enumerate().skip(index as usize) {
+        qc.set_index(idx as i32);
+      }
     }
     Ok(())
   }
 
   /// Remove a special order set (SOS) cnstraint from the model.
   pub fn remove_sos(&mut self, mut item: SOS) -> Result<()> {
-    let index = match item.index() {
-      Added(idx) => idx,
-      Removed => return Ok(()),
-    };
+    let index = item.index();
     if index >= self.sos.len() as i32 {
       return Err(Error::InconsitentDims);
     }
 
-    try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, 1, &index) }));
-    try!(self.update());
+    if index != -1 {
+      try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, 1, &index) }));
+      try!(self.update());
 
-    self.sos.remove(index as usize);
-    item.set_index(Removed);
+      self.sos.remove(index as usize);
+      item.set_index(-1);
 
-    // reset all of the remaining items.
-    for (idx, ref mut s) in self.sos.iter_mut().enumerate().skip(index as usize) {
-      s.set_index(Added(idx as i32));
+      // reset all of the remaining items.
+      for (idx, ref mut s) in self.sos.iter_mut().enumerate().skip(index as usize) {
+        s.set_index(idx as i32);
+      }
     }
     Ok(())
   }
@@ -1240,36 +1074,13 @@ impl Model {
   /// Retrieve a single constant matrix coefficient of the model.
   pub fn get_coeff(&self, var: &Var, constr: &Constr) -> Result<f64> {
     let mut value = 0.0;
-    try!(self.check_apicall(unsafe {
-      ffi::GRBgetcoeff(self.model,
-                       match var.index() {
-                         Added(idx) => idx,
-                         _ => unreachable!()
-                       },
-                       match constr.index() {
-                         Added(idx) => idx,
-                         _ => unreachable!()
-                       },
-                       &mut value)
-    }));
+    try!(self.check_apicall(unsafe { ffi::GRBgetcoeff(self.model, var.index(), constr.index(), &mut value) }));
     Ok(value)
   }
 
   /// Change a single constant matrix coefficient of the model.
   pub fn set_coeff(&mut self, var: &Var, constr: &Constr, value: f64) -> Result<()> {
-    try!(self.check_apicall(unsafe {
-      ffi::GRBchgcoeffs(self.model,
-                        1,
-                        &(match var.index() {
-                          Added(idx) => idx,
-                          _ => unreachable!()
-                        }),
-                        &(match constr.index() {
-                          Added(idx) => idx,
-                          _ => unreachable!()
-                        }),
-                        &value)
-    }));
+    try!(self.check_apicall(unsafe { ffi::GRBchgcoeffs(self.model, 1, &var.index(), &constr.index(), &value) }));
     self.update()
   }
 
@@ -1279,27 +1090,8 @@ impl Model {
       return Err(Error::InconsitentDims);
     }
 
-    let vars = {
-      let mut buf = Vec::with_capacity(vars.len());
-      for elem in vars.iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
-
-    let constrs = {
-      let mut buf = Vec::with_capacity(constrs.len());
-      for elem in constrs.iter() {
-        match elem.index() {
-          Added(idx) => buf.push(idx),
-          _ => unreachable!()
-        }
-      }
-      buf
-    };
+    let vars = vars.iter().map(|v| v.index()).collect_vec();
+    let constrs = constrs.iter().map(|c| c.index()).collect_vec();
 
     try!(self.check_apicall(unsafe {
       ffi::GRBchgcoeffs(self.model,
@@ -1317,10 +1109,10 @@ impl Model {
     let numqconstrs = try!(self.get(attr::NumQConstrs)) as usize;
     let numsos = try!(self.get(attr::NumSOS)) as usize;
 
-    self.vars = (0..cols).map(|idx| Var::new(Added(idx as i32))).collect_vec();
-    self.constrs = (0..rows).map(|idx| Constr::new(Added(idx as i32))).collect_vec();
-    self.qconstrs = (0..numqconstrs).map(|idx| QConstr::new(Added(idx as i32))).collect_vec();
-    self.sos = (0..numsos).map(|idx| SOS::new(Added(idx as i32))).collect_vec();
+    self.vars = (0..cols).map(|idx| Var::new(idx as i32)).collect_vec();
+    self.constrs = (0..rows).map(|idx| Constr::new(idx as i32)).collect_vec();
+    self.qconstrs = (0..numqconstrs).map(|idx| QConstr::new(idx as i32)).collect_vec();
+    self.sos = (0..numsos).map(|idx| SOS::new(idx as i32)).collect_vec();
 
     Ok(())
   }
