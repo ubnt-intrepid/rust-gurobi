@@ -227,13 +227,6 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -245,7 +238,7 @@
 <span class='kw'>use</span> <span class='ident'>ffi</span>;
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>CString</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::{<span class='ident'>null</span>, <span class='ident'>null_mut</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::{<span class='ident'>null_mut</span>};
 
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 <span class='kw'>use</span> <span class='ident'>model</span>::<span class='ident'>Model</span>;
@@ -299,31 +292,16 @@
   }
 
   <span class='doccomment'>/// Create an empty Gurobi model from the environment</span>
+  <span class='attribute'>#[<span class='ident'>deprecated</span>]</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_model</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>modelname</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>modelname</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>modelname</span>));
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>model</span> <span class='op'>=</span> <span class='ident'>null_mut</span>();
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
-      <span class='ident'>ffi</span>::<span class='ident'>GRBnewmodel</span>(<span class='self'>self</span>.<span class='ident'>env</span>,
-                       <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>model</span>,
-                       <span class='ident'>modelname</span>.<span class='ident'>as_ptr</span>(),
-                       <span class='number'>0</span>,
-                       <span class='ident'>null</span>(),
-                       <span class='ident'>null</span>(),
-                       <span class='ident'>null</span>(),
-                       <span class='ident'>null</span>(),
-                       <span class='ident'>null</span>())
-    }));
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>model</span>)
+    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>modelname</span>, <span class='self'>self</span>)
   }
 
   <span class='doccomment'>/// Read a model from a file</span>
+  <span class='attribute'>#[<span class='ident'>deprecated</span>]</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_model</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>filename</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>filename</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>filename</span>));
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>model</span> <span class='op'>=</span> <span class='ident'>null_mut</span>();
-    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBreadmodel</span>(<span class='self'>self</span>.<span class='ident'>env</span>, <span class='ident'>filename</span>.<span class='ident'>as_ptr</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>model</span>) }));
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>model</span>)
+    <span class='ident'>Model</span>::<span class='ident'>read_from</span>(<span class='ident'>filename</span>, <span class='self'>self</span>)
   }
-
 
   <span class='doccomment'>/// Query the value of a parameter</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>Param</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>param</span>: <span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>P</span>::<span class='ident'>Out</span><span class='op'>&gt;</span> {
@@ -355,7 +333,15 @@
   <span class='doccomment'>///</span>
   <span class='doccomment'>/// When **message** cannot convert to raw C string, a panic is occurred.</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>message</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>message</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) { <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBmsg</span>(<span class='self'>self</span>.<span class='ident'>env</span>, <span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>message</span>).<span class='ident'>unwrap</span>().<span class='ident'>as_ptr</span>()) }; }
+}
 
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EnvAPI</span> {
+  <span class='kw'>fn</span> <span class='ident'>get_ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBenv</span>;
+  <span class='kw'>fn</span> <span class='ident'>check_apicall</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>error</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>;
+}
+
+<span class='kw'>impl</span> <span class='ident'>EnvAPI</span> <span class='kw'>for</span> <span class='ident'>Env</span> {
+  <span class='kw'>fn</span> <span class='ident'>get_ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBenv</span> { <span class='self'>self</span>.<span class='ident'>env</span> }
 
   <span class='kw'>fn</span> <span class='ident'>check_apicall</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>error</span>: <span class='ident'>ffi</span>::<span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>!=</span> <span class='number'>0</span> {

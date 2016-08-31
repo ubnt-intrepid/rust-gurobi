@@ -1420,6 +1420,62 @@
 <span id="1376">1376</span>
 <span id="1377">1377</span>
 <span id="1378">1378</span>
+<span id="1379">1379</span>
+<span id="1380">1380</span>
+<span id="1381">1381</span>
+<span id="1382">1382</span>
+<span id="1383">1383</span>
+<span id="1384">1384</span>
+<span id="1385">1385</span>
+<span id="1386">1386</span>
+<span id="1387">1387</span>
+<span id="1388">1388</span>
+<span id="1389">1389</span>
+<span id="1390">1390</span>
+<span id="1391">1391</span>
+<span id="1392">1392</span>
+<span id="1393">1393</span>
+<span id="1394">1394</span>
+<span id="1395">1395</span>
+<span id="1396">1396</span>
+<span id="1397">1397</span>
+<span id="1398">1398</span>
+<span id="1399">1399</span>
+<span id="1400">1400</span>
+<span id="1401">1401</span>
+<span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -1444,7 +1500,7 @@
 
 <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>attr</span>::{<span class='ident'>Attr</span>, <span class='ident'>AttrArray</span>};
 <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>callback</span>::{<span class='ident'>Callback</span>, <span class='ident'>New</span>};
-<span class='kw'>use</span> <span class='ident'>env</span>::{<span class='ident'>Env</span>, <span class='ident'>FromRaw</span>};
+<span class='kw'>use</span> <span class='ident'>env</span>::{<span class='ident'>Env</span>, <span class='ident'>EnvAPI</span>};
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>Error</span>, <span class='prelude-ty'>Result</span>};
 <span class='kw'>use</span> <span class='ident'>util</span>;
 
@@ -1940,9 +1996,15 @@
   <span class='ident'>sos</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>SOS</span><span class='op'>&gt;</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>Model</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>FromRaw</span> {
   <span class='doccomment'>/// create an empty model which associated with certain environment.</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
+  <span class='kw'>fn</span> <span class='ident'>from_raw</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span>;
+}
+
+<span class='kw'>impl</span> <span class='ident'>FromRaw</span> <span class='kw'>for</span> <span class='ident'>Model</span> {
+  <span class='doccomment'>/// create an empty model which associated with certain environment.</span>
+  <span class='kw'>fn</span> <span class='ident'>from_raw</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
+    <span class='kw'>use</span> <span class='ident'>env</span>::<span class='ident'>FromRaw</span>;
     <span class='kw'>let</span> <span class='ident'>env</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBgetenv</span>(<span class='ident'>model</span>) };
     <span class='kw'>if</span> <span class='ident'>env</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Failed to retrieve GRBenv from given model&quot;</span>.<span class='ident'>to_owned</span>(),
@@ -1961,6 +2023,54 @@
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>populate</span>());
     <span class='prelude-val'>Ok</span>(<span class='ident'>model</span>)
   }
+}
+
+<span class='kw'>impl</span> <span class='ident'>Model</span> {
+  <span class='doccomment'>/// Create an empty Gurobi model from the environment.</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// Note that all of the parameters in given environment will copy by Gurobi API</span>
+  <span class='doccomment'>/// and a new environment associated with the model will create.</span>
+  <span class='doccomment'>/// If you want to query/modify the value of parameters, use `get_env()`.</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// # Arguments</span>
+  <span class='doccomment'>/// * __modelname__ : Name of the model</span>
+  <span class='doccomment'>/// * __env__ : An environment object.</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// # Example</span>
+  <span class='doccomment'>/// ```</span>
+  <span class='doccomment'>/// use gurobi::*;</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// let mut env = gurobi::Env::new(&quot;&quot;).unwrap();</span>
+  <span class='doccomment'>/// env.set(param::OutputFlag, 0).unwrap();</span>
+  <span class='doccomment'>/// env.set(param::Heuristics, 0.5).unwrap();</span>
+  <span class='doccomment'>/// // ...</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// let model = Model::new(&quot;model1&quot;, &amp;env).unwrap();</span>
+  <span class='doccomment'>/// ```</span>
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>modelname</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>, <span class='ident'>env</span>: <span class='kw-2'>&amp;</span><span class='ident'>Env</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>modelname</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>modelname</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>model</span> <span class='op'>=</span> <span class='ident'>null_mut</span>();
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>env</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> {
+      <span class='ident'>ffi</span>::<span class='ident'>GRBnewmodel</span>(<span class='ident'>env</span>.<span class='ident'>get_ptr</span>(),
+                       <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>model</span>,
+                       <span class='ident'>modelname</span>.<span class='ident'>as_ptr</span>(),
+                       <span class='number'>0</span>,
+                       <span class='ident'>null</span>(),
+                       <span class='ident'>null</span>(),
+                       <span class='ident'>null</span>(),
+                       <span class='ident'>null</span>(),
+                       <span class='ident'>null</span>())
+    }));
+    <span class='self'>Self</span>::<span class='ident'>from_raw</span>(<span class='ident'>model</span>)
+  }
+
+  <span class='doccomment'>/// Read a model from a file</span>
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_from</span>(<span class='ident'>filename</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>, <span class='ident'>env</span>: <span class='kw-2'>&amp;</span><span class='ident'>Env</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>filename</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>filename</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>model</span> <span class='op'>=</span> <span class='ident'>null_mut</span>();
+    <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>env</span>.<span class='ident'>check_apicall</span>(<span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBreadmodel</span>(<span class='ident'>env</span>.<span class='ident'>get_ptr</span>(), <span class='ident'>filename</span>.<span class='ident'>as_ptr</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>model</span>) }));
+    <span class='self'>Self</span>::<span class='ident'>from_raw</span>(<span class='ident'>model</span>)
+  }
 
   <span class='doccomment'>/// create a copy of the model</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>copy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Model</span><span class='op'>&gt;</span> {
@@ -1969,7 +2079,7 @@
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Failed to create a copy of the model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
 
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>copied</span>)
+    <span class='ident'>Model</span>::<span class='ident'>from_raw</span>(<span class='ident'>copied</span>)
   }
 
   <span class='doccomment'>/// Create an fixed model associated with the model.</span>
@@ -1982,7 +2092,7 @@
     <span class='kw'>if</span> <span class='ident'>fixed</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;failed to create fixed model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>fixed</span>)
+    <span class='ident'>Model</span>::<span class='ident'>from_raw</span>(<span class='ident'>fixed</span>)
   }
 
   <span class='doccomment'>/// Create an relaxation of the model (undocumented).</span>
@@ -1991,7 +2101,7 @@
     <span class='kw'>if</span> <span class='ident'>relaxed</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;failed to create relaxed model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>relaxed</span>)
+    <span class='ident'>Model</span>::<span class='ident'>from_raw</span>(<span class='ident'>relaxed</span>)
   }
 
   <span class='doccomment'>/// Perform presolve on the model.</span>
@@ -2000,7 +2110,7 @@
     <span class='kw'>if</span> <span class='ident'>presolved</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;failed to create presolved model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>presolved</span>)
+    <span class='ident'>Model</span>::<span class='ident'>from_raw</span>(<span class='ident'>presolved</span>)
   }
 
   <span class='doccomment'>/// Create a feasibility model (undocumented).</span>
@@ -2009,7 +2119,7 @@
     <span class='kw'>if</span> <span class='ident'>feasibility</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;failed to create feasibility model&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20002</span>));
     }
-    <span class='ident'>Model</span>::<span class='ident'>new</span>(<span class='ident'>feasibility</span>)
+    <span class='ident'>Model</span>::<span class='ident'>from_raw</span>(<span class='ident'>feasibility</span>)
   }
 
   <span class='doccomment'>/// Get immutable reference of an environment object associated with the model.</span>
@@ -2090,6 +2200,8 @@
   <span class='doccomment'>/// ```</span>
   <span class='attribute'>#[<span class='ident'>deprecated</span>]</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_concurrent_env</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>num</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Env</span><span class='op'>&gt;</span> {
+    <span class='kw'>use</span> <span class='ident'>env</span>::<span class='ident'>FromRaw</span>;
+
     <span class='kw'>let</span> <span class='ident'>env</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>GRBgetconcurrentenv</span>(<span class='self'>self</span>.<span class='ident'>model</span>, <span class='ident'>num</span>) };
     <span class='kw'>if</span> <span class='ident'>env</span>.<span class='ident'>is_null</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>FromAPI</span>(<span class='string'>&quot;Cannot get a concurrent environment.&quot;</span>.<span class='ident'>to_owned</span>(), <span class='number'>20003</span>));
