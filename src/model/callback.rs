@@ -288,6 +288,7 @@ impl<'a> New<'a> for Callback<'a> {
   }
 }
 
+use model::ProxyValue;
 
 impl<'a> Callback<'a> {
   /// Retrieve the location where the callback called.
@@ -296,12 +297,30 @@ impl<'a> Callback<'a> {
   /// Retrive node relaxation solution values at the current node.
   pub fn get_node_rel(&self, vars: &[Var]) -> Result<Vec<f64>> {
     // memo: only MIPNode && status == Optimal
-    self.get_double_array(MIPNODE, MIPNODE_REL).map(|buf| vars.iter().map(|v| buf[v.index() as usize]).collect_vec())
+    self.get_double_array(MIPNODE, MIPNODE_REL).map(|buf| {
+      vars.iter()
+        .map(|v| {
+          buf[match v.index() {
+            ProxyValue::Added(idx) => idx as usize,
+            _ => unreachable!()
+          }]
+        })
+        .collect_vec()
+    })
   }
 
   /// Retrieve values from the current solution vector.
   pub fn get_solution(&self, vars: &[Var]) -> Result<Vec<f64>> {
-    self.get_double_array(MIPSOL, MIPSOL_SOL).map(|buf| vars.iter().map(|v| buf[v.index() as usize]).collect_vec())
+    self.get_double_array(MIPSOL, MIPSOL_SOL).map(|buf| {
+      vars.iter()
+        .map(|v| {
+          buf[match v.index() {
+            ProxyValue::Added(idx) => idx as usize,
+            _ => unreachable!()
+          }]
+        })
+        .collect_vec()
+    })
   }
 
   /// Provide a new feasible solution for a MIP model.
@@ -312,7 +331,10 @@ impl<'a> Callback<'a> {
 
     let mut buf = vec![0.0; self.model.vars.len()];
     for (v, &sol) in Zip::new((vars.iter(), solution.iter())) {
-      let i = v.index() as usize;
+      let i = match v.index() {
+        ProxyValue::Added(idx) => idx as usize,
+        _ => unreachable!()
+      };
       buf[i] = sol;
     }
 
@@ -331,6 +353,18 @@ impl<'a> Callback<'a> {
   /// Add a new cutting plane to the MIP model.
   pub fn add_cut(&self, lhs: LinExpr, sense: ConstrSense, rhs: f64) -> Result<()> {
     let (vars, coeff, offset) = lhs.into();
+
+    let vars = {
+      let mut buf = Vec::with_capacity(vars.len());
+      for elem in vars.into_iter() {
+        match elem.index() {
+          ProxyValue::Added(idx) => buf.push(idx),
+          _ => unreachable!()
+        }
+      }
+      buf
+    };
+
     self.check_apicall(unsafe {
       ffi::GRBcbcut(self.cbdata,
                     coeff.len() as ffi::c_int,
@@ -344,6 +378,17 @@ impl<'a> Callback<'a> {
   /// Add a new lazy constraint to the MIP model.
   pub fn add_lazy(&self, lhs: LinExpr, sense: ConstrSense, rhs: f64) -> Result<()> {
     let (vars, coeff, offset) = lhs.into();
+    let vars = {
+      let mut buf = Vec::with_capacity(vars.len());
+      for elem in vars.into_iter() {
+        match elem.index() {
+          ProxyValue::Added(idx) => buf.push(idx),
+          _ => unreachable!()
+        }
+      }
+      buf
+    };
+
     self.check_apicall(unsafe {
       ffi::GRBcblazy(self.cbdata,
                      coeff.len() as ffi::c_int,

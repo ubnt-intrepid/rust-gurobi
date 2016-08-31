@@ -20,10 +20,8 @@ pub struct LinExpr {
   offset: f64
 }
 
-impl Into<(Vec<i32>, Vec<f64>, f64)> for LinExpr {
-  fn into(self) -> (Vec<i32>, Vec<f64>, f64) {
-    (self.vars.into_iter().map(|e| e.index()).collect(), self.coeff, self.offset)
-  }
+impl Into<(Vec<Var>, Vec<f64>, f64)> for LinExpr {
+  fn into(self) -> (Vec<Var>, Vec<f64>, f64) { (self.vars, self.coeff, self.offset) }
 }
 
 
@@ -73,14 +71,9 @@ pub struct QuadExpr {
   offset: f64
 }
 
-impl Into<(Vec<i32>, Vec<f64>, Vec<i32>, Vec<i32>, Vec<f64>, f64)> for QuadExpr {
-  fn into(self) -> (Vec<i32>, Vec<f64>, Vec<i32>, Vec<i32>, Vec<f64>, f64) {
-    (self.lind.into_iter().map(|e| e.index()).collect(),
-     self.lval,
-     self.qrow.into_iter().map(|e| e.index()).collect(),
-     self.qcol.into_iter().map(|e| e.index()).collect(),
-     self.qval,
-     self.offset)
+impl Into<(Vec<Var>, Vec<f64>, Vec<Var>, Vec<Var>, Vec<f64>, f64)> for QuadExpr {
+  fn into(self) -> (Vec<Var>, Vec<f64>, Vec<Var>, Vec<Var>, Vec<f64>, f64) {
+    (self.lind, self.lval, self.qrow, self.qcol, self.qval, self.offset)
   }
 }
 
