@@ -24,7 +24,7 @@ fn main() {
       model.set(attr::ModelName, "assignment_relaxed".to_owned()).unwrap();
 
       // do relaxation.
-      let constrs = model.get_constrs().cloned().collect_vec();
+      let constrs = model.get_constrs();
       let slacks = {
         let (_, svars, _, _) = model.feas_relax(RelaxType::Linear,
                       false,
@@ -34,7 +34,7 @@ fn main() {
                       &constrs[..],
                       RepeatN::new(1.0, constrs.len()).collect_vec().as_slice())
           .unwrap();
-        svars.cloned().collect_vec()
+        svars
       };
       model.optimize().unwrap();
 

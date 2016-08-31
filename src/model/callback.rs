@@ -305,11 +305,11 @@ impl<'a> Callback<'a> {
 
   /// Provide a new feasible solution for a MIP model.
   pub fn set_solution(&self, vars: &[Var], solution: &[f64]) -> Result<()> {
-    if vars.len() != solution.len() || vars.len() < self.model.vars.len() {
+    if vars.len() != solution.len() || vars.len() < self.model.vars.borrow().len() {
       return Err(Error::InconsitentDims);
     }
 
-    let mut buf = vec![0.0; self.model.vars.len()];
+    let mut buf = vec![0.0; self.model.vars.borrow().len()];
     for (v, &sol) in Zip::new((vars.iter(), solution.iter())) {
       let i = v.index() as usize;
       buf[i] = sol;
@@ -363,7 +363,7 @@ impl<'a> Callback<'a> {
   }
 
   fn get_double_array(&self, where_: i32, what: i32) -> Result<Vec<f64>> {
-    let mut buf = vec![0.0; self.model.vars.len()];
+    let mut buf = vec![0.0; self.model.vars.borrow().len()];
     self.check_apicall(unsafe { ffi::GRBcbget(self.cbdata, where_, what, transmute(buf.as_mut_ptr())) }).and(Ok(buf))
   }
 
