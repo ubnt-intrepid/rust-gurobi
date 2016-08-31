@@ -636,25 +636,25 @@ impl Model {
   pub fn get_env(&self) -> &Env { &self.env }
 
   /// Get mutable reference of an environment object associated with the model.
-  pub fn get_env_mut(&mut self) -> &mut Env { &mut self.env }
+  pub fn get_env_mut(&self) -> &mut Env { &mut self.env }
 
   /// Apply all modification of the model to process
-  pub fn update(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }) }
+  pub fn update(&self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }) }
 
   /// Optimize the model synchronously
-  pub fn optimize(&mut self) -> Result<()> {
+  pub fn optimize(&self) -> Result<()> {
     try!(self.update());
     self.check_apicall(unsafe { ffi::GRBoptimize(self.model) })
   }
 
   /// Optimize the model asynchronously
-  pub fn optimize_async(&mut self) -> Result<()> {
+  pub fn optimize_async(&self) -> Result<()> {
     try!(self.update());
     self.check_apicall(unsafe { ffi::GRBoptimizeasync(self.model) })
   }
 
   /// Optimize the model with a callback function
-  pub fn optimize_with_callback<F>(&mut self, mut callback: F) -> Result<()>
+  pub fn optimize_with_callback<F>(&self, mut callback: F) -> Result<()>
     where F: FnMut(Callback) -> Result<()> + 'static
   {
     let usrdata = CallbackData {
@@ -675,7 +675,7 @@ impl Model {
   pub fn sync(&self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBsync(self.model) }) }
 
   /// Compute an Irreducible Inconsistent Subsystem (IIS) of the model.
-  pub fn compute_iis(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBcomputeIIS(self.model) }) }
+  pub fn compute_iis(&self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBcomputeIIS(self.model) }) }
 
   /// Send a request to the model to terminate the current optimization process.
   pub fn terminate(&self) { unsafe { ffi::GRBterminate(self.model) } }
@@ -729,7 +729,7 @@ impl Model {
   pub fn message(&self, message: &str) { self.env.message(message); }
 
   /// Import optimization data of the model from a file.
-  pub fn read(&mut self, filename: &str) -> Result<()> {
+  pub fn read(&self, filename: &str) -> Result<()> {
     let filename = try!(CString::new(filename));
     self.check_apicall(unsafe { ffi::GRBread(self.model, filename.as_ptr()) })
   }
@@ -742,7 +742,7 @@ impl Model {
 
 
   /// add a decision variable to the model.
-  pub fn add_var(&mut self, name: &str, vtype: VarType) -> Result<Var> {
+  pub fn add_var(&self, name: &str, vtype: VarType) -> Result<Var> {
     // extract parameters
     let (vtype, lb, ub) = vtype.into();
     let name = try!(CString::new(name));
@@ -767,7 +767,7 @@ impl Model {
   }
 
   /// add decision variables to the model.
-  pub fn add_vars(&mut self, names: &[&str], vtypes: &[VarType]) -> Result<Vec<Var>> {
+  pub fn add_vars(&self, names: &[&str], vtypes: &[VarType]) -> Result<Vec<Var>> {
     if names.len() != vtypes.len() {
       return Err(Error::InconsitentDims);
     }
@@ -812,7 +812,7 @@ impl Model {
 
 
   /// add a linear constraint to the model.
-  pub fn add_constr(&mut self, name: &str, expr: LinExpr, sense: ConstrSense, rhs: f64) -> Result<Constr> {
+  pub fn add_constr(&self, name: &str, expr: LinExpr, sense: ConstrSense, rhs: f64) -> Result<Constr> {
     let constrname = try!(CString::new(name));
     try!(self.check_apicall(unsafe {
       ffi::GRBaddconstr(self.model,
@@ -832,7 +832,7 @@ impl Model {
   }
 
   /// add linear constraints to the model.
-  pub fn add_constrs(&mut self, name: &[&str], expr: &[LinExpr], sense: &[ConstrSense], rhs: &[f64])
+  pub fn add_constrs(&self, name: &[&str], expr: &[LinExpr], sense: &[ConstrSense], rhs: &[f64])
                      -> Result<Vec<Constr>> {
     let mut constrnames = Vec::with_capacity(name.len());
     for &s in name.iter() {
@@ -888,7 +888,7 @@ impl Model {
   /// # Returns
   /// * An decision variable associated with the model. It has lower/upper bound constraints.
   /// * An linear equality constraint associated with the model.
-  pub fn add_range(&mut self, name: &str, expr: LinExpr, lb: f64, ub: f64) -> Result<(Var, Constr)> {
+  pub fn add_range(&self, name: &str, expr: LinExpr, lb: f64, ub: f64) -> Result<(Var, Constr)> {
     let constrname = try!(CString::new(name));
     try!(self.check_apicall(unsafe {
       ffi::GRBaddrangeconstr(self.model,
@@ -911,7 +911,7 @@ impl Model {
   }
 
   /// Add range constraints to the model.
-  pub fn add_ranges(&mut self, names: &[&str], expr: &[LinExpr], lb: &[f64], ub: &[f64])
+  pub fn add_ranges(&self, names: &[&str], expr: &[LinExpr], lb: &[f64], ub: &[f64])
                     -> Result<(Vec<Var>, Vec<Constr>)> {
 
     let mut constrnames = Vec::with_capacity(names.len());
@@ -967,7 +967,7 @@ impl Model {
   }
 
   /// add a quadratic constraint to the model.
-  pub fn add_qconstr(&mut self, constrname: &str, expr: QuadExpr, sense: ConstrSense, rhs: f64) -> Result<QConstr> {
+  pub fn add_qconstr(&self, constrname: &str, expr: QuadExpr, sense: ConstrSense, rhs: f64) -> Result<QConstr> {
     let constrname = try!(CString::new(constrname));
     try!(self.check_apicall(unsafe {
       ffi::GRBaddqconstr(self.model,
@@ -991,7 +991,7 @@ impl Model {
   }
 
   /// add Special Order Set (SOS) constraint to the model.
-  pub fn add_sos(&mut self, vars: &[Var], weights: &[f64], sostype: SOSType) -> Result<SOS> {
+  pub fn add_sos(&self, vars: &[Var], weights: &[f64], sostype: SOSType) -> Result<SOS> {
     if vars.len() != weights.len() {
       return Err(Error::InconsitentDims);
     }
@@ -1017,7 +1017,7 @@ impl Model {
   }
 
   /// Set the objective function of the model.
-  pub fn set_objective<Expr: Into<QuadExpr>>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
+  pub fn set_objective<Expr: Into<QuadExpr>>(&self, expr: Expr, sense: ModelSense) -> Result<()> {
     let expr = expr.into();
     let lind = expr.lind.into_iter().map(|v| v.index()).collect_vec();
     let qrow = expr.qrow.into_iter().map(|v| v.index()).collect_vec();
@@ -1044,7 +1044,7 @@ impl Model {
   }
 
   /// Set the value of attributes which associated with variable/constraints.
-  pub fn set<A: Attr>(&mut self, attr: A, value: A::Out) -> Result<()> {
+  pub fn set<A: Attr>(&self, attr: A, value: A::Out) -> Result<()> {
     try!(self.check_apicall(unsafe { A::set_attr(self.model, attr.into().as_ptr(), util::From::from(value)) }));
     self.update()
   }
@@ -1061,7 +1061,7 @@ impl Model {
     Ok(util::Into::into(value))
   }
 
-  fn set_element<A: AttrArray>(&mut self, attr: A, element: i32, value: A::Out) -> Result<()> {
+  fn set_element<A: AttrArray>(&self, attr: A, element: i32, value: A::Out) -> Result<()> {
     try!(self.check_apicall(unsafe {
       A::set_attrelement(self.model,
                          attr.into().as_ptr(),
@@ -1095,7 +1095,7 @@ impl Model {
 
 
   /// Set the value of attributes which associated with variable/constraints.
-  pub fn set_values<A: AttrArray, P>(&mut self, attr: A, item: &[P], val: &[A::Out]) -> Result<()>
+  pub fn set_values<A: AttrArray, P>(&self, attr: A, item: &[P], val: &[A::Out]) -> Result<()>
     where P: Deref<Target = Proxy>
   {
     try!(self.set_list(attr,
@@ -1104,7 +1104,7 @@ impl Model {
     self.update()
   }
 
-  fn set_list<A: AttrArray>(&mut self, attr: A, ind: &[i32], values: &[A::Out]) -> Result<()> {
+  fn set_list<A: AttrArray>(&self, attr: A, ind: &[i32], values: &[A::Out]) -> Result<()> {
     if ind.len() != values.len() {
       return Err(Error::InconsitentDims);
     }
@@ -1139,7 +1139,7 @@ impl Model {
   /// ## Returns
   /// * The objective value for the relaxation performed (if `minrelax` is `true`).
   /// * Slack variables for relaxation and linear/quadratic constraints related to theirs.
-  pub fn feas_relax(&mut self, relaxtype: RelaxType, minrelax: bool, vars: &[Var], lbpen: &[f64], ubpen: &[f64],
+  pub fn feas_relax(&self, relaxtype: RelaxType, minrelax: bool, vars: &[Var], lbpen: &[f64], ubpen: &[f64],
                     constrs: &[Constr], rhspen: &[f64])
                     -> Result<(f64, Iter<Var>, Iter<Constr>, Iter<QConstr>)> {
     if vars.len() != lbpen.len() || vars.len() != ubpen.len() {
@@ -1231,7 +1231,7 @@ impl Model {
   pub fn get_sos(&self) -> Iter<SOS> { self.sos.iter() }
 
   /// Remove a variable from the model.
-  pub fn remove_var(&mut self, mut item: Var) -> Result<()> {
+  pub fn remove_var(&self, mut item: Var) -> Result<()> {
     let index = item.index();
     if index >= self.vars.len() as i32 {
       return Err(Error::InconsitentDims);
@@ -1253,7 +1253,7 @@ impl Model {
   }
 
   /// Remove a linear constraint from the model.
-  pub fn remove_constr(&mut self, mut item: Constr) -> Result<()> {
+  pub fn remove_constr(&self, mut item: Constr) -> Result<()> {
     let index = item.index();
     if index >= self.constrs.len() as i32 {
       return Err(Error::InconsitentDims);
@@ -1275,7 +1275,7 @@ impl Model {
   }
 
   /// Remove a quadratic constraint from the model.
-  pub fn remove_qconstr(&mut self, mut item: QConstr) -> Result<()> {
+  pub fn remove_qconstr(&self, mut item: QConstr) -> Result<()> {
     let index = item.index();
     if index >= self.qconstrs.len() as i32 {
       return Err(Error::InconsitentDims);
@@ -1297,7 +1297,7 @@ impl Model {
   }
 
   /// Remove a special order set (SOS) cnstraint from the model.
-  pub fn remove_sos(&mut self, mut item: SOS) -> Result<()> {
+  pub fn remove_sos(&self, mut item: SOS) -> Result<()> {
     let index = item.index();
     if index >= self.sos.len() as i32 {
       return Err(Error::InconsitentDims);
@@ -1326,13 +1326,13 @@ impl Model {
   }
 
   /// Change a single constant matrix coefficient of the model.
-  pub fn set_coeff(&mut self, var: &Var, constr: &Constr, value: f64) -> Result<()> {
+  pub fn set_coeff(&self, var: &Var, constr: &Constr, value: f64) -> Result<()> {
     try!(self.check_apicall(unsafe { ffi::GRBchgcoeffs(self.model, 1, &var.index(), &constr.index(), &value) }));
     self.update()
   }
 
   /// Change a set of constant matrix coefficients of the model.
-  pub fn set_coeffs(&mut self, vars: &[&Var], constrs: &[&Constr], values: &[f64]) -> Result<()> {
+  pub fn set_coeffs(&self, vars: &[&Var], constrs: &[&Constr], values: &[f64]) -> Result<()> {
     if vars.len() != values.len() || constrs.len() != values.len() {
       return Err(Error::InconsitentDims);
     }
@@ -1350,7 +1350,7 @@ impl Model {
     self.update()
   }
 
-  fn populate(&mut self) -> Result<()> {
+  fn populate(&self) -> Result<()> {
     let cols = try!(self.get(attr::exports::NumVars)) as usize;
     let rows = try!(self.get(attr::exports::NumConstrs)) as usize;
     let numqconstrs = try!(self.get(attr::exports::NumQConstrs)) as usize;
@@ -1366,7 +1366,7 @@ impl Model {
 
 
   // add quadratic terms of objective function.
-  fn add_qpterms(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
+  fn add_qpterms(&self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
     try!(self.check_apicall(unsafe {
       ffi::GRBaddqpterms(self.model,
                          qrow.len() as ffi::c_int,
@@ -1378,7 +1378,7 @@ impl Model {
   }
 
   // remove quadratic terms of objective function.
-  fn del_qpterms(&mut self) -> Result<()> {
+  fn del_qpterms(&self) -> Result<()> {
     try!(self.check_apicall(unsafe { ffi::GRBdelq(self.model) }));
     self.update()
   }
