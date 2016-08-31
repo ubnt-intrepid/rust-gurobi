@@ -1420,25 +1420,6 @@
 <span id="1376">1376</span>
 <span id="1377">1377</span>
 <span id="1378">1378</span>
-<span id="1379">1379</span>
-<span id="1380">1380</span>
-<span id="1381">1381</span>
-<span id="1382">1382</span>
-<span id="1383">1383</span>
-<span id="1384">1384</span>
-<span id="1385">1385</span>
-<span id="1386">1386</span>
-<span id="1387">1387</span>
-<span id="1388">1388</span>
-<span id="1389">1389</span>
-<span id="1390">1390</span>
-<span id="1391">1391</span>
-<span id="1392">1392</span>
-<span id="1393">1393</span>
-<span id="1394">1394</span>
-<span id="1395">1395</span>
-<span id="1396">1396</span>
-<span id="1397">1397</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -1451,13 +1432,14 @@
 <span class='kw'>use</span> <span class='ident'>ffi</span>;
 <span class='kw'>use</span> <span class='ident'>itertools</span>::{<span class='ident'>Itertools</span>, <span class='ident'>Zip</span>};
 
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>Cell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>CString</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::{<span class='ident'>null</span>, <span class='ident'>null_mut</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Deref</span>, <span class='ident'>DerefMut</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>panic</span>::{<span class='ident'>catch_unwind</span>, <span class='ident'>AssertUnwindSafe</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>::{<span class='ident'>null</span>, <span class='ident'>null_mut</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>Cell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::<span class='ident'>Iter</span>;
 
 <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>attr</span>::{<span class='ident'>Attr</span>, <span class='ident'>AttrArray</span>};
@@ -1507,41 +1489,31 @@
 
 
 <span class='doccomment'>/// Sense of new objective function</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>Copy</span>,<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ModelSense</span> {
-  <span class='ident'>Minimize</span>,
-  <span class='ident'>Maximize</span>
+  <span class='ident'>Minimize</span> <span class='op'>=</span> <span class='number'>1</span>,
+  <span class='ident'>Maximize</span> <span class='op'>=</span> <span class='op'>-</span><span class='number'>1</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ModelSense</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-    <span class='kw'>match</span> <span class='self'>self</span> {
-      <span class='ident'>ModelSense</span>::<span class='ident'>Minimize</span> <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>1</span>,
-      <span class='ident'>ModelSense</span>::<span class='ident'>Maximize</span> <span class='op'>=&gt;</span> <span class='number'>1</span>,
-    }
-  }
+  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { (<span class='kw'>unsafe</span> { <span class='ident'>transmute</span>::<span class='op'>&lt;</span>_, <span class='ident'>i8</span><span class='op'>&gt;</span>(<span class='self'>self</span>) }) <span class='kw'>as</span> <span class='ident'>i32</span> }
 }
 
 
 <span class='doccomment'>/// Type of new SOS constraint</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>Copy</span>,<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>SOSType</span> {
-  <span class='ident'>SOSType1</span>,
-  <span class='ident'>SOSType2</span>
+  <span class='ident'>SOSType1</span> <span class='op'>=</span> <span class='number'>1</span>,
+  <span class='ident'>SOSType2</span> <span class='op'>=</span> <span class='number'>2</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>SOSType</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-    <span class='kw'>match</span> <span class='self'>self</span> {
-      <span class='ident'>SOSType</span>::<span class='ident'>SOSType1</span> <span class='op'>=&gt;</span> <span class='number'>1</span>,
-      <span class='ident'>SOSType</span>::<span class='ident'>SOSType2</span> <span class='op'>=&gt;</span> <span class='number'>2</span>,
-    }
-  }
+  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { (<span class='kw'>unsafe</span> { <span class='ident'>transmute</span>::<span class='op'>&lt;</span>_, <span class='ident'>i8</span><span class='op'>&gt;</span>(<span class='self'>self</span>) }) <span class='kw'>as</span> <span class='ident'>i32</span> }
 }
 
 
 <span class='doccomment'>/// Status of a model</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>PartialEq</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>Copy</span>,<span class='ident'>Clone</span>,<span class='ident'>PartialEq</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Status</span> {
   <span class='ident'>Loaded</span> <span class='op'>=</span> <span class='number'>1</span>,
   <span class='ident'>Optimal</span>,
@@ -1569,56 +1541,75 @@
 }
 
 <span class='doccomment'>/// Type of cost function at feasibility relaxation</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>Copy</span>,<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RelaxType</span> {
   <span class='doccomment'>/// The weighted magnitude of bounds and constraint violations</span>
   <span class='doccomment'>/// (`penalty(s_i) = w_i s_i`)</span>
-  <span class='ident'>Linear</span>,
+  <span class='ident'>Linear</span> <span class='op'>=</span> <span class='number'>0</span>,
 
   <span class='doccomment'>/// The weighted square of magnitude of bounds and constraint violations</span>
   <span class='doccomment'>/// (`penalty(s_i) = w_i s_i^2`)</span>
-  <span class='ident'>Quadratic</span>,
+  <span class='ident'>Quadratic</span> <span class='op'>=</span> <span class='number'>1</span>,
 
   <span class='doccomment'>/// The weighted count of bounds and constraint violations</span>
   <span class='doccomment'>/// (`penalty(s_i) = w_i * [s_i &gt; 0]`)</span>
-  <span class='ident'>Cardinality</span>
+  <span class='ident'>Cardinality</span> <span class='op'>=</span> <span class='number'>2</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RelaxType</span> {
-  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-    <span class='kw'>match</span> <span class='self'>self</span> {
-      <span class='ident'>RelaxType</span>::<span class='ident'>Linear</span> <span class='op'>=&gt;</span> <span class='number'>0</span>,
-      <span class='ident'>RelaxType</span>::<span class='ident'>Quadratic</span> <span class='op'>=&gt;</span> <span class='number'>1</span>,
-      <span class='ident'>RelaxType</span>::<span class='ident'>Cardinality</span> <span class='op'>=&gt;</span> <span class='number'>2</span>,
-    }
-  }
+  <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { (<span class='kw'>unsafe</span> { <span class='ident'>transmute</span>::<span class='op'>&lt;</span>_, <span class='ident'>i8</span><span class='op'>&gt;</span>(<span class='self'>self</span>) }) <span class='kw'>as</span> <span class='ident'>i32</span> }
 }
 
-
-
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ProxyBase</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>;
-  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span>;
-  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>);
-}
 
 <span class='doccomment'>/// Provides methods to query/modify attributes associated with certain element.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Proxy</span>: <span class='ident'>ProxyBase</span> {
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Proxy</span>(<span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;&gt;</span>);
+
+<span class='kw'>impl</span> <span class='ident'>Proxy</span> {
+  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>Proxy</span> { <span class='ident'>Proxy</span>(<span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>))) }
+  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>get</span>() }
+  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>) { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>set</span>(<span class='ident'>value</span>) }
+
   <span class='doccomment'>/// Query the value of attribute.</span>
-  <span class='kw'>fn</span> <span class='ident'>get</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>A</span>::<span class='ident'>Out</span><span class='op'>&gt;</span> {
-    <span class='ident'>model</span>.<span class='ident'>get_element</span>(<span class='ident'>attr</span>, <span class='self'>self</span>.<span class='ident'>index</span>())
-  }
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>A</span>::<span class='ident'>Out</span><span class='op'>&gt;</span> { <span class='ident'>model</span>.<span class='ident'>get_element</span>(<span class='ident'>attr</span>, <span class='self'>self</span>.<span class='ident'>index</span>()) }
 
   <span class='doccomment'>/// Set the value of attribute.</span>
-  <span class='kw'>fn</span> <span class='ident'>set</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>val</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Model</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>val</span>: <span class='ident'>A</span>::<span class='ident'>Out</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='ident'>model</span>.<span class='ident'>set_element</span>(<span class='ident'>attr</span>, <span class='self'>self</span>.<span class='ident'>index</span>(), <span class='ident'>val</span>)
+  }
+}
+
+<span class='kw'>impl</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='ident'>Proxy</span> {
+  <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>Proxy</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='op'>==</span> <span class='ident'>other</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> }
+}
+
+
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_traits_for_proxy</span> {
+  (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
+    <span class='kw'>impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
+      <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> { <span class='ident'>Proxy</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>).<span class='ident'>into</span>() }
+    }
+    <span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
+      <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Proxy</span>;
+      <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Proxy</span> { <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span> }
+    }
+    <span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
+      <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Proxy</span> { <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='number'>0</span> }
+    }
+    <span class='kw'>impl</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
+      <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>:<span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='number'>0</span>) }
+    }
   }
 }
 
 
 <span class='doccomment'>/// Proxy object of a variables</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Var</span>(<span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;&gt;</span>);
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Var</span>(<span class='ident'>Proxy</span>);
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Proxy</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Var</span> {
+  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>rep</span>: <span class='ident'>Proxy</span>) <span class='op'>-&gt;</span> <span class='ident'>Var</span> { <span class='ident'>Var</span>(<span class='ident'>rep</span>) }
+}
+<span class='macro'>impl_traits_for_proxy</span><span class='macro'>!</span>(<span class='ident'>Var</span>);
 
 <span class='kw'>impl</span> <span class='ident'>Var</span> {
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_type</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>model</span>: <span class='kw-2'>&amp;</span><span class='ident'>Model</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='ident'>char</span>, <span class='ident'>f64</span>, <span class='ident'>f64</span>)<span class='op'>&gt;</span> {
@@ -1632,59 +1623,27 @@
 
 <span class='doccomment'>/// Proxy object of a linear constraint</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Constr</span>(<span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;&gt;</span>);
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Constr</span>(<span class='ident'>Proxy</span>);
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Proxy</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Constr</span> {
+  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>rep</span>: <span class='ident'>Proxy</span>) <span class='op'>-&gt;</span> <span class='ident'>Constr</span> { <span class='ident'>Constr</span>(<span class='ident'>rep</span>) }
+}
+<span class='macro'>impl_traits_for_proxy</span><span class='macro'>!</span>(<span class='ident'>Constr</span>);
 
 <span class='doccomment'>/// Proxy object of a quadratic constraint</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>QConstr</span>(<span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;&gt;</span>);
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>QConstr</span>(<span class='ident'>Proxy</span>);
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Proxy</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QConstr</span> {
+  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>rep</span>: <span class='ident'>Proxy</span>) <span class='op'>-&gt;</span> <span class='ident'>QConstr</span> { <span class='ident'>QConstr</span>(<span class='ident'>rep</span>) }
+}
+<span class='macro'>impl_traits_for_proxy</span><span class='macro'>!</span>(<span class='ident'>QConstr</span>);
 
 <span class='doccomment'>/// Proxy object of a Special Order Set (SOS) constraint</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SOS</span>(<span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;&gt;</span>);
-
-<span class='kw'>impl</span> <span class='ident'>ProxyBase</span> <span class='kw'>for</span> <span class='ident'>Var</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>Var</span> { <span class='ident'>Var</span>(<span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>))) }
-  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>get</span>() }
-  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>) { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>set</span>(<span class='ident'>value</span>) }
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SOS</span>(<span class='ident'>Proxy</span>);
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Proxy</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>SOS</span> {
+  <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>rep</span>: <span class='ident'>Proxy</span>) <span class='op'>-&gt;</span> <span class='ident'>SOS</span> { <span class='ident'>SOS</span>(<span class='ident'>rep</span>) }
 }
-
-<span class='kw'>impl</span> <span class='ident'>Proxy</span> <span class='kw'>for</span> <span class='ident'>Var</span> {}
-
-<span class='kw'>impl</span> <span class='ident'>ProxyBase</span> <span class='kw'>for</span> <span class='ident'>Constr</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>Constr</span> { <span class='ident'>Constr</span>(<span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>))) }
-  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>get</span>() }
-  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>) { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>set</span>(<span class='ident'>value</span>) }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Proxy</span> <span class='kw'>for</span> <span class='ident'>Constr</span> {}
-
-<span class='kw'>impl</span> <span class='ident'>ProxyBase</span> <span class='kw'>for</span> <span class='ident'>QConstr</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>QConstr</span> { <span class='ident'>QConstr</span>(<span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>))) }
-  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>get</span>() }
-  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>) { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>set</span>(<span class='ident'>value</span>) }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Proxy</span> <span class='kw'>for</span> <span class='ident'>QConstr</span> {}
-
-<span class='kw'>impl</span> <span class='ident'>ProxyBase</span> <span class='kw'>for</span> <span class='ident'>SOS</span> {
-  <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>idx</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>SOS</span> { <span class='ident'>SOS</span>(<span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='ident'>idx</span>))) }
-  <span class='kw'>fn</span> <span class='ident'>index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>get</span>() }
-  <span class='kw'>fn</span> <span class='ident'>set_index</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>i32</span>) { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>set</span>(<span class='ident'>value</span>) }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Proxy</span> <span class='kw'>for</span> <span class='ident'>SOS</span> {}
-
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_eq</span> {
-  ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>)<span class='op'>*</span>) <span class='op'>=&gt;</span> { $(
-    <span class='kw'>impl</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
-      <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='op'>==</span> <span class='ident'>other</span>.<span class='number'>0</span>.<span class='ident'>as_ref</span>() <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span>
-      }
-    }
-    <span class='kw'>impl</span> <span class='ident'>Eq</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {}
-  )<span class='op'>*</span> }
-}
-<span class='macro'>impl_eq</span><span class='macro'>!</span> { <span class='ident'>Var</span> }
+<span class='macro'>impl_traits_for_proxy</span><span class='macro'>!</span>(<span class='ident'>SOS</span>);
 
 
 <span class='doccomment'>/// Linear expression of variables</span>
@@ -1946,21 +1905,20 @@
                                <span class='ident'>usrdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>c_void</span>)
                                <span class='op'>-&gt;</span> <span class='ident'>ffi</span>::<span class='ident'>c_int</span> {
 
-  <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>usrdata</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CallbackData</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>transmute</span>(<span class='ident'>usrdata</span>) };
+  <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>usrdata</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>transmute</span>::<span class='op'>&lt;</span>_, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CallbackData</span><span class='op'>&gt;</span>(<span class='ident'>usrdata</span>) };
+  <span class='kw'>let</span> (<span class='ident'>callback</span>, <span class='ident'>model</span>) <span class='op'>=</span> (<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>usrdata</span>.<span class='ident'>callback</span>, <span class='kw-2'>&amp;</span><span class='ident'>usrdata</span>.<span class='ident'>model</span>);
 
-  <span class='kw'>let</span> <span class='ident'>callback</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>FnMut</span>(<span class='ident'>Callback</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>usrdata</span>.<span class='ident'>callback</span>;
-
-  <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>Callback</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='kw-2'>&amp;</span><span class='ident'>usrdata</span>.<span class='ident'>model</span>);
-  <span class='kw'>if</span> <span class='ident'>context</span>.<span class='ident'>is_err</span>() {
-    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;failed to create context: {:?}&quot;</span>, <span class='ident'>context</span>.<span class='ident'>err</span>().<span class='ident'>unwrap</span>());
-    <span class='kw'>return</span> <span class='op'>-</span><span class='number'>1</span>;
-  }
-  <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>context</span>.<span class='ident'>unwrap</span>();
-
-  <span class='kw'>let</span> <span class='ident'>ret</span> <span class='op'>=</span> <span class='ident'>callback</span>(<span class='ident'>context</span>);
-  <span class='kw'>match</span> <span class='ident'>ret</span> {
-    <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> <span class='number'>0</span>,
-    <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>1</span>,
+  <span class='kw'>match</span> <span class='ident'>Callback</span>::<span class='ident'>new</span>(<span class='ident'>cbdata</span>, <span class='ident'>loc</span>.<span class='ident'>into</span>(), <span class='ident'>model</span>) {
+    <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
+      <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;failed to create context: {:?}&quot;</span>, <span class='ident'>err</span>);
+      <span class='op'>-</span><span class='number'>3</span>
+    }
+    <span class='prelude-val'>Ok</span>(<span class='ident'>context</span>) <span class='op'>=&gt;</span> {
+      <span class='kw'>match</span> <span class='ident'>catch_unwind</span>(<span class='ident'>AssertUnwindSafe</span>(<span class='op'>||</span> <span class='kw'>if</span> <span class='ident'>callback</span>(<span class='ident'>context</span>).<span class='ident'>is_ok</span>() { <span class='number'>0</span> } <span class='kw'>else</span> { <span class='op'>-</span><span class='number'>1</span> })) {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>ret</span>) <span class='op'>=&gt;</span> <span class='ident'>ret</span>,
+        <span class='prelude-val'>Err</span>(<span class='ident'>e</span>) <span class='op'>=&gt;</span> <span class='op'>-</span><span class='number'>3000</span>,
+      }
+    }
   }
 }
 
@@ -2492,7 +2450,9 @@
   }
 
   <span class='doccomment'>/// Query the value of attributes which associated with variable/constraints.</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_values</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span>, <span class='ident'>P</span>: <span class='ident'>Proxy</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>item</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>P</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>A</span>::<span class='ident'>Out</span><span class='op'>&gt;&gt;</span> {
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_values</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span>, <span class='ident'>P</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>item</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>P</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>A</span>::<span class='ident'>Out</span><span class='op'>&gt;&gt;</span>
+    <span class='kw'>where</span> <span class='ident'>P</span>: <span class='ident'>Deref</span><span class='op'>&lt;</span><span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Proxy</span><span class='op'>&gt;</span>
+  {
     <span class='self'>self</span>.<span class='ident'>get_list</span>(<span class='ident'>attr</span>,
                   <span class='ident'>item</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_slice</span>())
   }
@@ -2513,7 +2473,9 @@
 
 
   <span class='doccomment'>/// Set the value of attributes which associated with variable/constraints.</span>
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_values</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span>, <span class='ident'>P</span>: <span class='ident'>Proxy</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>item</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>P</span>], <span class='ident'>val</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>A</span>::<span class='ident'>Out</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_values</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>AttrArray</span>, <span class='ident'>P</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>attr</span>: <span class='ident'>A</span>, <span class='ident'>item</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>P</span>], <span class='ident'>val</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>A</span>::<span class='ident'>Out</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span>
+    <span class='kw'>where</span> <span class='ident'>P</span>: <span class='ident'>Deref</span><span class='op'>&lt;</span><span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Proxy</span><span class='op'>&gt;</span>
+  {
     <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>set_list</span>(<span class='ident'>attr</span>,
                        <span class='ident'>item</span>.<span class='ident'>iter</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>index</span>()).<span class='ident'>collect_vec</span>().<span class='ident'>as_slice</span>(),
                        <span class='ident'>val</span>));

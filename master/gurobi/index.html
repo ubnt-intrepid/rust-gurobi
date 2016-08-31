@@ -101,10 +101,10 @@ $ dlltool --dllname gurobi65.dll --def gurobi65.def --output-lib $(cygpath $GURO
   <span class='ident'>model</span>.<span class='ident'>optimize</span>().<span class='ident'>unwrap</span>();
   <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>status</span>().<span class='ident'>unwrap</span>(), <span class='ident'>Status</span>::<span class='ident'>Optimal</span>);
 
-  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>ObjVal</span>).<span class='ident'>unwrap</span>() , <span class='number'>0.0</span>);
+  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>ObjVal</span>).<span class='ident'>unwrap</span>() , <span class='number'>1.0</span>);
 
   <span class='kw'>let</span> <span class='ident'>val</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_values</span>(<span class='ident'>attr</span>::<span class='ident'>X</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>]).<span class='ident'>unwrap</span>();
-  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>val</span>, [<span class='number'>0.0</span>, <span class='op'>-</span><span class='number'>10.0</span>, <span class='op'>-</span><span class='number'>5.0</span>]);
+  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>val</span>, [<span class='number'>1.0</span>, <span class='op'>-</span><span class='number'>10.0</span>, <span class='op'>-</span><span class='number'>5.5</span>]);
 }</pre>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
@@ -156,6 +156,13 @@ $ dlltool --dllname gurobi65.dll --def gurobi65.def --output-lib $(cygpath $GURO
                                   title='gurobi::Model'>Model</a></td>
                            <td class='docblock short'>
                                 <p>Gurobi model object associated with certain environment.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Proxy.html'
+                                  title='gurobi::Proxy'>Proxy</a></td>
+                           <td class='docblock short'>
+                                <p>Provides methods to query/modify attributes associated with certain element.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -249,14 +256,6 @@ $ dlltool --dllname gurobi65.dll --def gurobi65.def --output-lib $(cygpath $GURO
                                   title='gurobi::INFINITY'>INFINITY</a></td>
                            <td class='docblock short'>
                                 <p>Large number used in C API</p>
-                           </td>
-                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='trait' href='trait.Proxy.html'
-                                  title='gurobi::Proxy'>Proxy</a></td>
-                           <td class='docblock short'>
-                                <p>Provides methods to query/modify attributes associated with certain element.</p>
                            </td>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>

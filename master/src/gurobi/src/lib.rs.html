@@ -208,10 +208,10 @@
 <span class='doccomment'>//!   model.optimize().unwrap();</span>
 <span class='doccomment'>//!   assert_eq!(model.status().unwrap(), Status::Optimal);</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!   assert_eq!(model.get(attr::ObjVal).unwrap() , 0.0);</span>
+<span class='doccomment'>//!   assert_eq!(model.get(attr::ObjVal).unwrap() , 1.0);</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!   let val = model.get_values(attr::X, &amp;[x, y, z]).unwrap();</span>
-<span class='doccomment'>//!   assert_eq!(val, [0.0, -10.0, -5.0]);</span>
+<span class='doccomment'>//!   assert_eq!(val, [1.0, -10.0, -5.5]);</span>
 <span class='doccomment'>//! }</span>
 <span class='doccomment'>//! ```</span>
 
