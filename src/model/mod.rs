@@ -261,6 +261,7 @@ extern "C" fn null_callback_wrapper(model: *mut ffi::GRBmodel, cbdata: *mut ffi:
 pub struct Model {
   model: *mut ffi::GRBmodel,
   env: Env,
+  updatemode: Option<i32>,
   vars: Vec<Var>,
   constrs: Vec<Constr>,
   qconstrs: Vec<QConstr>,
@@ -286,6 +287,7 @@ impl FromRaw for Model {
     let mut model = Model {
       model: model,
       env: env,
+      updatemode: None,
       vars: Vec::new(),
       constrs: Vec::new(),
       qconstrs: Vec::new(),
@@ -400,7 +402,26 @@ impl Model {
   pub fn get_env_mut(&mut self) -> &mut Env { &mut self.env }
 
   /// Apply all modification of the model to process
-  pub fn update(&mut self) -> Result<()> { self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }) }
+  pub fn update(&mut self) -> Result<()> {
+    try!(self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }));
+    self.updatemode = None;
+    Ok(())
+  }
+
+  /// retrieve update mode.
+  /// 0 => all changes are immediately affects
+  /// 1 => pending until update() called.
+  fn get_update_mode(&mut self) -> Result<i32> {
+    match self.updatemode {
+      Some(mode) => Ok(mode),
+      None => {
+        use param;
+        let mode = try!(self.env.get(param::UpdateMode));
+        self.updatemode = Some(mode);
+        Ok(mode)
+      }
+    }
+  }
 
   /// Optimize the model synchronously
   pub fn optimize(&mut self) -> Result<()> {
@@ -418,6 +439,7 @@ impl Model {
   pub fn optimize_with_callback<F>(&mut self, mut callback: F) -> Result<()>
     where F: FnMut(Callback) -> Result<()> + 'static
   {
+    try!(self.update());
     let usrdata = CallbackData {
       model: self,
       callback: &mut callback
@@ -1120,6 +1142,8 @@ impl Model {
     self.constrs = (0..rows).map(|idx| Constr::new(idx as i32)).collect_vec();
     self.qconstrs = (0..numqconstrs).map(|idx| QConstr::new(idx as i32)).collect_vec();
     self.sos = (0..numsos).map(|idx| SOS::new(idx as i32)).collect_vec();
+
+    self.updatemode = None;
 
     Ok(())
   }
