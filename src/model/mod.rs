@@ -541,11 +541,14 @@ impl Model {
                      vtype,
                      name.as_ptr())
     }));
-    try!(self.update());
 
-    let col_no = self.vars.len() as i32;
+    let col_no = if try!(self.get_update_mode()) == 0 {
+      self.vars.len() as i32
+    } else {
+      -1
+    };
+
     self.vars.push(Var::new(col_no));
-
     Ok(self.vars.last().cloned().unwrap())
   }
 
@@ -582,12 +585,17 @@ impl Model {
                       _vtypes.as_ptr(),
                       _names.as_ptr())
     }));
-    try!(self.update());
 
     let xcols = self.vars.len();
     let cols = self.vars.len() + _names.len();
-    for col_no in xcols..cols {
-      self.vars.push(Var::new(col_no as i32));
+    if try!(self.get_update_mode()) == 0 {
+      for col_no in xcols..cols {
+        self.vars.push(Var::new(col_no as i32));
+      }
+    } else {
+      for _ in xcols..cols {
+        self.vars.push(Var::new(-1));
+      }
     }
 
     Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -607,9 +615,12 @@ impl Model {
                         rhs - offset,
                         constrname.as_ptr())
     }));
-    try!(self.update());
 
-    let row_no = self.constrs.len() as i32;
+    let row_no = if try!(self.get_update_mode()) == 0 {
+      self.constrs.len() as i32
+    } else {
+      -1
+    };
     self.constrs.push(Constr::new(row_no));
 
     Ok(self.constrs.last().cloned().unwrap())
@@ -653,12 +664,17 @@ impl Model {
                          rhs.as_ptr(),
                          constrnames.as_ptr())
     }));
-    try!(self.update());
 
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
-    for row_no in xrows..rows {
-      self.constrs.push(Constr::new(row_no as i32));
+    if try!(self.get_update_mode()) == 0 {
+      for row_no in xrows..rows {
+        self.constrs.push(Constr::new(row_no as i32));
+      }
+    } else {
+      for _ in xrows..rows {
+        self.constrs.push(Constr::new(-1));
+      }
     }
 
     Ok(self.constrs[xrows..].iter().cloned().collect_vec())
@@ -684,12 +700,21 @@ impl Model {
                              ub - offset,
                              constrname.as_ptr())
     }));
-    try!(self.update());
 
-    let col_no = self.vars.len() as i32;
+    let mode = try!(self.get_update_mode());
+
+    let col_no = if mode == 0 {
+      self.vars.len() as i32
+    } else {
+      -1
+    };
     self.vars.push(Var::new(col_no));
 
-    let row_no = self.constrs.len() as i32;
+    let row_no = if mode == 0 {
+      self.constrs.len() as i32
+    } else {
+      -1
+    };
     self.constrs.push(Constr::new(row_no));
 
     Ok((self.vars.last().cloned().unwrap(), self.constrs.last().cloned().unwrap()))
@@ -734,18 +759,19 @@ impl Model {
                               rhs.as_ptr(),
                               constrnames.as_ptr())
     }));
-    try!(self.update());
+
+    let mode = try!(self.get_update_mode());
 
     let xcols = self.vars.len();
     let cols = self.vars.len() + names.len();
     for col_no in xcols..cols {
-      self.vars.push(Var::new(col_no as i32));
+      self.vars.push(Var::new(if mode == 0 { col_no as i32 } else { -1 }));
     }
 
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
     for row_no in xrows..rows {
-      self.constrs.push(Constr::new(row_no as i32));
+      self.constrs.push(Constr::new(if mode == 0 { row_no as i32 } else { -1 }));
     }
 
     Ok((self.vars[xcols..].iter().cloned().collect_vec(), self.constrs[xrows..].iter().cloned().collect_vec()))
@@ -768,9 +794,12 @@ impl Model {
                          rhs - offset,
                          constrname.as_ptr())
     }));
-    try!(self.update());
 
-    let qrow_no = self.qconstrs.len() as i32;
+    let qrow_no = if try!(self.get_update_mode()) == 0 {
+      self.qconstrs.len() as i32
+    } else {
+      -1
+    };
     self.qconstrs.push(QConstr::new(qrow_no));
 
     Ok(self.qconstrs.last().cloned().unwrap())
@@ -794,9 +823,12 @@ impl Model {
                      vars.as_ptr(),
                      weights.as_ptr())
     }));
-    try!(self.update());
 
-    let sos_no = self.sos.len() as i32;
+    let sos_no = if try!(self.get_update_mode()) == 0 {
+      self.sos.len() as i32
+    } else {
+      -1
+    };
     self.sos.push(SOS::new(sos_no));
 
     Ok(self.sos.last().cloned().unwrap())
@@ -804,6 +836,11 @@ impl Model {
 
   /// Set the objective function of the model.
   pub fn set_objective<Expr: Into<QuadExpr>>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
+    if !self.updatemode.is_none() {
+      return Err(Error::FromAPI("The objective function cannot be set before any pending modifies existed".to_owned(),
+                                50000));
+    }
+
     let (lind, lval, qrow, qcol, qval, _) = Into::<QuadExpr>::into(expr).into();
     try!(self.del_qpterms());
     try!(self.add_qpterms(qrow.as_slice(), qcol.as_slice(), qval.as_slice()));
@@ -833,6 +870,10 @@ impl Model {
 
 
   fn get_element<A: AttrArray>(&self, attr: A, element: i32) -> Result<A::Out> {
+    if element < 0 {
+      return Err(Error::InconsitentDims);
+    }
+
     let mut value: A::Buf = util::Init::init();
 
     try!(self.check_apicall(unsafe {
@@ -844,6 +885,10 @@ impl Model {
   }
 
   fn set_element<A: AttrArray>(&mut self, attr: A, element: i32, value: A::Out) -> Result<()> {
+    if element < 0 {
+      return Err(Error::InconsitentDims);
+    }
+
     try!(self.check_apicall(unsafe {
       A::set_attrelement(self.model,
                          attr.into().as_ptr(),
@@ -863,6 +908,17 @@ impl Model {
 
   fn get_list<A: AttrArray>(&self, attr: A, ind: &[i32]) -> Result<Vec<A::Out>> {
     let mut values: Vec<_> = iter::repeat(util::Init::init()).take(ind.len()).collect();
+
+    let ind = {
+      let mut buf = vec![0; ind.len()];
+      for &i in ind {
+        if i < 0 {
+          return Err(Error::InconsitentDims);
+        }
+        buf.push(i);
+      }
+      buf
+    };
 
     try!(self.check_apicall(unsafe {
       A::get_attrlist(self.model,
@@ -890,6 +946,17 @@ impl Model {
     if ind.len() != values.len() {
       return Err(Error::InconsitentDims);
     }
+
+    let ind = {
+      let mut buf = vec![0; ind.len()];
+      for &i in ind {
+        if i < 0 {
+          return Err(Error::InconsitentDims);
+        }
+        buf.push(i);
+      }
+      buf
+    };
 
     let values = try!(A::to_rawsets(values));
 
