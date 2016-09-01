@@ -9,6 +9,7 @@ pub mod expr;
 use ffi;
 use itertools::{Itertools, Zip};
 
+use std::fmt::Debug;
 use std::cell::Cell;
 use std::ffi::CString;
 use std::iter;
@@ -78,6 +79,13 @@ impl Into<i32> for ModelSense {
   fn into(self) -> i32 { (unsafe { transmute::<_, i8>(self) }) as i32 }
 }
 
+#[test]
+fn modelsense_conversion_success() {
+    use self::ModelSense;
+    assert_eq!(Into::<i32>::into(ModelSense::Minimize), 1i32);
+    assert_eq!(Into::<i32>::into(ModelSense::Maximize), -1i32);
+}
+
 
 /// Type of new SOS constraint
 #[derive(Debug,Copy,Clone)]
@@ -141,7 +149,7 @@ impl Into<i32> for RelaxType {
 
 
 /// Provides methods to query/modify attributes associated with certain element.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Proxy(Rc<Cell<i32>>);
 
 // MEMO:
@@ -199,7 +207,7 @@ macro_rules! impl_traits_for_proxy {
 
 
 /// Proxy object of a variables
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Var(Proxy);
 
 impl Var {
@@ -417,9 +425,8 @@ impl Model {
       for mut col in col_removed.into_iter() {
         if col.index() < -2 {
           buf.push(-3 - col.index())
-        } else {
-          col.set_index(-2);
         }
+        col.set_index(-2);
       }
       try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
       vars
@@ -431,9 +438,8 @@ impl Model {
       for mut row in row_removed.into_iter() {
         if row.index() < -2 {
           buf.push(-3 - row.index())
-        } else {
-          row.set_index(-2);
         }
+        row.set_index(-2);
       }
       try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
       constrs
@@ -445,9 +451,8 @@ impl Model {
       for mut qrow in qrow_removed.into_iter() {
         if qrow.index() < -2 {
           buf.push(-3 - qrow.index())
-        } else {
-          qrow.set_index(-2);
         }
+        qrow.set_index(-2);
       }
       try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
       qconstrs
@@ -459,9 +464,8 @@ impl Model {
       for mut sos in sos_removed.into_iter() {
         if sos.index() < -2 {
           buf.push(-3 - sos.index())
-        } else {
-          sos.set_index(-2);
         }
+        sos.set_index(-2);
       }
       try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
       sos
@@ -626,6 +630,8 @@ impl Model {
   pub fn add_var(&mut self, name: &str, vtype: VarType) -> Result<Var> {
     // extract parameters
     let (vtype, lb, ub) = vtype.into();
+    println!("{:?}", (vtype, lb, ub));
+    
     let name = try!(CString::new(name));
 
     try!(self.check_apicall(unsafe {
@@ -641,9 +647,9 @@ impl Model {
     }));
 
     let col_no = if try!(self.get_update_mode()) == 0 {
-      self.vars.len() as i32
-    } else {
       -1
+    } else {
+      self.vars.len() as i32
     };
 
     self.vars.push(Var::new(col_no));
@@ -684,16 +690,13 @@ impl Model {
                       _names.as_ptr())
     }));
 
+    let mode = try!(self.get_update_mode());
+
     let xcols = self.vars.len();
     let cols = self.vars.len() + _names.len();
-    if try!(self.get_update_mode()) == 0 {
-      for col_no in xcols..cols {
-        self.vars.push(Var::new(col_no as i32));
-      }
-    } else {
-      for _ in xcols..cols {
-        self.vars.push(Var::new(-1));
-      }
+
+    for col_no in xcols..cols {
+      self.vars.push(Var::new(if mode == 0 { -1 } else { col_no as i32 }));
     }
 
     Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -715,9 +718,9 @@ impl Model {
     }));
 
     let row_no = if try!(self.get_update_mode()) == 0 {
-      self.constrs.len() as i32
-    } else {
       -1
+    } else {
+      self.constrs.len() as i32
     };
     self.constrs.push(Constr::new(row_no));
 
@@ -763,16 +766,13 @@ impl Model {
                          constrnames.as_ptr())
     }));
 
+    let mode = try!(self.get_update_mode());
+
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
-    if try!(self.get_update_mode()) == 0 {
-      for row_no in xrows..rows {
-        self.constrs.push(Constr::new(row_no as i32));
-      }
-    } else {
-      for _ in xrows..rows {
-        self.constrs.push(Constr::new(-1));
-      }
+
+    for row_no in xrows..rows {
+      self.constrs.push(Constr::new(if mode == 0 { -1 } else { row_no as i32 }));
     }
 
     Ok(self.constrs[xrows..].iter().cloned().collect_vec())
@@ -802,16 +802,16 @@ impl Model {
     let mode = try!(self.get_update_mode());
 
     let col_no = if mode == 0 {
-      self.vars.len() as i32
-    } else {
       -1
+    } else {
+      self.vars.len() as i32
     };
     self.vars.push(Var::new(col_no));
 
     let row_no = if mode == 0 {
-      self.constrs.len() as i32
-    } else {
       -1
+    } else {
+      self.constrs.len() as i32
     };
     self.constrs.push(Constr::new(row_no));
 
@@ -863,13 +863,13 @@ impl Model {
     let xcols = self.vars.len();
     let cols = self.vars.len() + names.len();
     for col_no in xcols..cols {
-      self.vars.push(Var::new(if mode == 0 { col_no as i32 } else { -1 }));
+      self.vars.push(Var::new(if mode != 0 { col_no as i32 } else { -1 }));
     }
 
     let xrows = self.constrs.len();
     let rows = self.constrs.len() + constrnames.len();
     for row_no in xrows..rows {
-      self.constrs.push(Constr::new(if mode == 0 { row_no as i32 } else { -1 }));
+      self.constrs.push(Constr::new(if mode != 0 { row_no as i32 } else { -1 }));
     }
 
     Ok((self.vars[xcols..].iter().cloned().collect_vec(), self.constrs[xrows..].iter().cloned().collect_vec()))
@@ -894,9 +894,9 @@ impl Model {
     }));
 
     let qrow_no = if try!(self.get_update_mode()) == 0 {
-      self.qconstrs.len() as i32
-    } else {
       -1
+    } else {
+      self.qconstrs.len() as i32
     };
     self.qconstrs.push(QConstr::new(qrow_no));
 
@@ -923,9 +923,9 @@ impl Model {
     }));
 
     let sos_no = if try!(self.get_update_mode()) == 0 {
-      self.sos.len() as i32
-    } else {
       -1
+    } else {
+      self.sos.len() as i32
     };
     self.sos.push(SOS::new(sos_no));
 
@@ -933,16 +933,18 @@ impl Model {
   }
 
   /// Set the objective function of the model.
-  pub fn set_objective<Expr: Into<QuadExpr>>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
+  pub fn set_objective<Expr: Into<QuadExpr>+Debug>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
     if !self.updatemode.is_none() {
       return Err(Error::FromAPI("The objective function cannot be set before any pending modifies existed".to_owned(),
                                 50000));
     }
+    println!("{:?}", expr);
 
     let (lind, lval, qrow, qcol, qval, _) = Into::<QuadExpr>::into(expr).into();
     try!(self.del_qpterms());
     try!(self.add_qpterms(qrow.as_slice(), qcol.as_slice(), qval.as_slice()));
 
+    println!("{:?}, {:?}", lind, lval);
     try!(self.set_list(attr::Obj, lind.as_slice(), lval.as_slice()));
 
     self.set(attr::ModelSense, sense.into())
@@ -1046,7 +1048,7 @@ impl Model {
     }
 
     let ind = {
-      let mut buf = vec![0; ind.len()];
+      let mut buf = Vec::with_capacity(ind.len());
       for &i in ind {
         if i < 0 {
           return Err(Error::InconsitentDims);
@@ -1055,13 +1057,14 @@ impl Model {
       }
       buf
     };
-
     let values = try!(A::to_rawsets(values));
+
+    assert_eq!(ind.len(), values.len());
 
     self.check_apicall(unsafe {
       A::set_attrlist(self.model,
                       attr.into().as_ptr(),
-                      ind.len() as ffi::c_int,
+                      values.len() as ffi::c_int,
                       ind.as_ptr(),
                       values.as_ptr())
     })
@@ -1273,15 +1276,31 @@ fn removing_variable_should_be_successed() {
 
   let x = model.add_var("x", Binary).unwrap();
   let y = model.add_var("y", Binary).unwrap();
-  let z = model.add_var("z", Binary).unwrap();
-  model.update().unwrap();
-
-  model.remove_var(y.clone()).unwrap();
-  model.update().unwrap();
-
-  assert_eq!(model.get(attr::NumVars).unwrap(), 2);
-
-  assert_eq!(x.index(), 0);
+  assert_eq!(x.index(), -1);
   assert_eq!(y.index(), -1);
+
+  model.update().unwrap();
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), 1);
+
+  let z = model.add_var("z", Binary).unwrap();
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), 1);
+  assert_eq!(z.index(), -1);
+
+  model.update().unwrap();
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), 1);
+  assert_eq!(z.index(), 2);
+
+  model.remove(y.clone());
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), -4);
+  assert_eq!(z.index(), 2);
+
+  model.update().unwrap();
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), -2);
   assert_eq!(z.index(), 1);
+  assert_eq!(model.get(attr::NumVars).unwrap(), 2);
 }
