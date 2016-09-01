@@ -163,6 +163,12 @@ impl Proxy {
   pub fn set<A: AttrArray>(&self, model: &mut Model, attr: A, val: A::Out) -> Result<()> {
     model.set_element(attr, self.index(), val)
   }
+
+  // Remove from the model.
+  pub fn remove(&mut self) {
+    let orig = self.index();
+    self.set_index(-3 - orig);
+  }
 }
 
 impl PartialEq for Proxy {
@@ -403,10 +409,99 @@ impl Model {
 
   /// Apply all modification of the model to process
   pub fn update(&mut self) -> Result<()> {
+    // make a partition of active/removed proxies
+
+    let vars = {
+      let (vars, col_removed): (Vec<_>, _) = self.vars.iter().cloned().partition(|v| v.index() >= -1);
+      let mut buf = Vec::new();
+      for mut col in col_removed.into_iter() {
+        if col.index() < -2 {
+          buf.push(-3 - col.index())
+        } else {
+          col.set_index(-2);
+        }
+      }
+      try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
+      vars
+    };
+
+    let constrs = {
+      let (constrs, row_removed): (Vec<_>, _) = self.constrs.iter().cloned().partition(|c| c.index() >= -1);
+      let mut buf = Vec::new();
+      for mut row in row_removed.into_iter() {
+        if row.index() < -2 {
+          buf.push(-3 - row.index())
+        } else {
+          row.set_index(-2);
+        }
+      }
+      try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
+      constrs
+    };
+
+    let qconstrs = {
+      let (qconstrs, qrow_removed): (Vec<_>, _) = self.qconstrs.iter().cloned().partition(|q| q.index() >= -1);
+      let mut buf = Vec::new();
+      for mut qrow in qrow_removed.into_iter() {
+        if qrow.index() < -2 {
+          buf.push(-3 - qrow.index())
+        } else {
+          qrow.set_index(-2);
+        }
+      }
+      try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
+      qconstrs
+    };
+
+    let sos = {
+      let (sos, sos_removed): (Vec<_>, _) = self.sos.iter().cloned().partition(|s| s.index() >= -1);
+      let mut buf = Vec::new();
+      for mut sos in sos_removed.into_iter() {
+        if sos.index() < -2 {
+          buf.push(-3 - sos.index())
+        } else {
+          sos.set_index(-2);
+        }
+      }
+      try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, buf.len() as ffi::c_int, buf.as_ptr()) }));
+      sos
+    };
+
     try!(self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }));
-    // TODO:
-    // * Remove variables/constraints
-    // * call delete API.
+
+    // rearrange indices.
+    self.vars = vars.into_iter()
+      .enumerate()
+      .map(|(i, mut v)| {
+        v.set_index(i as i32);
+        v
+      })
+      .collect();
+
+    self.constrs = constrs.into_iter()
+      .enumerate()
+      .map(|(i, mut c)| {
+        c.set_index(i as i32);
+        c
+      })
+      .collect();
+
+    self.qconstrs = qconstrs.into_iter()
+      .enumerate()
+      .map(|(i, mut qc)| {
+        qc.set_index(i as i32);
+        qc
+      })
+      .collect();
+
+    self.sos = sos.into_iter()
+      .enumerate()
+      .map(|(i, mut s)| {
+        s.set_index(i as i32);
+        s
+      })
+      .collect();
+
     self.updatemode = None;
     Ok(())
   }
@@ -1083,92 +1178,7 @@ impl Model {
   pub fn get_sos(&self) -> Iter<SOS> { self.sos.iter() }
 
   /// Remove a variable from the model.
-  pub fn remove_var(&mut self, mut item: Var) -> Result<()> {
-    let index = item.index();
-    if index >= self.vars.len() as i32 {
-      return Err(Error::InconsitentDims);
-    }
-
-    if index != -1 {
-      try!(self.check_apicall(unsafe { ffi::GRBdelvars(self.model, 1, &index) }));
-      try!(self.update());
-
-      self.vars.remove(index as usize);
-      item.set_index(-1);
-
-      // reset all of the remaining items.
-      for (idx, ref mut v) in self.vars.iter_mut().enumerate().skip(index as usize) {
-        v.set_index(idx as i32);
-      }
-    }
-    Ok(())
-  }
-
-  /// Remove a linear constraint from the model.
-  pub fn remove_constr(&mut self, mut item: Constr) -> Result<()> {
-    let index = item.index();
-    if index >= self.constrs.len() as i32 {
-      return Err(Error::InconsitentDims);
-    }
-
-    if index != -1 {
-      try!(self.check_apicall(unsafe { ffi::GRBdelconstrs(self.model, 1, &index) }));
-      try!(self.update());
-
-      self.constrs.remove(index as usize);
-      item.set_index(-1);
-
-      // reset all of the remaining items.
-      for (idx, ref mut c) in self.constrs.iter_mut().enumerate().skip(index as usize) {
-        c.set_index(idx as i32);
-      }
-    }
-    Ok(())
-  }
-
-  /// Remove a quadratic constraint from the model.
-  pub fn remove_qconstr(&mut self, mut item: QConstr) -> Result<()> {
-    let index = item.index();
-    if index >= self.qconstrs.len() as i32 {
-      return Err(Error::InconsitentDims);
-    }
-
-    if index != -1 {
-      try!(self.check_apicall(unsafe { ffi::GRBdelqconstrs(self.model, 1, &index) }));
-      try!(self.update());
-
-      self.qconstrs.remove(index as usize);
-      item.set_index(-1);
-
-      // reset all of the remaining items.
-      for (idx, ref mut qc) in self.qconstrs.iter_mut().enumerate().skip(index as usize) {
-        qc.set_index(idx as i32);
-      }
-    }
-    Ok(())
-  }
-
-  /// Remove a special order set (SOS) cnstraint from the model.
-  pub fn remove_sos(&mut self, mut item: SOS) -> Result<()> {
-    let index = item.index();
-    if index >= self.sos.len() as i32 {
-      return Err(Error::InconsitentDims);
-    }
-
-    if index != -1 {
-      try!(self.check_apicall(unsafe { ffi::GRBdelsos(self.model, 1, &index) }));
-      try!(self.update());
-
-      self.sos.remove(index as usize);
-      item.set_index(-1);
-
-      // reset all of the remaining items.
-      for (idx, ref mut s) in self.sos.iter_mut().enumerate().skip(index as usize) {
-        s.set_index(idx as i32);
-      }
-    }
-    Ok(())
-  }
+  pub fn remove<P: DerefMut<Target = Proxy>>(&mut self, mut item: P) { item.remove() }
 
   /// Retrieve a single constant matrix coefficient of the model.
   pub fn get_coeff(&self, var: &Var, constr: &Constr) -> Result<f64> {
