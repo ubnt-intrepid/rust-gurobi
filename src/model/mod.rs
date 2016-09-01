@@ -404,6 +404,9 @@ impl Model {
   /// Apply all modification of the model to process
   pub fn update(&mut self) -> Result<()> {
     try!(self.check_apicall(unsafe { ffi::GRBupdatemodel(self.model) }));
+    // TODO:
+    // * Remove variables/constraints
+    // * call delete API.
     self.updatemode = None;
     Ok(())
   }
