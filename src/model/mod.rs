@@ -9,7 +9,6 @@ pub mod expr;
 use ffi;
 use itertools::{Itertools, Zip};
 
-use std::fmt::Debug;
 use std::cell::Cell;
 use std::ffi::CString;
 use std::iter;
@@ -81,9 +80,9 @@ impl Into<i32> for ModelSense {
 
 #[test]
 fn modelsense_conversion_success() {
-    use self::ModelSense;
-    assert_eq!(Into::<i32>::into(ModelSense::Minimize), 1i32);
-    assert_eq!(Into::<i32>::into(ModelSense::Maximize), -1i32);
+  use self::ModelSense;
+  assert_eq!(Into::<i32>::into(ModelSense::Minimize), 1i32);
+  assert_eq!(Into::<i32>::into(ModelSense::Maximize), -1i32);
 }
 
 
@@ -646,10 +645,10 @@ impl Model {
                      name.as_ptr())
     }));
 
-    let col_no = if try!(self.get_update_mode()) == 0 {
-      -1
-    } else {
+    let col_no = if try!(self.get_update_mode()) != 0 {
       self.vars.len() as i32
+    } else {
+      -1
     };
 
     self.vars.push(Var::new(col_no));
@@ -696,7 +695,7 @@ impl Model {
     let cols = self.vars.len() + _names.len();
 
     for col_no in xcols..cols {
-      self.vars.push(Var::new(if mode == 0 { -1 } else { col_no as i32 }));
+      self.vars.push(Var::new(if mode != 0 { col_no as i32 } else { -1 }));
     }
 
     Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -717,10 +716,10 @@ impl Model {
                         constrname.as_ptr())
     }));
 
-    let row_no = if try!(self.get_update_mode()) == 0 {
-      -1
-    } else {
+    let row_no = if try!(self.get_update_mode()) != 0 {
       self.constrs.len() as i32
+    } else {
+      -1
     };
     self.constrs.push(Constr::new(row_no));
 
@@ -772,7 +771,7 @@ impl Model {
     let rows = self.constrs.len() + constrnames.len();
 
     for row_no in xrows..rows {
-      self.constrs.push(Constr::new(if mode == 0 { -1 } else { row_no as i32 }));
+      self.constrs.push(Constr::new(if mode != 0 { row_no as i32 } else { -1 }));
     }
 
     Ok(self.constrs[xrows..].iter().cloned().collect_vec())
@@ -801,17 +800,17 @@ impl Model {
 
     let mode = try!(self.get_update_mode());
 
-    let col_no = if mode == 0 {
-      -1
-    } else {
+    let col_no = if mode != 0 {
       self.vars.len() as i32
+    } else {
+      -1
     };
     self.vars.push(Var::new(col_no));
 
-    let row_no = if mode == 0 {
-      -1
-    } else {
+    let row_no = if mode != 0 {
       self.constrs.len() as i32
+    } else {
+      -1
     };
     self.constrs.push(Constr::new(row_no));
 
@@ -893,10 +892,10 @@ impl Model {
                          constrname.as_ptr())
     }));
 
-    let qrow_no = if try!(self.get_update_mode()) == 0 {
-      -1
-    } else {
+    let qrow_no = if try!(self.get_update_mode()) != 0 {
       self.qconstrs.len() as i32
+    } else {
+      -1
     };
     self.qconstrs.push(QConstr::new(qrow_no));
 
@@ -922,10 +921,10 @@ impl Model {
                      weights.as_ptr())
     }));
 
-    let sos_no = if try!(self.get_update_mode()) == 0 {
-      -1
-    } else {
+    let sos_no = if try!(self.get_update_mode()) != 0 {
       self.sos.len() as i32
+    } else {
+      -1
     };
     self.sos.push(SOS::new(sos_no));
 
@@ -933,18 +932,15 @@ impl Model {
   }
 
   /// Set the objective function of the model.
-  pub fn set_objective<Expr: Into<QuadExpr>+Debug>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
+  pub fn set_objective<Expr: Into<QuadExpr>>(&mut self, expr: Expr, sense: ModelSense) -> Result<()> {
     if !self.updatemode.is_none() {
       return Err(Error::FromAPI("The objective function cannot be set before any pending modifies existed".to_owned(),
                                 50000));
     }
-    println!("{:?}", expr);
-
     let (lind, lval, qrow, qcol, qval, _) = Into::<QuadExpr>::into(expr).into();
     try!(self.del_qpterms());
     try!(self.add_qpterms(qrow.as_slice(), qcol.as_slice(), qval.as_slice()));
 
-    println!("{:?}, {:?}", lind, lval);
     try!(self.set_list(attr::Obj, lind.as_slice(), lval.as_slice()));
 
     self.set(attr::ModelSense, sense.into())
