@@ -43,7 +43,7 @@
 //!
 //!   // add decision variables.
 //!   let x1 = model.add_var("x1", Continuous(-INFINITY, INFINITY)).unwrap();
-//!   let x2 = model.add_var("x2", Integer(-INFINITY as i64, INFINITY as i64)).unwrap();
+//!   let x2 = model.add_var("x2", Integer(-INFINITY, INFINITY)).unwrap();
 //!
 //!   // integrate all of the variables into the model.
 //!   model.update().unwrap();

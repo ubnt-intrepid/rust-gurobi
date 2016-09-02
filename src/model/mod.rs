@@ -34,7 +34,7 @@ use util;
 pub enum VarType {
   Binary,
   Continuous(f64, f64),
-  Integer(i64, i64)
+  Integer(f64, f64)
 }
 
 impl Into<(ffi::c_char, f64, f64)> for VarType {
@@ -631,7 +631,7 @@ impl Model {
     // extract parameters
     let (vtype, lb, ub) = vtype.into();
     println!("{:?}", (vtype, lb, ub));
-    
+
     let name = try!(CString::new(name));
 
     try!(self.check_apicall(unsafe {
@@ -1010,7 +1010,7 @@ impl Model {
     let mut values: Vec<_> = iter::repeat(util::Init::init()).take(ind.len()).collect();
 
     let ind = {
-      let mut buf = vec![0; ind.len()];
+      let mut buf = Vec::with_capacity(ind.len());
       for &i in ind {
         if i < 0 {
           return Err(Error::InconsitentDims);
