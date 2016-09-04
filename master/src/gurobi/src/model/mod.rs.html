@@ -14,7 +14,18 @@
     
 
     
-    
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  },
+  CommonHTML: { matchFontHeight: false }
+});
+</script>
+<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+
+
 </head>
 <body class="rustdoc">
     <!--[if lte IE 8]>
@@ -1486,15 +1497,15 @@
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>,<span class='ident'>Copy</span>,<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RelaxType</span> {
   <span class='doccomment'>/// The weighted magnitude of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i`)</span>
+  <span class='doccomment'>/// ($penalty(s\_i) = w\_i s\_i$)</span>
   <span class='ident'>Linear</span> <span class='op'>=</span> <span class='number'>0</span>,
 
   <span class='doccomment'>/// The weighted square of magnitude of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i s_i^2`)</span>
+  <span class='doccomment'>/// ($penalty(s\_i) = w\_i s\_i\^2$)</span>
   <span class='ident'>Quadratic</span> <span class='op'>=</span> <span class='number'>1</span>,
 
   <span class='doccomment'>/// The weighted count of bounds and constraint violations</span>
-  <span class='doccomment'>/// (`penalty(s_i) = w_i * [s_i &gt; 0]`)</span>
+  <span class='doccomment'>/// ($penalty(s\_i) = w\_i \cdot [s\_i &gt; 0]$)</span>
   <span class='ident'>Cardinality</span> <span class='op'>=</span> <span class='number'>2</span>
 }
 

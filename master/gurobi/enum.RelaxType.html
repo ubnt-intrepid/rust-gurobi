@@ -14,7 +14,18 @@
     
 
     
-    
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  },
+  CommonHTML: { matchFontHeight: false }
+});
+</script>
+<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+
+
 </head>
 <body class="rustdoc">
     <!--[if lte IE 8]>
@@ -55,11 +66,11 @@
 }</pre><div class='docblock'><p>Type of cost function at feasibility relaxation</p>
 </div><h2 class='variants'>Variants</h2>
 <span id='variant.Linear' class='variant'><code>Linear</code></span><div class='docblock'><p>The weighted magnitude of bounds and constraint violations
-(<code>penalty(s_i) = w_i s_i</code>)</p>
+($penalty(s_i) = w_i s_i$)</p>
 </div><span id='variant.Quadratic' class='variant'><code>Quadratic</code></span><div class='docblock'><p>The weighted square of magnitude of bounds and constraint violations
-(<code>penalty(s_i) = w_i s_i^2</code>)</p>
+($penalty(s_i) = w_i s_i^2$)</p>
 </div><span id='variant.Cardinality' class='variant'><code>Cardinality</code></span><div class='docblock'><p>The weighted count of bounds and constraint violations
-(<code>penalty(s_i) = w_i * [s_i &gt; 0]</code>)</p>
+($penalty(s_i) = w_i \cdot [s_i &gt; 0]$)</p>
 </div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-969' class='srclink' href='../src/gurobi/src/model/mod.rs.html#129' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></h4>
 <div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
