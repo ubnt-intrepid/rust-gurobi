@@ -153,6 +153,15 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -198,27 +207,36 @@
 <span class='doccomment'>//!   let mut model = env.new_model(&quot;model1&quot;).unwrap();</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!   // add decision variables.</span>
-<span class='doccomment'>//!   let x = model.add_var(&quot;x&quot;, Binary).unwrap();</span>
-<span class='doccomment'>//!   let y = model.add_var(&quot;y&quot;, Continuous(-10.0, 10.0)).unwrap();</span>
-<span class='doccomment'>//!   let z = model.add_var(&quot;z&quot;, Continuous(-INFINITY, INFINITY)).unwrap();</span>
+<span class='doccomment'>//!   let x1 = model.add_var(&quot;x1&quot;, Continuous, 0.0, -INFINITY, INFINITY, &amp;[], &amp;[]).unwrap();</span>
+<span class='doccomment'>//!   let x2 = model.add_var(&quot;x2&quot;, Integer, 0.0, -INFINITY, INFINITY, &amp;[], &amp;[]).unwrap();</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!   // integrate all the variables into the model.</span>
+<span class='doccomment'>//!   // integrate all of the variables into the model.</span>
 <span class='doccomment'>//!   model.update().unwrap();</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!   // add a linear constraint</span>
-<span class='doccomment'>//!   model.add_constr(&quot;c0&quot;, &amp;x - &amp;y + 2.0 * &amp;z, Equal, 0.0).unwrap();</span>
-<span class='doccomment'>//!   // ...</span>
+<span class='doccomment'>//!   model.add_constr(&quot;c0&quot;, &amp;x1 + 2.0 * &amp;x2, Greater, -14.0).unwrap();</span>
+<span class='doccomment'>//!   model.add_constr(&quot;c1&quot;, -4.0 * &amp;x1 - 1.0 * &amp;x2, Less, -33.0).unwrap();</span>
+<span class='doccomment'>//!   model.add_constr(&quot;c2&quot;, 2.0 * &amp;x1 + &amp;x2, Less, 20.0).unwrap();</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!   model.set_objective(&amp;x, Maximize).unwrap();</span>
+<span class='doccomment'>//!   // integrate all of the constraints into the model.</span>
+<span class='doccomment'>//!   model.update().unwrap();</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//!   // set the expression of objective function.</span>
+<span class='doccomment'>//!   model.set_objective(8.0 * &amp;x1 + &amp;x2, Minimize).unwrap();</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//!   assert_eq!(model.get(attr::IsMIP).unwrap(), 1, &quot;Model is not a MIP.&quot;);</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//!   // write constructed model to the file.</span>
+<span class='doccomment'>//!   model.write(&quot;logfile.lp&quot;).unwrap();</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!   // optimize the model.</span>
 <span class='doccomment'>//!   model.optimize().unwrap();</span>
 <span class='doccomment'>//!   assert_eq!(model.status().unwrap(), Status::Optimal);</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!   assert_eq!(model.get(attr::ObjVal).unwrap() , 1.0);</span>
+<span class='doccomment'>//!   assert_eq!(model.get(attr::ObjVal).unwrap() , 59.0);</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//!   let val = model.get_values(attr::X, &amp;[x, y, z]).unwrap();</span>
-<span class='doccomment'>//!   assert_eq!(val, [1.0, -10.0, -5.5]);</span>
+<span class='doccomment'>//!   let val = model.get_values(attr::X, &amp;[x1, x2]).unwrap();</span>
+<span class='doccomment'>//!   assert_eq!(val, [6.5, 7.0]);</span>
 <span class='doccomment'>//! }</span>
 <span class='doccomment'>//! ```</span>
 

@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/gurobi/src/lib.rs.html#6-111' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-0' class='srclink' href='../src/gurobi/src/lib.rs.html#6-120' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This crate provides primitive Rust APIs for Gurobi Optimizer.</p>
 
 <p>It supports some types of mathematical programming problems (e.g. Linear programming; LP,
@@ -84,27 +84,36 @@ $ dlltool --dllname gurobi65.dll --def gurobi65.def --output-lib $(cygpath $GURO
   <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>model</span> <span class='op'>=</span> <span class='ident'>env</span>.<span class='ident'>new_model</span>(<span class='string'>&quot;model1&quot;</span>).<span class='ident'>unwrap</span>();
 
   <span class='comment'>// add decision variables.</span>
-  <span class='kw'>let</span> <span class='ident'>x</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>add_var</span>(<span class='string'>&quot;x&quot;</span>, <span class='ident'>Binary</span>).<span class='ident'>unwrap</span>();
-  <span class='kw'>let</span> <span class='ident'>y</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>add_var</span>(<span class='string'>&quot;y&quot;</span>, <span class='ident'>Continuous</span>(<span class='op'>-</span><span class='number'>10.0</span>, <span class='number'>10.0</span>)).<span class='ident'>unwrap</span>();
-  <span class='kw'>let</span> <span class='ident'>z</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>add_var</span>(<span class='string'>&quot;z&quot;</span>, <span class='ident'>Continuous</span>(<span class='op'>-</span><span class='ident'>INFINITY</span>, <span class='ident'>INFINITY</span>)).<span class='ident'>unwrap</span>();
+  <span class='kw'>let</span> <span class='ident'>x1</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>add_var</span>(<span class='string'>&quot;x1&quot;</span>, <span class='ident'>Continuous</span>, <span class='number'>0.0</span>, <span class='op'>-</span><span class='ident'>INFINITY</span>, <span class='ident'>INFINITY</span>, <span class='kw-2'>&amp;</span>[], <span class='kw-2'>&amp;</span>[]).<span class='ident'>unwrap</span>();
+  <span class='kw'>let</span> <span class='ident'>x2</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>add_var</span>(<span class='string'>&quot;x2&quot;</span>, <span class='ident'>Integer</span>, <span class='number'>0.0</span>, <span class='op'>-</span><span class='ident'>INFINITY</span>, <span class='ident'>INFINITY</span>, <span class='kw-2'>&amp;</span>[], <span class='kw-2'>&amp;</span>[]).<span class='ident'>unwrap</span>();
 
-  <span class='comment'>// integrate all the variables into the model.</span>
+  <span class='comment'>// integrate all of the variables into the model.</span>
   <span class='ident'>model</span>.<span class='ident'>update</span>().<span class='ident'>unwrap</span>();
 
   <span class='comment'>// add a linear constraint</span>
-  <span class='ident'>model</span>.<span class='ident'>add_constr</span>(<span class='string'>&quot;c0&quot;</span>, <span class='kw-2'>&amp;</span><span class='ident'>x</span> <span class='op'>-</span> <span class='kw-2'>&amp;</span><span class='ident'>y</span> <span class='op'>+</span> <span class='number'>2.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>z</span>, <span class='ident'>Equal</span>, <span class='number'>0.0</span>).<span class='ident'>unwrap</span>();
-  <span class='comment'>// ...</span>
+  <span class='ident'>model</span>.<span class='ident'>add_constr</span>(<span class='string'>&quot;c0&quot;</span>, <span class='kw-2'>&amp;</span><span class='ident'>x1</span> <span class='op'>+</span> <span class='number'>2.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>x2</span>, <span class='ident'>Greater</span>, <span class='op'>-</span><span class='number'>14.0</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>model</span>.<span class='ident'>add_constr</span>(<span class='string'>&quot;c1&quot;</span>, <span class='op'>-</span><span class='number'>4.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>x1</span> <span class='op'>-</span> <span class='number'>1.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>x2</span>, <span class='ident'>Less</span>, <span class='op'>-</span><span class='number'>33.0</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>model</span>.<span class='ident'>add_constr</span>(<span class='string'>&quot;c2&quot;</span>, <span class='number'>2.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>x1</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='ident'>x2</span>, <span class='ident'>Less</span>, <span class='number'>20.0</span>).<span class='ident'>unwrap</span>();
 
-  <span class='ident'>model</span>.<span class='ident'>set_objective</span>(<span class='kw-2'>&amp;</span><span class='ident'>x</span>, <span class='ident'>Maximize</span>).<span class='ident'>unwrap</span>();
+  <span class='comment'>// integrate all of the constraints into the model.</span>
+  <span class='ident'>model</span>.<span class='ident'>update</span>().<span class='ident'>unwrap</span>();
+
+  <span class='comment'>// set the expression of objective function.</span>
+  <span class='ident'>model</span>.<span class='ident'>set_objective</span>(<span class='number'>8.0</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>x1</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='ident'>x2</span>, <span class='ident'>Minimize</span>).<span class='ident'>unwrap</span>();
+
+  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>IsMIP</span>).<span class='ident'>unwrap</span>(), <span class='number'>1</span>, <span class='string'>&quot;Model is not a MIP.&quot;</span>);
+
+  <span class='comment'>// write constructed model to the file.</span>
+  <span class='ident'>model</span>.<span class='ident'>write</span>(<span class='string'>&quot;logfile.lp&quot;</span>).<span class='ident'>unwrap</span>();
 
   <span class='comment'>// optimize the model.</span>
   <span class='ident'>model</span>.<span class='ident'>optimize</span>().<span class='ident'>unwrap</span>();
   <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>status</span>().<span class='ident'>unwrap</span>(), <span class='ident'>Status</span>::<span class='ident'>Optimal</span>);
 
-  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>ObjVal</span>).<span class='ident'>unwrap</span>() , <span class='number'>1.0</span>);
+  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>model</span>.<span class='ident'>get</span>(<span class='ident'>attr</span>::<span class='ident'>ObjVal</span>).<span class='ident'>unwrap</span>() , <span class='number'>59.0</span>);
 
-  <span class='kw'>let</span> <span class='ident'>val</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_values</span>(<span class='ident'>attr</span>::<span class='ident'>X</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>]).<span class='ident'>unwrap</span>();
-  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>val</span>, [<span class='number'>1.0</span>, <span class='op'>-</span><span class='number'>10.0</span>, <span class='op'>-</span><span class='number'>5.5</span>]);
+  <span class='kw'>let</span> <span class='ident'>val</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_values</span>(<span class='ident'>attr</span>::<span class='ident'>X</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>x1</span>, <span class='ident'>x2</span>]).<span class='ident'>unwrap</span>();
+  <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>val</span>, [<span class='number'>6.5</span>, <span class='number'>7.0</span>]);
 }</pre>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
