@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Callback` struct in crate `gurobi`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Callback">
+
+    <title>gurobi::Callback - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>gurobi</a></p><script>window.sidebarCurrent = {name: 'Callback', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>gurobi</a>::<wbr><a class='struct' href=''>Callback</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-339' class='srclink' href='../src/gurobi/src/model/callback.rs.html#203-207' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Callback&lt;'a&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>The context object for Gurobi callback.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='struct' href='../gurobi/struct.Callback.html' title='gurobi::Callback'>Callback</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-437' class='srclink' href='../src/gurobi/src/model/callback.rs.html#292-385' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.get_where' class='method'><code>fn <a href='#method.get_where' class='fnname'>get_where</a>(&amp;self) -&gt; <a class='enum' href='../gurobi/enum.Where.html' title='gurobi::Where'>Where</a></code></h4>
+<div class='docblock'><p>Retrieve the location where the callback called.</p>
+</div><h4 id='method.get_node_rel' class='method'><code>fn <a href='#method.get_node_rel' class='fnname'>get_node_rel</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Retrive node relaxation solution values at the current node.</p>
+</div><h4 id='method.get_solution' class='method'><code>fn <a href='#method.get_solution' class='fnname'>get_solution</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Retrieve values from the current solution vector.</p>
+</div><h4 id='method.set_solution' class='method'><code>fn <a href='#method.set_solution' class='fnname'>set_solution</a>(&amp;self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, solution: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Provide a new feasible solution for a MIP model.</p>
+</div><h4 id='method.get_runtime' class='method'><code>fn <a href='#method.get_runtime' class='fnname'>get_runtime</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve the elapsed solver runtime [sec].</p>
+</div><h4 id='method.add_cut' class='method'><code>fn <a href='#method.add_cut' class='fnname'>add_cut</a>(&amp;self, lhs: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Add a new cutting plane to the MIP model.</p>
+</div><h4 id='method.add_lazy' class='method'><code>fn <a href='#method.add_lazy' class='fnname'>add_lazy</a>(&amp;self, lhs: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Add a new lazy constraint to the MIP model.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</h2><div class='impl-items'><h4 id='method.copy' class='method'><code>fn <a href='#method.copy' class='fnname'>copy</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+<div class='docblock'><p>create a copy of the model</p>
+</div><h4 id='method.fixed' class='method'><code>fn <a href='#method.fixed' class='fnname'>fixed</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+<div class='docblock'><p>Create an fixed model associated with the model.</p>
+
+<p>In fixed model, each integer variable is fixed to the value that it takes in the
+original MIP solution.
+Note that the model must be MIP and have a solution loaded.</p>
+</div><h4 id='method.relax' class='method'><code>fn <a href='#method.relax' class='fnname'>relax</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+<div class='docblock'><p>Create an relaxation of the model (undocumented).</p>
+</div><h4 id='method.presolve' class='method'><code>fn <a href='#method.presolve' class='fnname'>presolve</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+<div class='docblock'><p>Perform presolve on the model.</p>
+</div><h4 id='method.feasibility' class='method'><code>fn <a href='#method.feasibility' class='fnname'>feasibility</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
+<div class='docblock'><p>Create a feasibility model (undocumented).</p>
+</div><h4 id='method.get_env' class='method'><code>fn <a href='#method.get_env' class='fnname'>get_env</a>(&amp;self) -&gt; &amp;<a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a></code></h4>
+<div class='docblock'><p>Get immutable reference of an environment object associated with the model.</p>
+</div><h4 id='method.get_env_mut' class='method'><code>fn <a href='#method.get_env_mut' class='fnname'>get_env_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a></code></h4>
+<div class='docblock'><p>Get mutable reference of an environment object associated with the model.</p>
+</div><h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Apply all modification of the model to process</p>
+</div><h4 id='method.optimize' class='method'><code>fn <a href='#method.optimize' class='fnname'>optimize</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Optimize the model synchronously</p>
+</div><h4 id='method.optimize_async' class='method'><code>fn <a href='#method.optimize_async' class='fnname'>optimize_async</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Optimize the model asynchronously</p>
+</div><h4 id='method.optimize_with_callback' class='method'><code>fn <a href='#method.optimize_with_callback' class='fnname'>optimize_with_callback</a>&lt;F&gt;(&amp;mut self, callback: F) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt; <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(<a class='struct' href='../gurobi/struct.Callback.html' title='gurobi::Callback'>Callback</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt; + 'static</span></code></h4>
+<div class='docblock'><p>Optimize the model with a callback function</p>
+</div><h4 id='method.sync' class='method'><code>fn <a href='#method.sync' class='fnname'>sync</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Wait for a optimization called asynchronously.</p>
+</div><h4 id='method.compute_iis' class='method'><code>fn <a href='#method.compute_iis' class='fnname'>compute_iis</a>(&amp;mut self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Compute an Irreducible Inconsistent Subsystem (IIS) of the model.</p>
+</div><h4 id='method.terminate' class='method'><code>fn <a href='#method.terminate' class='fnname'>terminate</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Send a request to the model to terminate the current optimization process.</p>
+</div><h4 id='method.reset' class='method'><code>fn <a href='#method.reset' class='fnname'>reset</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Reset the model to an unsolved state.</p>
+
+<p>All solution information previously computed are discarded.</p>
+</div><h4 id='method.tune' class='method'><code>fn <a href='#method.tune' class='fnname'>tune</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Perform an automated search for parameter settings that improve performance on the model.
+See also references <a href="https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning">on official
+manual</a>.</p>
+</div><h4 id='method.get_tune_result' class='method'><code>fn <a href='#method.get_tune_result' class='fnname'>get_tune_result</a>(&amp;self, n: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Prepare to retrieve the results of <code>tune()</code>.
+See also references <a href="https://www.gurobi.com/documentation/6.5/refman/parameter_tuning_tool.html#sec:Tuning">on official
+manual</a>.</p>
+</div><h4 id='method.get_concurrent_env' class='method'><code>fn <a href='#method.get_concurrent_env' class='fnname'>get_concurrent_env</a>(&amp;self, num: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a>&gt;</code></h4>
+<div class='stability'><em class='stab deprecated'>Deprecated</em></div><div class='docblock'><p>Create/retrieve a concurrent environment for the model</p>
+
+<p>Note that the number of concurrent environments (<code>num</code>) must be contiguously numbered.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>env1</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>0</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='ident'>env2</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>1</span>).<span class='ident'>unwrap</span>();
+<span class='kw'>let</span> <span class='ident'>env3</span> <span class='op'>=</span> <span class='ident'>model</span>.<span class='ident'>get_concurrent_env</span>(<span class='number'>2</span>).<span class='ident'>unwrap</span>();
+...</pre>
+</div><h4 id='method.discard_concurrent_envs' class='method'><code>fn <a href='#method.discard_concurrent_envs' class='fnname'>discard_concurrent_envs</a>(&amp;self)</code></h4>
+<div class='stability'><em class='stab deprecated'>Deprecated</em></div><div class='docblock'><p>Discard all concurrent environments for the model.</p>
+</div><h4 id='method.message' class='method'><code>fn <a href='#method.message' class='fnname'>message</a>(&amp;self, message: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>)</code></h4>
+<div class='docblock'><p>Insert a message into log file.</p>
+
+<p>When <strong>message</strong> cannot convert to raw C string, a panic is occurred.</p>
+</div><h4 id='method.read' class='method'><code>fn <a href='#method.read' class='fnname'>read</a>(&amp;mut self, filename: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Import optimization data of the model from a file.</p>
+</div><h4 id='method.write' class='method'><code>fn <a href='#method.write' class='fnname'>write</a>(&amp;self, filename: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Export optimization data of the model to a file.</p>
+</div><h4 id='method.add_var' class='method'><code>fn <a href='#method.add_var' class='fnname'>add_var</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, vtype: <a class='enum' href='../gurobi/enum.VarType.html' title='gurobi::VarType'>VarType</a>, obj: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, lb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, ub: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, colconstrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, colvals: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;</code></h4>
+<div class='docblock'><p>add a decision variable to the model.</p>
+</div><h4 id='method.add_vars' class='method'><code>fn <a href='#method.add_vars' class='fnname'>add_vars</a>(&amp;mut self, names: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, vtypes: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../gurobi/enum.VarType.html' title='gurobi::VarType'>VarType</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, objs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, lbs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, ubs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, colconstrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, colvals: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>add decision variables to the model.</p>
+</div><h4 id='method.add_constr' class='method'><code>fn <a href='#method.add_constr' class='fnname'>add_constr</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, expr: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;</code></h4>
+<div class='docblock'><p>add a linear constraint to the model.</p>
+</div><h4 id='method.add_constrs' class='method'><code>fn <a href='#method.add_constrs' class='fnname'>add_constrs</a>(&amp;mut self, name: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, expr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, sense: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>add linear constraints to the model.</p>
+</div><h4 id='method.add_range' class='method'><code>fn <a href='#method.add_range' class='fnname'>add_range</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, expr: <a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a>, lb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, ub: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, <a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
+<div class='docblock'><p>Add a range constraint to the model.</p>
+
+<p>This operation adds a decision variable with lower/upper bound, and a linear
+equality constraint which states that the value of variable must equal to <code>expr</code>.</p>
+
+<h1 id='returns' class='section-header'><a href='#returns'>Returns</a></h1>
+<ul>
+<li>An decision variable associated with the model. It has lower/upper bound constraints.</li>
+<li>An linear equality constraint associated with the model.</li>
+</ul>
+</div><h4 id='method.add_ranges' class='method'><code>fn <a href='#method.add_ranges' class='fnname'>add_ranges</a>(&amp;mut self, names: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, expr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.LinExpr.html' title='gurobi::LinExpr'>LinExpr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, lb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, ub: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
+<div class='docblock'><p>Add range constraints to the model.</p>
+</div><h4 id='method.add_qconstr' class='method'><code>fn <a href='#method.add_qconstr' class='fnname'>add_qconstr</a>(&amp;mut self, constrname: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, expr: <a class='struct' href='../gurobi/struct.QuadExpr.html' title='gurobi::QuadExpr'>QuadExpr</a>, sense: <a class='enum' href='../gurobi/enum.ConstrSense.html' title='gurobi::ConstrSense'>ConstrSense</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.QConstr.html' title='gurobi::QConstr'>QConstr</a>&gt;</code></h4>
+<div class='docblock'><p>add a quadratic constraint to the model.</p>
+</div><h4 id='method.add_sos' class='method'><code>fn <a href='#method.add_sos' class='fnname'>add_sos</a>(&amp;mut self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, weights: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, sostype: <a class='enum' href='../gurobi/enum.SOSType.html' title='gurobi::SOSType'>SOSType</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.SOS.html' title='gurobi::SOS'>SOS</a>&gt;</code></h4>
+<div class='docblock'><p>add Special Order Set (SOS) constraint to the model.</p>
+</div><h4 id='method.set_objective' class='method'><code>fn <a href='#method.set_objective' class='fnname'>set_objective</a>&lt;Expr:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../gurobi/struct.QuadExpr.html' title='gurobi::QuadExpr'>QuadExpr</a>&gt;&gt;(&amp;mut self, expr: Expr, sense: <a class='enum' href='../gurobi/enum.ModelSense.html' title='gurobi::ModelSense'>ModelSense</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Set the objective function of the model.</p>
+</div><h4 id='method.get' class='method'><code>fn <a href='#method.get' class='fnname'>get</a>&lt;A:&nbsp;Attr&gt;(&amp;self, attr: A) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;A::Out&gt;</code></h4>
+<div class='docblock'><p>Query the value of attributes which associated with variable/constraints.</p>
+</div><h4 id='method.set' class='method'><code>fn <a href='#method.set' class='fnname'>set</a>&lt;A:&nbsp;Attr&gt;(&amp;mut self, attr: A, value: A::Out) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Set the value of attributes which associated with variable/constraints.</p>
+</div><h4 id='method.get_values' class='method'><code>fn <a href='#method.get_values' class='fnname'>get_values</a>&lt;A:&nbsp;AttrArray,&nbsp;P&gt;(&amp;self, attr: A, item: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>P<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;A::Out&gt;&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../gurobi/struct.Proxy.html' title='gurobi::Proxy'>Proxy</a>&gt;</span></code></h4>
+<div class='docblock'><p>Query the value of attributes which associated with variable/constraints.</p>
+</div><h4 id='method.set_values' class='method'><code>fn <a href='#method.set_values' class='fnname'>set_values</a>&lt;A:&nbsp;AttrArray,&nbsp;P&gt;(&amp;mut self, attr: A, item: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>P<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>A::Out<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../gurobi/struct.Proxy.html' title='gurobi::Proxy'>Proxy</a>&gt;</span></code></h4>
+<div class='docblock'><p>Set the value of attributes which associated with variable/constraints.</p>
+</div><h4 id='method.feas_relax' class='method'><code>fn <a href='#method.feas_relax' class='fnname'>feas_relax</a>(&amp;mut self, relaxtype: <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a>, minrelax: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, lbpen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, ubpen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, constrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, rhspen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.QConstr.html' title='gurobi::QConstr'>QConstr</a>&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
+<div class='docblock'><p>Modify the model to create a feasibility relaxation.</p>
+
+<p>If you don&#39;t want to modify the model, copy the model before invoking
+this method (see also <a href="#method.copy"><code>copy()</code></a>).</p>
+
+<h2 id='arguments' class='section-header'><a href='#arguments'>Arguments</a></h2>
+<ul>
+<li><code>relaxtype</code> : The type of cost function used when finding the minimum cost relaxation.
+See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
+<li><code>minrelax</code> : The type of feasibility relaxation to perform.</li>
+<li><code>vars</code> : Variables whose bounds are allowed to be violated.</li>
+<li><code>lbpen</code> / <code>ubpen</code> : Penalty for violating a variable lower/upper bound.
+<code>INFINITY</code> means that the bounds doesn&#39;t allow to be violated.</li>
+<li><code>constrs</code> : Linear constraints that are allowed to be violated.</li>
+<li><code>rhspen</code> : Penalty for violating a linear constraint.
+<code>INFINITY</code> means that the bounds doesn&#39;t allow to be violated.</li>
+</ul>
+
+<h2 id='returns-1' class='section-header'><a href='#returns-1'>Returns</a></h2>
+<ul>
+<li>The objective value for the relaxation performed (if <code>minrelax</code> is <code>true</code>).</li>
+<li>Slack variables for relaxation and linear/quadratic constraints related to theirs.</li>
+</ul>
+</div><h4 id='method.set_pwl_obj' class='method'><code>fn <a href='#method.set_pwl_obj' class='fnname'>set_pwl_obj</a>(&amp;mut self, var: &amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Set a piecewise-linear objective function of a certain variable in the model.</p>
+</div><h4 id='method.status' class='method'><code>fn <a href='#method.status' class='fnname'>status</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='enum' href='../gurobi/enum.Status.html' title='gurobi::Status'>Status</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve the status of the model.</p>
+</div><h4 id='method.get_vars' class='method'><code>fn <a href='#method.get_vars' class='fnname'>get_vars</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve an iterator of the variables in the model.</p>
+</div><h4 id='method.get_constrs' class='method'><code>fn <a href='#method.get_constrs' class='fnname'>get_constrs</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve an iterator of the linear constraints in the model.</p>
+</div><h4 id='method.get_qconstrs' class='method'><code>fn <a href='#method.get_qconstrs' class='fnname'>get_qconstrs</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.QConstr.html' title='gurobi::QConstr'>QConstr</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve an iterator of the quadratic constraints in the model.</p>
+</div><h4 id='method.get_sos' class='method'><code>fn <a href='#method.get_sos' class='fnname'>get_sos</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.SOS.html' title='gurobi::SOS'>SOS</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve an iterator of the special order set (SOS) constraints in the model.</p>
+</div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>&lt;P:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html' title='core::ops::DerefMut'>DerefMut</a>&lt;Target=<a class='struct' href='../gurobi/struct.Proxy.html' title='gurobi::Proxy'>Proxy</a>&gt;&gt;(&amp;mut self, item: P)</code></h4>
+<div class='docblock'><p>Remove a variable from the model.</p>
+</div><h4 id='method.get_coeff' class='method'><code>fn <a href='#method.get_coeff' class='fnname'>get_coeff</a>(&amp;self, var: &amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, constr: &amp;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve a single constant matrix coefficient of the model.</p>
+</div><h4 id='method.set_coeff' class='method'><code>fn <a href='#method.set_coeff' class='fnname'>set_coeff</a>(&amp;mut self, var: &amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, constr: &amp;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a>, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Change a single constant matrix coefficient of the model.</p>
+</div><h4 id='method.set_coeffs' class='method'><code>fn <a href='#method.set_coeffs' class='fnname'>set_coeffs</a>(&amp;mut self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, constrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, values: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Change a set of constant matrix coefficients of the model.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../gurobi/struct.Callback.html' title='gurobi::Callback'>Callback</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-504' class='srclink' href='../src/gurobi/src/model/callback.rs.html#388-391' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#associatedtype.Target' class='type'>Target</a> = <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></h4>
+<div class='docblock'><p>The resulting type after dereferencing</p>
+</div><h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></h4>
+<div class='docblock'><p>The method called to dereference a value</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "gurobi";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
