@@ -1398,6 +1398,17 @@ MathJax.Hub.Config({
 <span id="1329">1329</span>
 <span id="1330">1330</span>
 <span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
 </pre><pre class='rust '>
 <span class='comment'>// Copyright (c) 2016 Yusuke Sasaki</span>
 <span class='comment'>//</span>
@@ -2565,18 +2576,29 @@ MathJax.Hub.Config({
     <span class='prelude-val'>Ok</span>((<span class='ident'>feasobj</span>, <span class='self'>self</span>.<span class='ident'>vars</span>[<span class='ident'>xcols</span>..].<span class='ident'>iter</span>(), <span class='self'>self</span>.<span class='ident'>constrs</span>[<span class='ident'>xrows</span>..].<span class='ident'>iter</span>(), <span class='self'>self</span>.<span class='ident'>qconstrs</span>[<span class='ident'>xqrows</span>..].<span class='ident'>iter</span>()))
   }
 
-  <span class='doccomment'>/// Set a piecewise-linear objective function of a certain variable in the model.</span>
+  <span class='doccomment'>/// Set a piecewise-linear objective function for the variable.</span>
   <span class='doccomment'>/// </span>
+  <span class='doccomment'>/// The piecewise-linear objective function $f(x)$ is defined as follows:</span>
   <span class='doccomment'>/// \begin{align}</span>
   <span class='doccomment'>///   f(x) = </span>
   <span class='doccomment'>///   \begin{cases}</span>
-  <span class='doccomment'>///     y_1 + \frac{y_2 - y_1}{x_2 - x_1} \\: (x - x_1)         &amp; \text{if $x \leq x_1$}, \\\\</span>
+  <span class='doccomment'>///     y_1 + \dfrac{y_2 - y_1}{x_2 - x_1} \\, (x - x_1)         &amp; \text{if $x \leq x_1$}, \\\\</span>
   <span class='doccomment'>///   \\\\</span>
-  <span class='doccomment'>///     y_i + \frac{y_{i+1} - y_i}{x_{i+1}-x_i} \\: (x - x_i)   &amp; \text{if $x_i \leq x \leq x_{i+1}$}, \\\\</span>
+  <span class='doccomment'>///     y_i + \dfrac{y_{i+1} - y_i}{x_{i+1}-x_i} \\, (x - x_i)   &amp; \text{if $x_i \leq x \leq x_{i+1}$}, \\\\</span>
   <span class='doccomment'>///   \\\\</span>
-  <span class='doccomment'>///     y_n + \frac{y_n - y_{n-1}}{x_n-x_{n-1}} \\: (x - x_n)   &amp; \text{if $x \geq x_n$}.</span>
+  <span class='doccomment'>///     y_n + \dfrac{y_n - y_{n-1}}{x_n-x_{n-1}} \\, (x - x_n)   &amp; \text{if $x \geq x_n$},</span>
   <span class='doccomment'>///   \end{cases}</span>
   <span class='doccomment'>/// \end{align}</span>
+  <span class='doccomment'>/// where $\bm{x} = \\{ x_1, ..., x_n \\}$, $\bm{y} = \\{ y_1, ..., y_n \\}$ is the points.</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// The attribute `Obj` will be set to 0.</span>
+  <span class='doccomment'>/// To delete the piecewise-linear function on the variable, set the value of `Obj` attribute to non-zero.</span>
+  <span class='doccomment'>///</span>
+  <span class='doccomment'>/// # Arguments</span>
+  <span class='doccomment'>/// * `var` :</span>
+  <span class='doccomment'>/// * `x` : $n$-points from domain of the variable. The order of entries should be</span>
+  <span class='doccomment'>/// non-decreasing.</span>
+  <span class='doccomment'>/// * `y` : $n$-points of objective values at each point $x_i$</span>
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_pwl_obj</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>var</span>: <span class='kw-2'>&amp;</span><span class='ident'>Var</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>], <span class='ident'>y</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
     <span class='kw'>if</span> <span class='ident'>x</span>.<span class='ident'>len</span>() <span class='op'>!=</span> <span class='ident'>y</span>.<span class='ident'>len</span>() {
       <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InconsitentDims</span>);

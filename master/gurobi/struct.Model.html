@@ -76,7 +76,7 @@ MathJax.Hub.Config({
 <pre class='rust struct'>pub struct Model {
     // some fields omitted
 }</pre><div class='docblock'><p>Gurobi model object associated with certain environment.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1177' class='srclink' href='../src/gurobi/src/model.rs.html#315-1285' title='goto source code'>[src]</a></span></h3>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1177' class='srclink' href='../src/gurobi/src/model.rs.html#315-1296' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(modelname: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, env: &amp;<a class='struct' href='../gurobi/struct.Env.html' title='gurobi::Env'>Env</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a>&gt;</code></h4>
 <div class='docblock'><p>Create an empty Gurobi model from the environment.</p>
 
@@ -233,18 +233,31 @@ See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
 <li>Slack variables for relaxation and linear/quadratic constraints related to theirs.</li>
 </ul>
 </div><h4 id='method.set_pwl_obj' class='method'><code>fn <a href='#method.set_pwl_obj' class='fnname'>set_pwl_obj</a>(&amp;mut self, var: &amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
-<div class='docblock'><p>Set a piecewise-linear objective function of a certain variable in the model.</p>
+<div class='docblock'><p>Set a piecewise-linear objective function for the variable.</p>
 
-<p>\begin{align}
+<p>The piecewise-linear objective function $f(x)$ is defined as follows:
+\begin{align}
   f(x) = 
   \begin{cases}
-    y_1 + \frac{y_2 - y_1}{x_2 - x_1} \: (x - x_1)         &amp; \text{if $x \leq x_1$}, \\
+    y_1 + \dfrac{y_2 - y_1}{x_2 - x_1} \, (x - x_1)         &amp; \text{if $x \leq x_1$}, \\
   \\
-    y_i + \frac{y_{i+1} - y_i}{x_{i+1}-x_i} \: (x - x_i)   &amp; \text{if $x_i \leq x \leq x_{i+1}$}, \\
+    y_i + \dfrac{y_{i+1} - y_i}{x_{i+1}-x_i} \, (x - x_i)   &amp; \text{if $x_i \leq x \leq x_{i+1}$}, \\
   \\
-    y_n + \frac{y_n - y_{n-1}}{x_n-x_{n-1}} \: (x - x_n)   &amp; \text{if $x \geq x_n$}.
+    y_n + \dfrac{y_n - y_{n-1}}{x_n-x_{n-1}} \, (x - x_n)   &amp; \text{if $x \geq x_n$},
   \end{cases}
-\end{align}</p>
+\end{align}
+where $\bm{x} = \{ x_1, ..., x_n \}$, $\bm{y} = \{ y_1, ..., y_n \}$ is the points.</p>
+
+<p>The attribute <code>Obj</code> will be set to 0.
+To delete the piecewise-linear function on the variable, set the value of <code>Obj</code> attribute to non-zero.</p>
+
+<h1 id='arguments-2' class='section-header'><a href='#arguments-2'>Arguments</a></h1>
+<ul>
+<li><code>var</code> :</li>
+<li><code>x</code> : $n$-points from domain of the variable. The order of entries should be
+non-decreasing.</li>
+<li><code>y</code> : $n$-points of objective values at each point $x_i$</li>
+</ul>
 </div><h4 id='method.status' class='method'><code>fn <a href='#method.status' class='fnname'>status</a>(&amp;self) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='enum' href='../gurobi/enum.Status.html' title='gurobi::Status'>Status</a>&gt;</code></h4>
 <div class='docblock'><p>Retrieve the status of the model.</p>
 </div><h4 id='method.get_vars' class='method'><code>fn <a href='#method.get_vars' class='fnname'>get_vars</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/slice/struct.Iter.html' title='core::slice::Iter'>Iter</a>&lt;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a>&gt;</code></h4>
@@ -263,7 +276,7 @@ See also <a href="enum.RelaxType.html"><code>RelaxType</code></a>.</li>
 <div class='docblock'><p>Change a single constant matrix coefficient of the model.</p>
 </div><h4 id='method.set_coeffs' class='method'><code>fn <a href='#method.set_coeffs' class='fnname'>set_coeffs</a>(&amp;mut self, vars: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Var.html' title='gurobi::Var'>Var</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, constrs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../gurobi/struct.Constr.html' title='gurobi::Constr'>Constr</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, values: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../gurobi/type.Result.html' title='gurobi::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
 <div class='docblock'><p>Change a set of constant matrix coefficients of the model.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1750' class='srclink' href='../src/gurobi/src/model.rs.html#1288-1293' title='goto source code'>[src]</a></span></h3>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../gurobi/struct.Model.html' title='gurobi::Model'>Model</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1750' class='srclink' href='../src/gurobi/src/model.rs.html#1299-1304' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
 <div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
 </div></div></section>
