@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `gurobi-sys/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `gurobi-sys\src\lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
@@ -677,6 +677,12 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>improper_ctypes</span>)]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>non_camel_case_types</span>)]</span>
@@ -1077,6 +1083,12 @@
 
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBfixedmodel</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>;
 
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBrelaxmodel</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>;
+
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBpresolvemodel</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>;
+
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBfeasibility</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>;
+
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBresetmodel</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBsync</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
@@ -1123,7 +1135,7 @@
 <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> {
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBreadmodel</span>(<span class='ident'>env</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBenv</span>, <span class='ident'>filename</span>: <span class='ident'>c_str</span>, <span class='ident'>modelP</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBread</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>, <span class='ident'>filename</span>: <span class='ident'>c_str</span>, <span class='ident'>modelP</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
+  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBread</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>, <span class='ident'>filename</span>: <span class='ident'>c_str</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBwrite</span>(<span class='ident'>model</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GRBmodel</span>, <span class='ident'>filename</span>: <span class='ident'>c_str</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
@@ -1286,7 +1298,7 @@
                   <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBcblazy</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>, <span class='ident'>lazylen</span>: <span class='ident'>c_int</span>, <span class='ident'>lazyind</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_int</span>, <span class='ident'>lazyval</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_double</span>,
-                   <span class='ident'>lazysense</span>: <span class='ident'>char</span>, <span class='ident'>lazyrhs</span>: <span class='ident'>c_double</span>)
+                   <span class='ident'>lazysense</span>: <span class='ident'>c_char</span>, <span class='ident'>lazyrhs</span>: <span class='ident'>c_double</span>)
                    <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
   <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>GRBcbsolution</span>(<span class='ident'>cbdata</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>, <span class='ident'>solution</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_double</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;

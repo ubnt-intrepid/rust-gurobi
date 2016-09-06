@@ -16,6 +16,19 @@
     
     <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      argmin: '\\mathop{\\mathrm{arg\\,min}}',
+      argmax: '\\mathop{\\mathrm{arg\\,max}}',
+      bm:     '\\boldsymbol',
+      Real:   '\\mathbb{R}',
+    }
+  },
+  "HTML-CSS": {
+    availableFonts: ["Gyre-Termes"],
+    preferredfont:  ["Gyre-Termes"],
+    webFont: "Gyre-Termes"
+  },
   tex2jax: {
     inlineMath: [['$','$'], ['\\(','\\)']],
     processEscapes: true
@@ -23,7 +36,8 @@ MathJax.Hub.Config({
   CommonHTML: { matchFontHeight: false }
 });
 </script>
-<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+<!--<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>-->
+<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 
 
 </head>
@@ -58,7 +72,7 @@ MathJax.Hub.Config({
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span></span></h1>
+               </span><a id='src-207' class='srclink' href='../../gurobi_sys/enum.DoubleParam.html?gotosrc=207' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum DoubleParam {
     Cutoff,
     IterationLimit,

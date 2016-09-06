@@ -16,6 +16,19 @@
     
     <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      argmin: '\\mathop{\\mathrm{arg\\,min}}',
+      argmax: '\\mathop{\\mathrm{arg\\,max}}',
+      bm:     '\\boldsymbol',
+      Real:   '\\mathbb{R}',
+    }
+  },
+  "HTML-CSS": {
+    availableFonts: ["Gyre-Termes"],
+    preferredfont:  ["Gyre-Termes"],
+    webFont: "Gyre-Termes"
+  },
   tex2jax: {
     inlineMath: [['$','$'], ['\\(','\\)']],
     processEscapes: true
@@ -23,7 +36,8 @@ MathJax.Hub.Config({
   CommonHTML: { matchFontHeight: false }
 });
 </script>
-<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+<!--<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>-->
+<script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 
 
 </head>
@@ -58,7 +72,7 @@ MathJax.Hub.Config({
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-980' class='srclink' href='../src/gurobi/src/model/mod.rs.html#130-142' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-980' class='srclink' href='../src/gurobi/src/model.rs.html#132-144' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum RelaxType {
     Linear,
     Quadratic,
@@ -71,16 +85,16 @@ MathJax.Hub.Config({
 ($penalty(s_i) = w_i s_i^2$)</p>
 </div><span id='variant.Cardinality' class='variant'><code>Cardinality</code></span><div class='docblock'><p>The weighted count of bounds and constraint violations
 ($penalty(s_i) = w_i \cdot [s_i &gt; 0]$)</p>
-</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-969' class='srclink' href='../src/gurobi/src/model/mod.rs.html#129' title='goto source code'>[src]</a></span></h3>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-969' class='srclink' href='../src/gurobi/src/model.rs.html#131' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></h4>
 <div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
 </div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
 <div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-972' class='srclink' href='../src/gurobi/src/model/mod.rs.html#129' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-973' class='srclink' href='../src/gurobi/src/model/mod.rs.html#129' title='goto source code'>[src]</a></span></h3>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-972' class='srclink' href='../src/gurobi/src/model.rs.html#131' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-973' class='srclink' href='../src/gurobi/src/model.rs.html#131' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 <div class='docblock'><p>Formats the value using the given formatter.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-987' class='srclink' href='../src/gurobi/src/model/mod.rs.html#144-146' title='goto source code'>[src]</a></span></h3>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='enum' href='../gurobi/enum.RelaxType.html' title='gurobi::RelaxType'>RelaxType</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-987' class='srclink' href='../src/gurobi/src/model.rs.html#146-148' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.into' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into' class='fnname'>into</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
 <div class='docblock'><p>Performs the conversion.</p>
 </div></div></section>
