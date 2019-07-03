@@ -288,6 +288,12 @@ pub trait FromRaw {
   fn from_raw(model: *mut ffi::GRBmodel) -> Result<Model>;
 }
 
+
+impl Clone for Model {
+  fn clone(&self) -> Self {
+    self.copy().unwrap()
+  }
+}
 impl FromRaw for Model {
   /// create an empty model which associated with certain environment.
   fn from_raw(model: *mut ffi::GRBmodel) -> Result<Model> {
