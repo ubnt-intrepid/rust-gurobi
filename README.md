@@ -4,16 +4,15 @@
 
 An unofficial Rust API for Gurobi optimizer.
 
-* Documentation - [master](https://ys-nuem.github.io/rust-gurobi/master/gurobi/index.html) / [0.3 (latest)](https://ys-nuem.github.io/rust-gurobi/v0.3.1/gurobi/index.html)
+- Documentation - [master](https://ys-nuem.github.io/rust-gurobi/master/gurobi/index.html) / [0.3 (latest)](https://ys-nuem.github.io/rust-gurobi/v0.3.1/gurobi/index.html)
 
 ## Notices
 
-* This wrapper library is not officially supported by Gurobi.
-* Too many works have not finished yet.
-
+- This wrapper library is not officially supported by Gurobi.
+- Too many works have not finished yet.
 
 ## License
 
-Copyright (c) 2016, Yusuke Sasaki
+Copyright (c) 2021, Yusuke Sasaki
 
 This software is released under the MIT license, see [LICENSE](LICENSE).

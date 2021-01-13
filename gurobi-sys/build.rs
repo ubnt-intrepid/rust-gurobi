@@ -29,7 +29,7 @@ fn get_version_triple() -> (i32, i32, i32) {
     .split_whitespace()
     .nth(3)
     .expect("failed to get version string")
-    .split(".")
+    .split('.')
     .map(|s| s.parse().expect("failed to parse version tuple"))
     .collect();
 
