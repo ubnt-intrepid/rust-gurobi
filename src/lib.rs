@@ -74,9 +74,6 @@
 //!   assert_eq!(val, [6.5, 7.0]);
 //! }
 //! ```
-
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
 #![allow(extend_from_slice)]
 #![allow(explicit_iter_loop)]
 
