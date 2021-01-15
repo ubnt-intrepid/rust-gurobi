@@ -11,7 +11,6 @@ documentation = "https://docs.rs/gurobi/0.3.4/gurobi/"
 
 [dependencies]
 itertools = "0.10"
-clippy = {version = "0.0.*", optional = true}
 
 [dependencies.gurobi-sys]
 path = "./gurobi-sys"
