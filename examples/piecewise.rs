@@ -54,7 +54,7 @@ fn optimize_and_print_status(model: &mut Model) -> Result<()> {
   println!("IsMIP = {}", try!(model.get(attr::IsMIP)) != 0);
   for v in model.get_vars() {
     let vname = try!(v.get(&model, attr::VarName));
-    let x = try!(v.get(&model, attr::X));;
+    let x = try!(v.get(&model, attr::X));
     println!("{} = {}", vname, x);
   }
   println!("Obj = {}\n", try!(model.get(attr::ObjVal)));

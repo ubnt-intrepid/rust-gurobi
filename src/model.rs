@@ -1318,8 +1318,8 @@ fn removing_variable_should_be_successed() {
 
   let x = model.add_var("x", Binary, 0.0, 0.0, 1.0, &[], &[]).unwrap();
   let y = model.add_var("y", Binary, 0.0, 0.0, 1.0, &[], &[]).unwrap();
-  assert_eq!(x.index(), -1);
-  assert_eq!(y.index(), -1);
+  assert_eq!(x.index(), 0);
+  assert_eq!(y.index(), 1);
 
   model.update().unwrap();
   assert_eq!(x.index(), 0);
@@ -1328,7 +1328,7 @@ fn removing_variable_should_be_successed() {
   let z = model.add_var("z", Binary, 0.0, 0.0, 1.0, &[], &[]).unwrap();
   assert_eq!(x.index(), 0);
   assert_eq!(y.index(), 1);
-  assert_eq!(z.index(), -1);
+  assert_eq!(z.index(), 2);
 
   model.update().unwrap();
   assert_eq!(x.index(), 0);
