@@ -16,9 +16,7 @@ fn main() {
   model.optimize().unwrap();
 
   let status = model.status().unwrap();
-  assert!(status == Status::Optimal,
-          "Optimization ended with status {:?}",
-          status);
+  assert!(status == Status::Optimal, "Optimization ended with status {:?}", status);
 
   // store the optimal solution.
   let orig_obj = model.get(attr::ObjVal).unwrap();
@@ -63,9 +61,7 @@ fn main() {
       match model.status().unwrap() {
         Status::Optimal => {
           let objval = model.get(attr::ObjVal).unwrap();
-          println!("Objective sensitivity for variable {} is {}",
-                   vname,
-                   objval - orig_obj);
+          println!("Objective sensitivity for variable {} is {}", vname, objval - orig_obj);
         }
         _ => {
           println!("Objective sensitivity for variable {} is infinite", vname);

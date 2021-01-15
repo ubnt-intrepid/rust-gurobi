@@ -19,42 +19,58 @@ fn main() {
   let fixed_costs = vec![12000f64, 15000.0, 17000.0, 13000.0, 16000.0];
 
   // transportation costs per thousands units.
-  let trans_costs = vec![vec![4000f64, 2000.0, 3000.0, 2500.0, 4500.0],
-                         vec![2500f64, 2600.0, 3400.0, 3000.0, 4000.0],
-                         vec![1200f64, 1800.0, 2600.0, 4100.0, 3000.0],
-                         vec![2200f64, 2600.0, 3100.0, 3700.0, 3200.0]];
+  let trans_costs = vec![
+    vec![4000f64, 2000.0, 3000.0, 2500.0, 4500.0],
+    vec![2500f64, 2600.0, 3400.0, 3000.0, 4000.0],
+    vec![1200f64, 1800.0, 2600.0, 4100.0, 3000.0],
+    vec![2200f64, 2600.0, 3100.0, 3700.0, 3200.0],
+  ];
 
   let env = Env::new("facility.log").unwrap();
   let mut model = Model::new("facility", &env).unwrap();
 
   // plant open decision variables.
   // open[p] == 1 means that plant p is open.
-  let open: Vec<Var> =
-    (0..(fixed_costs.len())).map(|p| model.add_var(&format!("Open{}", p), Binary, 0.0, 0.0, 1.0, &[], &[]).unwrap()).collect();
+  let open: Vec<Var> = (0..(fixed_costs.len()))
+    .map(|p| {
+      model
+        .add_var(&format!("Open{}", p), Binary, 0.0, 0.0, 1.0, &[], &[])
+        .unwrap()
+    })
+    .collect();
 
   // transportation decision variables.
   // how much transport from a plant p to a warehouse w
-  let transport: Vec<Vec<_>> = trans_costs.iter()
+  let transport: Vec<Vec<_>> = trans_costs
+    .iter()
     .enumerate()
     .map(|(w, costs)| {
       (0..(costs.len()))
-        .map(|p| model.add_var(&format!("Trans{}.{}", p, w), Continuous, 0.0, 0.0, INFINITY, &[], &[]).unwrap())
+        .map(|p| {
+          model
+            .add_var(&format!("Trans{}.{}", p, w), Continuous, 0.0, 0.0, INFINITY, &[], &[])
+            .unwrap()
+        })
         .collect()
     })
     .collect();
 
-  let expr = Zip::new((open.iter().chain(Itertools::flatten(transport.iter())),
-                       fixed_costs.iter().chain(Itertools::flatten(trans_costs.iter()))))
-    .fold(LinExpr::new(), |expr, (x, &c)| expr + c * x);
+  let expr = zip(
+    open.iter().chain(transport.iter().flatten()),
+    fixed_costs.iter().chain(trans_costs.iter().flatten()),
+  )
+  .fold(LinExpr::new(), |expr, (x, &c)| expr + c * x);
   model.set_objective(expr, Minimize).unwrap();
   model.update().unwrap();
 
-  for (p, (&capacity, open)) in Zip::new((&capacity, &open)).enumerate() {
+  for (p, (&capacity, open)) in zip(&capacity, &open).enumerate() {
     let lhs = transport.iter().map(|t| &t[p]).fold(LinExpr::new(), |expr, t| expr + t);
-    model.add_constr(&format!("Capacity{}", p), lhs - capacity * open, Less, 0.0).unwrap();
+    model
+      .add_constr(&format!("Capacity{}", p), lhs - capacity * open, Less, 0.0)
+      .unwrap();
   }
 
-  for (w, (&demand, transport)) in Zip::new((&demand, &transport)).enumerate() {
+  for (w, (&demand, transport)) in zip(&demand, &transport).enumerate() {
     let lhs = transport.iter().fold(LinExpr::new(), |expr, t| expr + t);
     model.add_constr(&format!("Demand{}", w), lhs, Equal, demand).unwrap();
   }
@@ -65,7 +81,7 @@ fn main() {
 
   println!("Initial guess:");
   let max_fixed = fixed_costs.iter().cloned().fold(-1. / 0., f64::max);
-  for (p, (open, &cost)) in Zip::new((&open, &fixed_costs)).enumerate() {
+  for (p, (open, &cost)) in zip(&open, &fixed_costs).enumerate() {
     if (cost - max_fixed).abs() < f64::EPSILON {
       open.set(&mut model, attr::Start, 0.0).unwrap();
       println!("Closing plant {}", p);
