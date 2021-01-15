@@ -5,11 +5,11 @@
 
 /// Defines the name of parameters
 pub mod exports {
-  pub use ffi::{IntParam, DoubleParam, StringParam};
+  pub use ffi::{DoubleParam, IntParam, StringParam};
 
   // re-exports
-  pub use self::IntParam::*;
   pub use self::DoubleParam::*;
+  pub use self::IntParam::*;
   pub use self::StringParam::*;
 }
 use self::exports::*;
@@ -17,7 +17,6 @@ use self::exports::*;
 use ffi;
 use std::ffi::CString;
 use util;
-
 
 pub trait Param: Sized + Into<CString> {
   type Out;
@@ -29,8 +28,6 @@ pub trait Param: Sized + Into<CString> {
 
   unsafe fn set_param(env: *mut ffi::GRBenv, paramname: ffi::c_str, value: Self::RawTo) -> ffi::c_int;
 }
-
-
 
 impl Param for IntParam {
   type Out = i32;

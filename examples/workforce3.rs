@@ -26,13 +26,16 @@ fn main() {
       // do relaxation.
       let constrs = model.get_constrs().cloned().collect_vec();
       let slacks = {
-        let (_, svars, _, _) = model.feas_relax(RelaxType::Linear,
-                      false,
-                      &[],
-                      &[],
-                      &[],
-                      &constrs[..],
-                      RepeatN::new(1.0, constrs.len()).collect_vec().as_slice())
+        let (_, svars, _, _) = model
+          .feas_relax(
+            RelaxType::Linear,
+            false,
+            &[],
+            &[],
+            &[],
+            &constrs[..],
+            repeat_n(1.0, constrs.len()).collect_vec().as_slice(),
+          )
           .unwrap();
         svars.cloned().collect_vec()
       };

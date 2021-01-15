@@ -30,7 +30,9 @@ fn main() {
   // add quadratic constraints
 
   //  qc0: x^2 + y^2 - z^2 <= 0.0
-  model.add_qconstr("qc0", &x * &x + &y * &y - &z * &z, Less, 0.0).unwrap();
+  model
+    .add_qconstr("qc0", &x * &x + &y * &y - &z * &z, Less, 0.0)
+    .unwrap();
 
   //  qc1: x^2 - y*z <= 0.0
   model.add_qconstr("qc1", &x * &x - &y * &z, Less, 0.0).unwrap();

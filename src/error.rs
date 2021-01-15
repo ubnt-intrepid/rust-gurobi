@@ -20,7 +20,9 @@ pub enum Error {
 }
 
 impl From<std::ffi::NulError> for Error {
-  fn from(err: std::ffi::NulError) -> Error { Error::NulError(err) }
+  fn from(err: std::ffi::NulError) -> Error {
+    Error::NulError(err)
+  }
 }
 
 impl std::fmt::Display for Error {
@@ -42,7 +44,6 @@ impl std::error::Error for Error {
     }
   }
 }
-
 
 /// A specialized
 /// [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html)

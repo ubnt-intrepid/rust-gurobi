@@ -16,7 +16,7 @@ use util;
 /// Gurobi environment object
 pub struct Env {
   env: *mut ffi::GRBenv,
-  require_drop: bool
+  require_drop: bool,
 }
 
 impl Env {
@@ -30,42 +30,54 @@ impl Env {
     }
     Ok(Env {
       env: env,
-      require_drop: true
+      require_drop: true,
     })
   }
 
   /// Create a client environment on a computer server with log file
-  pub fn new_client(logfilename: &str, computeserver: &str, port: i32, password: &str, priority: i32, timeout: f64)
-                    -> Result<Env> {
+  pub fn new_client(
+    logfilename: &str,
+    computeserver: &str,
+    port: i32,
+    password: &str,
+    priority: i32,
+    timeout: f64,
+  ) -> Result<Env> {
     let mut env = null_mut();
     let logfilename = try!(CString::new(logfilename));
     let computeserver = try!(CString::new(computeserver));
     let password = try!(CString::new(password));
     let error = unsafe {
-      ffi::GRBloadclientenv(&mut env,
-                            logfilename.as_ptr(),
-                            computeserver.as_ptr(),
-                            port,
-                            password.as_ptr(),
-                            priority,
-                            timeout)
+      ffi::GRBloadclientenv(
+        &mut env,
+        logfilename.as_ptr(),
+        computeserver.as_ptr(),
+        port,
+        password.as_ptr(),
+        priority,
+        timeout,
+      )
     };
     if error != 0 {
       return Err(Error::FromAPI(get_error_msg(env), error));
     }
     Ok(Env {
       env: env,
-      require_drop: true
+      require_drop: true,
     })
   }
 
   /// Create an empty Gurobi model from the environment
   #[deprecated]
-  pub fn new_model(&self, modelname: &str) -> Result<Model> { Model::new(modelname, self) }
+  pub fn new_model(&self, modelname: &str) -> Result<Model> {
+    Model::new(modelname, self)
+  }
 
   /// Read a model from a file
   #[deprecated]
-  pub fn read_model(&self, filename: &str) -> Result<Model> { Model::read_from(filename, self) }
+  pub fn read_model(&self, filename: &str) -> Result<Model> {
+    Model::read_from(filename, self)
+  }
 
   /// Query the value of a parameter
   pub fn get<P: Param>(&self, param: P) -> Result<P::Out> {
@@ -97,7 +109,9 @@ impl Env {
   ///
   /// When **message** cannot convert to raw C string, a panic is occurred.
   #[allow(temporary_cstring_as_ptr)]
-  pub fn message(&self, message: &str) { unsafe { ffi::GRBmsg(self.env, CString::new(message).unwrap().as_ptr()) }; }
+  pub fn message(&self, message: &str) {
+    unsafe { ffi::GRBmsg(self.env, CString::new(message).unwrap().as_ptr()) };
+  }
 }
 
 pub trait EnvAPI {
@@ -106,7 +120,9 @@ pub trait EnvAPI {
 }
 
 impl EnvAPI for Env {
-  fn get_ptr(&self) -> *mut ffi::GRBenv { self.env }
+  fn get_ptr(&self) -> *mut ffi::GRBenv {
+    self.env
+  }
 
   fn check_apicall(&self, error: ffi::c_int) -> Result<()> {
     if error != 0 {
@@ -125,13 +141,14 @@ impl Drop for Env {
   }
 }
 
-
 pub trait ErrorFromAPI {
   fn error_from_api(&self, error: ffi::c_int) -> Error;
 }
 
 impl ErrorFromAPI for Env {
-  fn error_from_api(&self, error: ffi::c_int) -> Error { Error::FromAPI(get_error_msg(self.env), error) }
+  fn error_from_api(&self, error: ffi::c_int) -> Error {
+    Error::FromAPI(get_error_msg(self.env), error)
+  }
 }
 
 pub trait FromRaw {
@@ -142,14 +159,14 @@ impl FromRaw for Env {
   fn from_raw(env: *mut ffi::GRBenv) -> Env {
     Env {
       env: env,
-      require_drop: false
+      require_drop: false,
     }
   }
 }
 
-
-fn get_error_msg(env: *mut ffi::GRBenv) -> String { unsafe { util::from_c_str(ffi::GRBgeterrormsg(env)) } }
-
+fn get_error_msg(env: *mut ffi::GRBenv) -> String {
+  unsafe { util::from_c_str(ffi::GRBgeterrormsg(env)) }
+}
 
 // #[test]
 // fn env_with_logfile() {

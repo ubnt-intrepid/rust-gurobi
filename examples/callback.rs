@@ -5,8 +5,8 @@
 
 extern crate gurobi;
 use gurobi::*;
-use std::io::{BufWriter, Write};
 use std::fs::OpenOptions;
+use std::io::{BufWriter, Write};
 
 fn main() {
   let mut env = Env::new("callback.log").unwrap();
@@ -35,42 +35,48 @@ fn main() {
         PreSolve { coldel, rowdel, .. } => {
           println!("@PreSolve");
           if coldel > 0 || rowdel > 0 {
-            println!("**** {} columns and {} rows are removed. ****",
-                     coldel,
-                     rowdel);
+            println!("**** {} columns and {} rows are removed. ****", coldel, rowdel);
           }
         }
 
         // Currently in simplex
-        Simplex { ispert, itrcnt, objval, priminf, dualinf } => {
+        Simplex {
+          ispert,
+          itrcnt,
+          objval,
+          priminf,
+          dualinf,
+        } => {
           if itrcnt - lastiter >= 100.0 {
             lastiter = itrcnt;
             let ch = match ispert {
               0 => ' ',
               1 => 'S',
-              _ => 'P'
+              _ => 'P',
             };
-            println!("@Simplex: itrcnt={}, objval={}{}, priminf={}, dualinf={}.",
-                     itrcnt,
-                     objval,
-                     ch,
-                     priminf,
-                     dualinf);
+            println!(
+              "@Simplex: itrcnt={}, objval={}{}, priminf={}, dualinf={}.",
+              itrcnt, objval, ch, priminf, dualinf
+            );
           }
         }
 
         // Currently in MIP
-        MIP { solcnt, cutcnt, objbst, objbnd, nodcnt, nodleft: actnodes, itrcnt } => {
+        MIP {
+          solcnt,
+          cutcnt,
+          objbst,
+          objbnd,
+          nodcnt,
+          nodleft: actnodes,
+          itrcnt,
+        } => {
           if nodcnt - lastnode >= 100.0 {
             lastnode = nodcnt;
-            println!("@MIP: nodcnt={}, actnodes={}, itrcnt={}, objbst={}, objbnd={}, solcnt={}, cutcnt={}.",
-                     nodcnt,
-                     actnodes,
-                     itrcnt,
-                     objbst,
-                     objbnd,
-                     solcnt,
-                     cutcnt);
+            println!(
+              "@MIP: nodcnt={}, actnodes={}, itrcnt={}, objbst={}, objbnd={}, solcnt={}, cutcnt={}.",
+              nodcnt, actnodes, itrcnt, objbst, objbnd, solcnt, cutcnt
+            );
           }
 
           if (objbst - objbnd).abs() < 0.1 * (1.0 + objbst.abs()) {
@@ -85,14 +91,15 @@ fn main() {
         }
 
         // Found a new MIP incumbent
-        MIPSol { solcnt, obj, nodcnt, .. } => {
+        MIPSol {
+          solcnt, obj, nodcnt, ..
+        } => {
           println!("@MIPSol: ");
           let x = try!(ctx.get_solution(vars.as_slice()));
-          println!("**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
-                   nodcnt,
-                   obj,
-                   solcnt,
-                   x[0]);
+          println!(
+            "**** New solution at node {}, obj {}, sol {}, x[0] = {} ****",
+            nodcnt, obj, solcnt, x[0]
+          );
         }
 
         // Currently exploring a MIP node
@@ -105,14 +112,18 @@ fn main() {
         }
 
         // Currently in barrier
-        Barrier { itrcnt, primobj, dualobj, priminf, dualinf, compl } => {
-          println!("@Barrier: itrcnt={}, primobj={}, dualobj={}, priminf={}, dualinf={}, compl={}.",
-                   itrcnt,
-                   primobj,
-                   dualobj,
-                   priminf,
-                   dualinf,
-                   compl);
+        Barrier {
+          itrcnt,
+          primobj,
+          dualobj,
+          priminf,
+          dualinf,
+          compl,
+        } => {
+          println!(
+            "@Barrier: itrcnt={}, primobj={}, dualobj={}, priminf={}, dualinf={}, compl={}.",
+            itrcnt, primobj, dualobj, priminf, dualinf, compl
+          );
         }
 
         // Printing a log message
@@ -129,11 +140,9 @@ fn main() {
 
   println!("\nOptimization complete");
   if model.get(attr::SolCount).unwrap() == 0 {
-    println!("No solution found. optimization status = {:?}",
-             model.status());
+    println!("No solution found. optimization status = {:?}", model.status());
   } else {
-    println!("Solution found. objective = {}",
-             model.get(attr::ObjVal).unwrap());
+    println!("Solution found. objective = {}", model.get(attr::ObjVal).unwrap());
     for v in model.get_vars() {
       let vname = v.get(&model, attr::VarName).unwrap();
       let value = v.get(&model, attr::X).unwrap();

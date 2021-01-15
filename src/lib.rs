@@ -96,23 +96,21 @@ pub use error::{Error, Result};
 
 pub use env::Env;
 
-pub use model::{Model, Var, Constr, QConstr, SOS, Proxy};
-pub use model::{VarType, ConstrSense, ModelSense, SOSType, Status, RelaxType};
 pub use model::callback::{Callback, Where};
-pub use model::VarType::*;
+pub use model::expr::{LinExpr, QuadExpr};
 pub use model::ConstrSense::*;
 pub use model::ModelSense::*;
-pub use model::SOSType::*;
 pub use model::RelaxType::*;
-pub use model::expr::{LinExpr, QuadExpr};
+pub use model::SOSType::*;
+pub use model::VarType::*;
+pub use model::{Constr, Model, Proxy, QConstr, Var, SOS};
+pub use model::{ConstrSense, ModelSense, RelaxType, SOSType, Status, VarType};
 
 pub use attribute::exports as attr;
 pub use parameter::exports as param;
 
-
 /// Large number used in C API
 pub const INFINITY: f64 = 1e100;
-
 
 /// Returns the version number of Gurobi
 pub fn version() -> (i32, i32, i32) {

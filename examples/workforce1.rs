@@ -21,7 +21,10 @@ fn main() {
     model.compute_iis().unwrap();
 
     println!("The following constraint(s) cannot be satisfied:");
-    for c in model.get_constrs().filter(|c| c.get(&model, attr::IISConstr).unwrap() != 0) {
+    for c in model
+      .get_constrs()
+      .filter(|c| c.get(&model, attr::IISConstr).unwrap() != 0)
+    {
       println!("  - {}", c.get(&model, attr::ConstrName).unwrap());
     }
   }
