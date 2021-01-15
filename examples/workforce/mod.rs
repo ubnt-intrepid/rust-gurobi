@@ -1,8 +1,7 @@
-// Copyright (c) 2016 Yusuke Sasaki
+// Copyright (c) 2021 Yusuke Sasaki
 //
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
-
 extern crate gurobi;
 extern crate itertools;
 
@@ -39,7 +38,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
         vec![1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ];
 
-    let mut model = (Model::new("assignment", &env))?;
+    let mut model = (Model::new("assignment", env))?;
 
     let mut x = Vec::new();
     for (worker, availability) in Zip::new((workers.iter(), availability.iter())) {
@@ -51,7 +50,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
                 Continuous,
                 0.0,
                 -INFINITY,
-                availability as f64,
+                f64::from(availability),
                 &[],
                 &[],
             ))?;
@@ -70,7 +69,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
         (model.add_constr(
             format!("c.{}", shift).as_str(),
             x.iter()
-                .map(|ref x| &x[s])
+                .map(|x| &x[s])
                 .fold(LinExpr::new(), |expr, x| expr + x),
             Equal,
             requirement,

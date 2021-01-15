@@ -1,29 +1,29 @@
-// Copyright (c) 2016 Yusuke Sasaki
+// Copyright (c) 2021 Yusuke Sasaki
 //
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
-
 extern crate gurobi;
 extern crate itertools;
+
 use gurobi::*;
 use itertools::*;
 
 fn main() {
     // warehouse demand in thousands of units.
-    let demand = vec![15f64, 18.0, 14.0, 20.0];
+    let demand = vec![15_f64, 18.0, 14.0, 20.0];
 
     // plant capacity in thousands of units.
-    let capacity = vec![20f64, 22.0, 17.0, 19.0, 18.0];
+    let capacity = vec![20_f64, 22.0, 17.0, 19.0, 18.0];
 
     // fixed costs for each plant.
-    let fixed_costs = vec![12000f64, 15000.0, 17000.0, 13000.0, 16000.0];
+    let fixed_costs = vec![12000_f64, 15000.0, 17000.0, 13000.0, 16000.0];
 
     // transportation costs per thousands units.
     let trans_costs = vec![
-        vec![4000f64, 2000.0, 3000.0, 2500.0, 4500.0],
-        vec![2500f64, 2600.0, 3400.0, 3000.0, 4000.0],
-        vec![1200f64, 1800.0, 2600.0, 4100.0, 3000.0],
-        vec![2200f64, 2600.0, 3100.0, 3700.0, 3200.0],
+        vec![4000_f64, 2000.0, 3000.0, 2500.0, 4500.0],
+        vec![2500_f64, 2600.0, 3400.0, 3000.0, 4000.0],
+        vec![1200_f64, 1800.0, 2600.0, 4100.0, 3000.0],
+        vec![2200_f64, 2600.0, 3100.0, 3700.0, 3200.0],
     ];
 
     let env = Env::new("facility.log").unwrap();
@@ -90,11 +90,11 @@ fn main() {
             .unwrap();
     }
 
-    for o in open.iter() {
+    for o in &open {
         o.set(&mut model, attr::Start, 1.0).unwrap();
     }
 
-    println!("Initial guesss:");
+    println!("Initial guess:");
     let max_fixed = fixed_costs.iter().cloned().fold(-1. / 0., f64::max);
     for (p, (open, &cost)) in Zip::new((&open, &fixed_costs)).enumerate() {
         if (cost - max_fixed).abs() < f64::EPSILON {

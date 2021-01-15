@@ -18,19 +18,19 @@ pub trait From<T> {
 }
 
 impl From<i32> for ffi::c_int {
-    fn from(val: i32) -> ffi::c_int {
+    fn from(val: Self) -> ffi::c_int {
         val
     }
 }
 
 impl From<i8> for ffi::c_char {
-    fn from(val: i8) -> ffi::c_char {
+    fn from(val: Self) -> ffi::c_char {
         val
     }
 }
 
 impl From<f64> for ffi::c_double {
-    fn from(val: f64) -> ffi::c_double {
+    fn from(val: Self) -> ffi::c_double {
         val
     }
 }
@@ -153,13 +153,13 @@ pub trait FromRaw<T> {
 }
 
 impl FromRaw<i32> for ffi::c_int {
-    fn from(val: i32) -> ffi::c_int {
+    fn from(val: Self) -> ffi::c_int {
         val
     }
 }
 
 impl FromRaw<f64> for ffi::c_double {
-    fn from(val: f64) -> ffi::c_double {
+    fn from(val: Self) -> ffi::c_double {
         val
     }
 }

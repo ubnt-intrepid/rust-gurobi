@@ -182,14 +182,14 @@ pub enum Where {
 impl Into<i32> for Where {
     fn into(self) -> i32 {
         match self {
-            Where::Polling => POLLING,
-            Where::PreSolve { .. } => PRESOLVE,
-            Where::Simplex { .. } => SIMPLEX,
-            Where::MIP { .. } => MIP,
-            Where::MIPSol { .. } => MIPSOL,
-            Where::MIPNode { .. } => MIPNODE,
-            Where::Message(_) => MESSAGE,
-            Where::Barrier { .. } => BARRIER,
+            Self::Polling => POLLING,
+            Self::PreSolve { .. } => PRESOLVE,
+            Self::Simplex { .. } => SIMPLEX,
+            Self::MIP { .. } => MIP,
+            Self::MIPSol { .. } => MIPSOL,
+            Self::MIPNode { .. } => MIPNODE,
+            Self::Message(_) => MESSAGE,
+            Self::Barrier { .. } => BARRIER,
         }
     }
 }
@@ -208,7 +208,7 @@ pub trait New<'a> {
 
 impl<'a> New<'a> for Callback<'a> {
     fn new(cbdata: *mut ffi::c_void, where_: i32, model: &'a Model) -> Result<Callback<'a>> {
-        let mut callback = Callback {
+        let mut callback = Self {
             cbdata,
             where_: Where::Polling,
             model,
@@ -217,55 +217,51 @@ impl<'a> New<'a> for Callback<'a> {
         let where_ = match where_ {
             POLLING => Where::Polling,
             PRESOLVE => Where::PreSolve {
-                coldel: (callback.get_int(PRESOLVE, PRE_COLDEL))?,
-                rowdel: (callback.get_int(PRESOLVE, PRE_ROWDEL))?,
-                senchg: (callback.get_int(PRESOLVE, PRE_SENCHG))?,
-                bndchg: (callback.get_int(PRESOLVE, PRE_BNDCHG))?,
-                coecfg: (callback.get_int(PRESOLVE, PRE_COECHG))?,
+                coldel: callback.get_int(PRESOLVE, PRE_COLDEL)?,
+                rowdel: callback.get_int(PRESOLVE, PRE_ROWDEL)?,
+                senchg: callback.get_int(PRESOLVE, PRE_SENCHG)?,
+                bndchg: callback.get_int(PRESOLVE, PRE_BNDCHG)?,
+                coecfg: callback.get_int(PRESOLVE, PRE_COECHG)?,
             },
 
             SIMPLEX => Where::Simplex {
-                itrcnt: (callback.get_double(SIMPLEX, SPX_ITRCNT))?,
-                objval: (callback.get_double(SIMPLEX, SPX_OBJVAL))?,
-                priminf: (callback.get_double(SIMPLEX, SPX_PRIMINF))?,
-                dualinf: (callback.get_double(SIMPLEX, SPX_DUALINF))?,
-                ispert: (callback.get_int(SIMPLEX, SPX_ISPERT))?,
+                itrcnt: callback.get_double(SIMPLEX, SPX_ITRCNT)?,
+                objval: callback.get_double(SIMPLEX, SPX_OBJVAL)?,
+                priminf: callback.get_double(SIMPLEX, SPX_PRIMINF)?,
+                dualinf: callback.get_double(SIMPLEX, SPX_DUALINF)?,
+                ispert: callback.get_int(SIMPLEX, SPX_ISPERT)?,
             },
             MIP => Where::MIP {
-                objbst: (callback.get_double(MIP, MIP_OBJBST))?,
-                objbnd: (callback.get_double(MIP, MIP_OBJBND))?,
-                nodcnt: (callback.get_double(MIP, MIP_NODCNT))?,
-                solcnt: (callback.get_double(MIP, MIP_SOLCNT))?,
-                cutcnt: (callback.get_int(MIP, MIP_CUTCNT))?,
-                nodleft: (callback.get_double(MIP, MIP_NODLFT))?,
-                itrcnt: (callback.get_double(MIP, MIP_ITRCNT))?,
+                objbst: callback.get_double(MIP, MIP_OBJBST)?,
+                objbnd: callback.get_double(MIP, MIP_OBJBND)?,
+                nodcnt: callback.get_double(MIP, MIP_NODCNT)?,
+                solcnt: callback.get_double(MIP, MIP_SOLCNT)?,
+                cutcnt: callback.get_int(MIP, MIP_CUTCNT)?,
+                nodleft: callback.get_double(MIP, MIP_NODLFT)?,
+                itrcnt: callback.get_double(MIP, MIP_ITRCNT)?,
             },
             MIPSOL => Where::MIPSol {
-                obj: (callback.get_double(MIPSOL, MIPSOL_OBJ))?,
-                objbst: (callback.get_double(MIPSOL, MIPSOL_OBJBST))?,
-                objbnd: (callback.get_double(MIPSOL, MIPSOL_OBJBND))?,
-                nodcnt: (callback.get_double(MIPSOL, MIPSOL_NODCNT))?,
-                solcnt: (callback.get_double(MIPSOL, MIPSOL_SOLCNT))?,
+                obj: callback.get_double(MIPSOL, MIPSOL_OBJ)?,
+                objbst: callback.get_double(MIPSOL, MIPSOL_OBJBST)?,
+                objbnd: callback.get_double(MIPSOL, MIPSOL_OBJBND)?,
+                nodcnt: callback.get_double(MIPSOL, MIPSOL_NODCNT)?,
+                solcnt: callback.get_double(MIPSOL, MIPSOL_SOLCNT)?,
             },
             MIPNODE => Where::MIPNode {
-                status: (callback.get_int(MIPNODE, MIPNODE_STATUS))?,
-                objbst: (callback.get_double(MIPNODE, MIPNODE_OBJBST))?,
-                objbnd: (callback.get_double(MIPNODE, MIPNODE_OBJBND))?,
-                nodcnt: (callback.get_double(MIPNODE, MIPNODE_NODCNT))?,
-                solcnt: (callback.get_int(MIPNODE, MIPNODE_SOLCNT))?,
+                status: callback.get_int(MIPNODE, MIPNODE_STATUS)?,
+                objbst: callback.get_double(MIPNODE, MIPNODE_OBJBST)?,
+                objbnd: callback.get_double(MIPNODE, MIPNODE_OBJBND)?,
+                nodcnt: callback.get_double(MIPNODE, MIPNODE_NODCNT)?,
+                solcnt: callback.get_int(MIPNODE, MIPNODE_SOLCNT)?,
             },
-            MESSAGE => Where::Message(
-                (callback.get_string(MESSAGE, MSG_STRING))?
-                    .trim()
-                    .to_owned(),
-            ),
+            MESSAGE => Where::Message(callback.get_string(MESSAGE, MSG_STRING)?.trim().to_owned()),
             BARRIER => Where::Barrier {
-                itrcnt: (callback.get_int(BARRIER, BARRIER_ITRCNT))?,
-                primobj: (callback.get_double(BARRIER, BARRIER_PRIMOBJ))?,
-                dualobj: (callback.get_double(BARRIER, BARRIER_DUALOBJ))?,
-                priminf: (callback.get_double(BARRIER, BARRIER_PRIMINF))?,
-                dualinf: (callback.get_double(BARRIER, BARRIER_DUALINF))?,
-                compl: (callback.get_double(BARRIER, BARRIER_COMPL))?,
+                itrcnt: callback.get_int(BARRIER, BARRIER_ITRCNT)?,
+                primobj: callback.get_double(BARRIER, BARRIER_PRIMOBJ)?,
+                dualobj: callback.get_double(BARRIER, BARRIER_DUALOBJ)?,
+                priminf: callback.get_double(BARRIER, BARRIER_PRIMINF)?,
+                dualinf: callback.get_double(BARRIER, BARRIER_DUALINF)?,
+                compl: callback.get_double(BARRIER, BARRIER_COMPL)?,
             },
             _ => panic!("Invalid callback location. {}", where_),
         };
@@ -376,7 +372,12 @@ impl<'a> Callback<'a> {
     fn get_double_array(&self, where_: i32, what: i32) -> Result<Vec<f64>> {
         let mut buf = vec![0.0; self.model.vars.len()];
         self.check_apicall(unsafe {
-            ffi::GRBcbget(self.cbdata, where_, what, buf.as_mut_ptr() as *mut ffi::c_void)
+            ffi::GRBcbget(
+                self.cbdata,
+                where_,
+                what,
+                buf.as_mut_ptr() as *mut ffi::c_void,
+            )
         })
         .and(Ok(buf))
     }

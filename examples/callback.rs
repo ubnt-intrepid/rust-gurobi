@@ -1,10 +1,10 @@
-// Copyright (c) 2016 Yusuke Sasaki
+// Copyright (c) 2021 Yusuke Sasaki
 //
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
-
 extern crate gurobi;
-use gurobi::*;
+
+use gurobi::{Callback, Env, INFINITY, Model, attr, param};
 use std::fs::OpenOptions;
 use std::io::{BufWriter, Write};
 
@@ -27,7 +27,7 @@ fn main() {
             .unwrap();
         let mut writer = BufWriter::new(file);
 
-        move |ctx: Callback| {
+        move |ctx: Callback<'_>| {
             use gurobi::Where::*;
             match ctx.get_where() {
                 // Periodic polling callback

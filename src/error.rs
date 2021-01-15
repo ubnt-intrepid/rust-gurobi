@@ -26,7 +26,7 @@ impl From<std::ffi::NulError> for Error {
 }
 
 impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
             Error::FromAPI(ref message, code) => {
                 write!(f, "Error from API: {} ({})", message, code)
@@ -39,7 +39,7 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
-        match *self {
+        match self {
             Error::FromAPI(..) => "error from C API",
             Error::NulError(ref err) => err.description(),
             Error::InconsitentDims => "Inconsistent argument dimensions",

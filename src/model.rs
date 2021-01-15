@@ -40,9 +40,9 @@ pub enum VarType {
 impl Into<ffi::c_char> for VarType {
     fn into(self) -> ffi::c_char {
         match self {
-            VarType::Binary => 'B' as ffi::c_char,
-            VarType::Continuous => 'C' as ffi::c_char,
-            VarType::Integer => 'I' as ffi::c_char,
+            Self::Binary => 'B' as ffi::c_char,
+            Self::Continuous => 'C' as ffi::c_char,
+            Self::Integer => 'I' as ffi::c_char,
         }
     }
 }
@@ -58,9 +58,9 @@ pub enum ConstrSense {
 impl Into<ffi::c_char> for ConstrSense {
     fn into(self) -> ffi::c_char {
         match self {
-            ConstrSense::Equal => '=' as ffi::c_char,
-            ConstrSense::Less => '<' as ffi::c_char,
-            ConstrSense::Greater => '>' as ffi::c_char,
+            Self::Equal => '=' as ffi::c_char,
+            Self::Less => '<' as ffi::c_char,
+            Self::Greater => '>' as ffi::c_char,
         }
     }
 }
@@ -81,8 +81,8 @@ impl Into<i32> for ModelSense {
 #[test]
 fn modelsense_conversion_success() {
     use self::ModelSense;
-    assert_eq!(Into::<i32>::into(ModelSense::Minimize), 1i32);
-    assert_eq!(Into::<i32>::into(ModelSense::Maximize), -1i32);
+    assert_eq!(Into::<i32>::into(ModelSense::Minimize), 1_i32);
+    assert_eq!(Into::<i32>::into(ModelSense::Maximize), -1_i32);
 }
 
 /// Type of new SOS constraint
@@ -189,7 +189,7 @@ impl Proxy {
 
 impl PartialEq for Proxy {
     fn eq(&self, other: &Proxy) -> bool {
-      std::ptr::eq(self.0.as_ref(), other.0.as_ref())
+        std::ptr::eq(self.0.as_ref(), other.0.as_ref())
     }
 }
 
@@ -248,7 +248,7 @@ impl_traits_for_proxy! { Var Constr QConstr SOS }
 
 struct CallbackData<'a> {
     model: &'a Model,
-    callback: &'a mut dyn FnMut(Callback) -> Result<()>,
+    callback: &'a mut dyn FnMut(Callback<'_>) -> Result<()>,
 }
 
 #[allow(unused_variables)]
@@ -258,7 +258,7 @@ extern "C" fn callback_wrapper(
     loc: ffi::c_int,
     usrdata: *mut ffi::c_void,
 ) -> ffi::c_int {
-    let usrdata = unsafe { &mut *(usrdata as *mut CallbackData) };
+    let usrdata = unsafe { &mut *(usrdata as *mut CallbackData<'_>) };
     let (callback, model) = (&mut usrdata.callback, &usrdata.model);
 
     match Callback::new(cbdata, loc, model) {
@@ -309,7 +309,7 @@ pub trait FromRaw {
 
 impl FromRaw for Model {
     /// create an empty model which associated with certain environment.
-    fn from_raw(model: *mut ffi::GRBmodel) -> Result<Model> {
+    fn from_raw(model: *mut ffi::GRBmodel) -> Result<Self> {
         use env::FromRaw;
         let env = unsafe { ffi::GRBgetenv(model) };
         if env.is_null() {
@@ -320,7 +320,7 @@ impl FromRaw for Model {
         }
         let env = Env::from_raw(env);
 
-        let mut model = Model {
+        let mut model = Self {
             model,
             env,
             updatemode: None,
@@ -356,8 +356,8 @@ impl Model {
     ///
     /// let model = Model::new("model1", &env).unwrap();
     /// ```
-    pub fn new(modelname: &str, env: &Env) -> Result<Model> {
-        let modelname = (CString::new(modelname))?;
+    pub fn new(modelname: &str, env: &Env) -> Result<Self> {
+        let modelname = CString::new(modelname)?;
         let mut model = null_mut();
         env.check_apicall(unsafe {
             ffi::GRBnewmodel(
@@ -376,8 +376,8 @@ impl Model {
     }
 
     /// Read a model from a file
-    pub fn read_from(filename: &str, env: &Env) -> Result<Model> {
-        let filename = (CString::new(filename))?;
+    pub fn read_from(filename: &str, env: &Env) -> Result<Self> {
+        let filename = CString::new(filename)?;
         let mut model = null_mut();
         env.check_apicall(unsafe {
             ffi::GRBreadmodel(env.get_ptr(), filename.as_ptr(), &mut model)
@@ -386,7 +386,7 @@ impl Model {
     }
 
     /// create a copy of the model
-    pub fn copy(&self) -> Result<Model> {
+    pub fn copy(&self) -> Result<Self> {
         let copied = unsafe { ffi::GRBcopymodel(self.model) };
         if copied.is_null() {
             return Err(Error::FromAPI(
@@ -395,7 +395,7 @@ impl Model {
             ));
         }
 
-        Model::from_raw(copied)
+        Self::from_raw(copied)
     }
 
     /// Create an fixed model associated with the model.
@@ -403,7 +403,7 @@ impl Model {
     /// In fixed model, each integer variable is fixed to the value that it takes in the
     /// original MIP solution.
     /// Note that the model must be MIP and have a solution loaded.
-    pub fn fixed(&self) -> Result<Model> {
+    pub fn fixed(&self) -> Result<Self> {
         let fixed = unsafe { ffi::GRBfixedmodel(self.model) };
         if fixed.is_null() {
             return Err(Error::FromAPI(
@@ -411,11 +411,11 @@ impl Model {
                 20002,
             ));
         }
-        Model::from_raw(fixed)
+        Self::from_raw(fixed)
     }
 
     /// Create an relaxation of the model (undocumented).
-    pub fn relax(&self) -> Result<Model> {
+    pub fn relax(&self) -> Result<Self> {
         let relaxed = unsafe { ffi::GRBrelaxmodel(self.model) };
         if relaxed.is_null() {
             return Err(Error::FromAPI(
@@ -423,11 +423,11 @@ impl Model {
                 20002,
             ));
         }
-        Model::from_raw(relaxed)
+        Self::from_raw(relaxed)
     }
 
     /// Perform presolve on the model.
-    pub fn presolve(&self) -> Result<Model> {
+    pub fn presolve(&self) -> Result<Self> {
         let presolved = unsafe { ffi::GRBpresolvemodel(self.model) };
         if presolved.is_null() {
             return Err(Error::FromAPI(
@@ -435,11 +435,11 @@ impl Model {
                 20002,
             ));
         }
-        Model::from_raw(presolved)
+        Self::from_raw(presolved)
     }
 
     /// Create a feasibility model (undocumented).
-    pub fn feasibility(&self) -> Result<Model> {
+    pub fn feasibility(&self) -> Result<Self> {
         let feasibility = unsafe { ffi::GRBfeasibility(self.model) };
         if feasibility.is_null() {
             return Err(Error::FromAPI(
@@ -447,7 +447,7 @@ impl Model {
                 20002,
             ));
         }
-        Model::from_raw(feasibility)
+        Self::from_raw(feasibility)
     }
 
     /// Get immutable reference of an environment object associated with the model.
@@ -528,11 +528,12 @@ impl Model {
     /// 0 => all changes are immediately affects
     /// 1 => pending until update() called.
     fn get_update_mode(&mut self) -> Result<i32> {
-        match self.updatemode {
-            Some(mode) => Ok(mode),
-            None => {
+        if let Some(mode) = self.updatemode {
+            Ok(mode)
+        } else {
+            {
                 use param;
-                let mode = (self.env.get(param::UpdateMode))?;
+                let mode = self.env.get(param::UpdateMode)?;
                 self.updatemode = Some(mode);
                 Ok(mode)
             }
@@ -554,7 +555,7 @@ impl Model {
     /// Optimize the model with a callback function
     pub fn optimize_with_callback<F>(&mut self, mut callback: F) -> Result<()>
     where
-        F: FnMut(Callback) -> Result<()> + 'static,
+        F: FnMut(Callback<'_>) -> Result<()> + 'static,
     {
         self.update()?;
         let usrdata = CallbackData {
@@ -651,13 +652,13 @@ impl Model {
 
     /// Import optimization data of the model from a file.
     pub fn read(&mut self, filename: &str) -> Result<()> {
-        let filename = (CString::new(filename))?;
+        let filename = CString::new(filename)?;
         self.check_apicall(unsafe { ffi::GRBread(self.model, filename.as_ptr()) })
     }
 
     /// Export optimization data of the model to a file.
     pub fn write(&self, filename: &str) -> Result<()> {
-        let filename = (CString::new(filename))?;
+        let filename = CString::new(filename)?;
         self.check_apicall(unsafe { ffi::GRBwrite(self.model, filename.as_ptr()) })
     }
 
@@ -688,8 +689,8 @@ impl Model {
             buf
         };
 
-        let name = (CString::new(name))?;
-        (self.check_apicall(unsafe {
+        let name = CString::new(name)?;
+        self.check_apicall(unsafe {
             ffi::GRBaddvar(
                 self.model,
                 colvals.len() as ffi::c_int,
@@ -701,12 +702,12 @@ impl Model {
                 vtype.into(),
                 name.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let col_no = if (self.get_update_mode())? != 0 {
-            self.vars.len() as i32
-        } else {
+        let col_no = if self.get_update_mode()? == 0 {
             -1
+        } else {
+            self.vars.len() as i32
         };
 
         self.vars.push(Var::new(col_no));
@@ -737,7 +738,7 @@ impl Model {
         let names = {
             let mut buf = Vec::with_capacity(names.len());
             for &name in names.iter() {
-                let name = (CString::new(name))?;
+                let name = CString::new(name)?;
                 buf.push(name.as_ptr());
             }
             buf
@@ -753,12 +754,12 @@ impl Model {
         };
 
         let (beg, ind, val) = {
-            let len_ind = colconstrs.iter().fold(0usize, |e, &c| e + c.len());
+            let len_ind = colconstrs.iter().fold(0_usize, |e, &c| e + c.len());
             let mut buf_beg = Vec::with_capacity(colconstrs.len());
             let mut buf_ind = Vec::with_capacity(len_ind);
             let mut buf_val: Vec<f64> = Vec::with_capacity(len_ind);
 
-            let mut beg = 0i32;
+            let mut beg = 0_i32;
             for (constrs, &vals) in Zip::new((colconstrs, colvals)) {
                 if constrs.len() != vals.len() {
                     return Err(Error::InconsitentDims);
@@ -781,7 +782,7 @@ impl Model {
             (buf_beg, buf_ind, buf_val)
         };
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddvars(
                 self.model,
                 names.len() as ffi::c_int,
@@ -795,16 +796,16 @@ impl Model {
                 vtypes.as_ptr(),
                 names.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let mode = (self.get_update_mode())?;
+        let mode = self.get_update_mode()?;
 
         let xcols = self.vars.len();
         let cols = self.vars.len() + names.len();
 
         for col_no in xcols..cols {
             self.vars
-                .push(Var::new(if mode != 0 { col_no as i32 } else { -1 }));
+                .push(Var::new(if mode == 0 { -1 } else { col_no as i32 }));
         }
 
         Ok(self.vars[xcols..].iter().cloned().collect_vec())
@@ -818,9 +819,9 @@ impl Model {
         sense: ConstrSense,
         rhs: f64,
     ) -> Result<Constr> {
-        let constrname = (CString::new(name))?;
+        let constrname = CString::new(name)?;
         let (vars, coeff, offset) = expr.into();
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddconstr(
                 self.model,
                 coeff.len() as ffi::c_int,
@@ -830,12 +831,12 @@ impl Model {
                 rhs - offset,
                 constrname.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let row_no = if (self.get_update_mode())? != 0 {
-            self.constrs.len() as i32
-        } else {
+        let row_no = if self.get_update_mode()? == 0 {
             -1
+        } else {
+            self.constrs.len() as i32
         };
         self.constrs.push(Constr::new(row_no));
 
@@ -852,7 +853,7 @@ impl Model {
     ) -> Result<Vec<Constr>> {
         let mut constrnames = Vec::with_capacity(name.len());
         for &s in name.iter() {
-            let name = (CString::new(s))?;
+            let name = CString::new(s)?;
             constrnames.push(name.as_ptr());
         }
 
@@ -876,7 +877,7 @@ impl Model {
             val.extend(&expr.1);
         }
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddconstrs(
                 self.model,
                 constrnames.len() as ffi::c_int,
@@ -888,16 +889,16 @@ impl Model {
                 rhs.as_ptr(),
                 constrnames.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let mode = (self.get_update_mode())?;
+        let mode = self.get_update_mode()?;
 
         let xrows = self.constrs.len();
         let rows = self.constrs.len() + constrnames.len();
 
         for row_no in xrows..rows {
             self.constrs
-                .push(Constr::new(if mode != 0 { row_no as i32 } else { -1 }));
+                .push(Constr::new(if mode == 0 { -1 } else { row_no as i32 }));
         }
 
         Ok(self.constrs[xrows..].iter().cloned().collect_vec())
@@ -918,9 +919,9 @@ impl Model {
         lb: f64,
         ub: f64,
     ) -> Result<(Var, Constr)> {
-        let constrname = (CString::new(name))?;
+        let constrname = CString::new(name)?;
         let (vars, coeff, offset) = expr.into();
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddrangeconstr(
                 self.model,
                 coeff.len() as ffi::c_int,
@@ -930,21 +931,21 @@ impl Model {
                 ub - offset,
                 constrname.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let mode = (self.get_update_mode())?;
+        let mode = self.get_update_mode()?;
 
-        let col_no = if mode != 0 {
-            self.vars.len() as i32
-        } else {
+        let col_no = if mode == 0 {
             -1
+        } else {
+            self.vars.len() as i32
         };
         self.vars.push(Var::new(col_no));
 
-        let row_no = if mode != 0 {
-            self.constrs.len() as i32
-        } else {
+        let row_no = if mode == 0 {
             -1
+        } else {
+            self.constrs.len() as i32
         };
         self.constrs.push(Constr::new(row_no));
 
@@ -964,7 +965,7 @@ impl Model {
     ) -> Result<(Vec<Var>, Vec<Constr>)> {
         let mut constrnames = Vec::with_capacity(names.len());
         for &s in names.iter() {
-            let name = (CString::new(s))?;
+            let name = CString::new(s)?;
             constrnames.push(name.as_ptr());
         }
 
@@ -990,7 +991,7 @@ impl Model {
             val.extend(&expr.1);
         }
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddrangeconstrs(
                 self.model,
                 constrnames.len() as ffi::c_int,
@@ -1002,22 +1003,22 @@ impl Model {
                 rhs.as_ptr(),
                 constrnames.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let mode = (self.get_update_mode())?;
+        let mode = self.get_update_mode()?;
 
         let xcols = self.vars.len();
         let cols = self.vars.len() + names.len();
         for col_no in xcols..cols {
             self.vars
-                .push(Var::new(if mode != 0 { col_no as i32 } else { -1 }));
+                .push(Var::new(if mode == 0 { -1 } else { col_no as i32 }));
         }
 
         let xrows = self.constrs.len();
         let rows = self.constrs.len() + constrnames.len();
         for row_no in xrows..rows {
             self.constrs
-                .push(Constr::new(if mode != 0 { row_no as i32 } else { -1 }));
+                .push(Constr::new(if mode == 0 { -1 } else { row_no as i32 }));
         }
 
         Ok((
@@ -1034,9 +1035,9 @@ impl Model {
         sense: ConstrSense,
         rhs: f64,
     ) -> Result<QConstr> {
-        let constrname = (CString::new(constrname))?;
+        let constrname = CString::new(constrname)?;
         let (lind, lval, qrow, qcol, qval, offset) = expr.into();
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddqconstr(
                 self.model,
                 lval.len() as ffi::c_int,
@@ -1050,12 +1051,12 @@ impl Model {
                 rhs - offset,
                 constrname.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let qrow_no = if (self.get_update_mode())? != 0 {
-            self.qconstrs.len() as i32
-        } else {
+        let qrow_no = if self.get_update_mode()? == 0 {
             -1
+        } else {
+            self.qconstrs.len() as i32
         };
         self.qconstrs.push(QConstr::new(qrow_no));
 
@@ -1071,7 +1072,7 @@ impl Model {
         let vars = vars.iter().map(|v| v.index()).collect_vec();
         let beg = 0;
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddsos(
                 self.model,
                 1,
@@ -1081,12 +1082,12 @@ impl Model {
                 vars.as_ptr(),
                 weights.as_ptr(),
             )
-        }))?;
+        })?;
 
-        let sos_no = if (self.get_update_mode())? != 0 {
-            self.sos.len() as i32
-        } else {
+        let sos_no = if self.get_update_mode()? == 0 {
             -1
+        } else {
+            self.sos.len() as i32
         };
         self.sos.push(SOS::new(sos_no));
 
@@ -1119,19 +1120,19 @@ impl Model {
     pub fn get<A: Attr>(&self, attr: A) -> Result<A::Out> {
         let mut value: A::Buf = util::Init::init();
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             use util::AsRawPtr;
             A::get_attr(self.model, attr.into().as_ptr(), value.as_rawptr())
-        }))?;
+        })?;
 
         Ok(util::Into::into(value))
     }
 
     /// Set the value of attributes which associated with variable/constraints.
     pub fn set<A: Attr>(&mut self, attr: A, value: A::Out) -> Result<()> {
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             A::set_attr(self.model, attr.into().as_ptr(), util::From::from(value))
-        }))?;
+        })?;
         self.update()
     }
 
@@ -1142,10 +1143,10 @@ impl Model {
 
         let mut value: A::Buf = util::Init::init();
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             use util::AsRawPtr;
             A::get_attrelement(self.model, attr.into().as_ptr(), element, value.as_rawptr())
-        }))?;
+        })?;
 
         Ok(util::Into::into(value))
     }
@@ -1155,14 +1156,14 @@ impl Model {
             return Err(Error::InconsitentDims);
         }
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             A::set_attrelement(
                 self.model,
                 attr.into().as_ptr(),
                 element,
                 util::From::from(value),
             )
-        }))?;
+        })?;
         self.update()
     }
 
@@ -1191,7 +1192,7 @@ impl Model {
             buf
         };
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             A::get_attrlist(
                 self.model,
                 attr.into().as_ptr(),
@@ -1199,7 +1200,7 @@ impl Model {
                 ind.as_ptr(),
                 values.as_mut_ptr(),
             )
-        }))?;
+        })?;
 
         Ok(values.into_iter().map(util::Into::into).collect())
     }
@@ -1209,11 +1210,11 @@ impl Model {
     where
         P: Deref<Target = Proxy>,
     {
-        (self.set_list(
+        self.set_list(
             attr,
             item.iter().map(|e| e.index()).collect_vec().as_slice(),
             val,
-        ))?;
+        )?;
         self.update()
     }
 
@@ -1232,7 +1233,7 @@ impl Model {
             }
             buf
         };
-        let values = (A::to_rawsets(values))?;
+        let values = A::to_rawsets(values)?;
 
         assert_eq!(ind.len(), values.len());
 
@@ -1281,7 +1282,7 @@ impl Model {
         ubpen: &[f64],
         constrs: &[Constr],
         rhspen: &[f64],
-    ) -> Result<(f64, Iter<Var>, Iter<Constr>, Iter<QConstr>)> {
+    ) -> Result<(f64, Iter<'_, Var>, Iter<'_, Constr>, Iter<'_, QConstr>)> {
         if vars.len() != lbpen.len() || vars.len() != ubpen.len() {
             return Err(Error::InconsitentDims);
         }
@@ -1313,8 +1314,8 @@ impl Model {
 
         let minrelax = if minrelax { 1 } else { 0 };
 
-        let feasobj = 0f64;
-        (self.check_apicall(unsafe {
+        let feasobj = 0_f64;
+        self.check_apicall(unsafe {
             ffi::GRBfeasrelax(
                 self.model,
                 relaxtype.into(),
@@ -1324,12 +1325,12 @@ impl Model {
                 pen_rhs.as_ptr(),
                 &feasobj,
             )
-        }))?;
-        (self.update())?;
+        })?;
+        self.update()?;
 
-        let cols = (self.get(attr::NumVars))? as usize;
-        let rows = (self.get(attr::NumConstrs))? as usize;
-        let qrows = (self.get(attr::NumQConstrs))? as usize;
+        let cols = self.get(attr::NumVars)? as usize;
+        let rows = self.get(attr::NumConstrs)? as usize;
+        let qrows = self.get(attr::NumQConstrs)? as usize;
 
         let xcols = self.vars.len();
         let xrows = self.constrs.len();
@@ -1377,7 +1378,7 @@ impl Model {
         if x.len() != y.len() {
             return Err(Error::InconsitentDims);
         }
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBsetpwlobj(
                 self.model,
                 var.index(),
@@ -1385,7 +1386,7 @@ impl Model {
                 x.as_ptr(),
                 y.as_ptr(),
             )
-        }))?;
+        })?;
         self.update()
     }
 
@@ -1395,22 +1396,22 @@ impl Model {
     }
 
     /// Retrieve an iterator of the variables in the model.
-    pub fn get_vars(&self) -> Iter<Var> {
+    pub fn get_vars(&self) -> Iter<'_, Var> {
         self.vars.iter()
     }
 
     /// Retrieve an iterator of the linear constraints in the model.
-    pub fn get_constrs(&self) -> Iter<Constr> {
+    pub fn get_constrs(&self) -> Iter<'_, Constr> {
         self.constrs.iter()
     }
 
     /// Retrieve an iterator of the quadratic constraints in the model.
-    pub fn get_qconstrs(&self) -> Iter<QConstr> {
+    pub fn get_qconstrs(&self) -> Iter<'_, QConstr> {
         self.qconstrs.iter()
     }
 
     /// Retrieve an iterator of the special order set (SOS) constraints in the model.
-    pub fn get_sos(&self) -> Iter<SOS> {
+    pub fn get_sos(&self) -> Iter<'_, SOS> {
         self.sos.iter()
     }
 
@@ -1422,17 +1423,17 @@ impl Model {
     /// Retrieve a single constant matrix coefficient of the model.
     pub fn get_coeff(&self, var: &Var, constr: &Constr) -> Result<f64> {
         let mut value = 0.0;
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBgetcoeff(self.model, var.index(), constr.index(), &mut value)
-        }))?;
+        })?;
         Ok(value)
     }
 
     /// Change a single constant matrix coefficient of the model.
     pub fn set_coeff(&mut self, var: &Var, constr: &Constr, value: f64) -> Result<()> {
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBchgcoeffs(self.model, 1, &constr.index(), &var.index(), &value)
-        }))?;
+        })?;
         self.update()
     }
 
@@ -1445,7 +1446,7 @@ impl Model {
         let vars = vars.iter().map(|v| v.index()).collect_vec();
         let constrs = constrs.iter().map(|c| c.index()).collect_vec();
 
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBchgcoeffs(
                 self.model,
                 vars.len() as ffi::c_int,
@@ -1453,15 +1454,15 @@ impl Model {
                 vars.as_ptr(),
                 values.as_ptr(),
             )
-        }))?;
+        })?;
         self.update()
     }
 
     fn populate(&mut self) -> Result<()> {
-        let cols = (self.get(attr::NumVars))? as usize;
-        let rows = (self.get(attr::NumConstrs))? as usize;
-        let numqconstrs = (self.get(attr::NumQConstrs))? as usize;
-        let numsos = (self.get(attr::NumSOS))? as usize;
+        let cols = self.get(attr::NumVars)? as usize;
+        let rows = self.get(attr::NumConstrs)? as usize;
+        let numqconstrs = self.get(attr::NumQConstrs)? as usize;
+        let numsos = self.get(attr::NumSOS)? as usize;
 
         self.vars = (0..cols).map(|idx| Var::new(idx as i32)).collect_vec();
         self.constrs = (0..rows).map(|idx| Constr::new(idx as i32)).collect_vec();
@@ -1477,7 +1478,7 @@ impl Model {
 
     // add quadratic terms of objective function.
     fn add_qpterms(&mut self, qrow: &[i32], qcol: &[i32], qval: &[f64]) -> Result<()> {
-        (self.check_apicall(unsafe {
+        self.check_apicall(unsafe {
             ffi::GRBaddqpterms(
                 self.model,
                 qrow.len() as ffi::c_int,
@@ -1485,7 +1486,7 @@ impl Model {
                 qcol.as_ptr(),
                 qval.as_ptr(),
             )
-        }))?;
+        })?;
         self.update()
     }
 

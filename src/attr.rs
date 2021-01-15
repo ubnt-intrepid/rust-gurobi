@@ -11,7 +11,7 @@ pub mod exports {
     pub use self::StringAttr::*;
     pub use ffi::{CharAttr, DoubleAttr, IntAttr, StringAttr};
 }
-use self::exports::*;
+use self::exports::{CharAttr, DoubleAttr, IntAttr, StringAttr};
 
 use error::Result;
 use ffi;
@@ -291,7 +291,7 @@ impl AttrArray for StringAttr {
     fn to_rawsets(values: &[String]) -> Result<Vec<ffi::c_str>> {
         let mut buf = Vec::with_capacity(values.len());
         for value in values.iter() {
-            let value = (CString::new(value.as_str()))?;
+            let value = CString::new(value.as_str())?;
             buf.push(value.as_ptr())
         }
         Ok(buf)

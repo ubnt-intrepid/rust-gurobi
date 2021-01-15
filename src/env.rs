@@ -21,14 +21,14 @@ pub struct Env {
 
 impl Env {
     /// Create an environment with log file
-    pub fn new(logfilename: &str) -> Result<Env> {
+    pub fn new(logfilename: &str) -> Result<Self> {
         let mut env = null_mut();
-        let logfilename = (CString::new(logfilename))?;
+        let logfilename = CString::new(logfilename)?;
         let error = unsafe { ffi::GRBloadenv(&mut env, logfilename.as_ptr()) };
         if error != 0 {
             return Err(Error::FromAPI(get_error_msg(env), error));
         }
-        Ok(Env {
+        Ok(Self {
             env,
             require_drop: true,
         })
@@ -42,7 +42,7 @@ impl Env {
         password: &str,
         priority: i32,
         timeout: f64,
-    ) -> Result<Env> {
+    ) -> Result<Self> {
         let mut env = null_mut();
         let logfilename = CString::new(logfilename)?;
         let computeserver = CString::new(computeserver)?;
@@ -61,7 +61,7 @@ impl Env {
         if error != 0 {
             return Err(Error::FromAPI(get_error_msg(env), error));
         }
-        Ok(Env {
+        Ok(Self {
             env,
             require_drop: true,
         })
@@ -99,13 +99,13 @@ impl Env {
 
     /// Import a set of parameter values from a file
     pub fn read_params(&mut self, filename: &str) -> Result<()> {
-        let filename = (CString::new(filename))?;
+        let filename = CString::new(filename)?;
         self.check_apicall(unsafe { ffi::GRBreadparams(self.env, filename.as_ptr()) })
     }
 
     /// Write the set of parameter values to a file
     pub fn write_params(&self, filename: &str) -> Result<()> {
-        let filename = (CString::new(filename))?;
+        let filename = CString::new(filename)?;
         self.check_apicall(unsafe { ffi::GRBwriteparams(self.env, filename.as_ptr()) })
     }
 
@@ -160,8 +160,8 @@ pub trait FromRaw {
 }
 
 impl FromRaw for Env {
-    fn from_raw(env: *mut ffi::GRBenv) -> Env {
-        Env {
+    fn from_raw(env: *mut ffi::GRBenv) -> Self {
+        Self {
             env,
             require_drop: false,
         }

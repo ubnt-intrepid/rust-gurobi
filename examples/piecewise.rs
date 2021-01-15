@@ -1,9 +1,9 @@
-// Copyright (c) 2016 Yusuke Sasaki
+// Copyright (c) 2021 Yusuke Sasaki
 //
 // This software is released under the MIT License.
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
-
 extern crate gurobi;
+
 use gurobi::*;
 
 #[allow(clippy::many_single_char_names)]
@@ -70,8 +70,8 @@ fn optimize_and_print_status(model: &mut Model) -> Result<()> {
 
     println!("IsMIP = {}", (model.get(attr::IsMIP))? != 0);
     for v in model.get_vars() {
-        let vname = v.get(&model, attr::VarName)?;
-        let x = v.get(&model, attr::X)?;
+        let vname = v.get(model, attr::VarName)?;
+        let x = v.get(model, attr::X)?;
         println!("{} = {}", vname, x);
     }
     println!("Obj = {}\n", model.get(attr::ObjVal)?);

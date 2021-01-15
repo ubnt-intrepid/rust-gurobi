@@ -12,7 +12,7 @@ pub mod exports {
     pub use self::IntParam::*;
     pub use self::StringParam::*;
 }
-use self::exports::*;
+use self::exports::{DoubleParam, IntParam, StringParam};
 
 use ffi;
 use std::ffi::CString;

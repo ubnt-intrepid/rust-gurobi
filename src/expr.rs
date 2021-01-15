@@ -6,7 +6,7 @@
 use super::{Model, Var};
 use attr;
 use error::Result;
-use itertools::*;
+use itertools::Zip;
 
 use std::iter::Sum;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
@@ -22,20 +22,20 @@ pub struct LinExpr {
 }
 
 impl<'a> From<&'a Var> for LinExpr {
-    fn from(var: &Var) -> LinExpr {
-        LinExpr::new() + var
+    fn from(var: &Var) -> Self {
+        Self::new() + var
     }
 }
 
 impl From<Var> for LinExpr {
-    fn from(var: Var) -> LinExpr {
-        LinExpr::from(&var)
+    fn from(var: Var) -> Self {
+        Self::from(&var)
     }
 }
 
 impl From<f64> for LinExpr {
-    fn from(offset: f64) -> LinExpr {
-        LinExpr::new() + offset
+    fn from(offset: f64) -> Self {
+        Self::new() + offset
     }
 }
 
@@ -52,7 +52,7 @@ impl Into<(Vec<i32>, Vec<f64>, f64)> for LinExpr {
 impl LinExpr {
     /// Create an empty linear expression.
     pub fn new() -> Self {
-        LinExpr::default()
+        Self::default()
     }
 
     /// Add a linear term into the expression.
@@ -78,7 +78,7 @@ impl LinExpr {
 
     /// Get actual value of the expression.
     pub fn get_value(&self, model: &Model) -> Result<f64> {
-        let vars = (model.get_values(attr::X, self.vars.as_slice()))?;
+        let vars = model.get_values(attr::X, self.vars.as_slice())?;
 
         Ok(
             Zip::new((vars, self.coeff.iter())).fold(0.0, |acc, (ind, val)| acc + ind * val)
@@ -116,7 +116,7 @@ impl Into<(Vec<i32>, Vec<f64>, Vec<i32>, Vec<i32>, Vec<f64>, f64)> for QuadExpr 
 
 impl QuadExpr {
     pub fn new() -> Self {
-        QuadExpr::default()
+        Self::default()
     }
 
     /// Add a linear term into the expression.
@@ -142,9 +142,9 @@ impl QuadExpr {
 
     /// Get actual value of the expression.
     pub fn get_value(&self, model: &Model) -> Result<f64> {
-        let lind = (model.get_values(attr::X, self.lind.as_slice()))?;
-        let qrow = (model.get_values(attr::X, self.qrow.as_slice()))?;
-        let qcol = (model.get_values(attr::X, self.qcol.as_slice()))?;
+        let lind = model.get_values(attr::X, self.lind.as_slice())?;
+        let qrow = model.get_values(attr::X, self.qrow.as_slice())?;
+        let qcol = model.get_values(attr::X, self.qcol.as_slice())?;
 
         Ok(
             Zip::new((lind, self.lval.iter())).fold(0.0, |acc, (ind, val)| acc + ind * val)
