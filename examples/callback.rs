@@ -4,7 +4,7 @@
 // See http://opensource.org/licenses/mit-license.php or <LICENSE>.
 extern crate gurobi;
 
-use gurobi::{Callback, Env, INFINITY, Model, attr, param};
+use gurobi::{attr, param, Callback, Env, Model, INFINITY};
 use std::fs::OpenOptions;
 use std::io::{BufWriter, Write};
 
