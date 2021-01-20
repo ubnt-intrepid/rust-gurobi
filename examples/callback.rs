@@ -120,7 +120,7 @@ fn main() {
                 MIPNode { .. } => {
                     println!("@MIPNode");
                     println!("**** NEW NODE! ****");
-                    let x = (ctx.get_node_rel(vars.as_slice()))?;
+                    let x = ctx.get_node_rel(vars.as_slice())?;
                     println!("  relaxed solution = {:?}", x);
                     ctx.set_solution(vars.as_slice(), x.as_slice())?;
                 }
