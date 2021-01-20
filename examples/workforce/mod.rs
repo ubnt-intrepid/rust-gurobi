@@ -58,7 +58,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
         }
         x.push(xshift);
     }
-    (model.update())?;
+    model.update()?;
 
     let objterm = pays.iter().map(|pay| repeat(pay).take(shifts.len()));
     let objexpr = Zip::new((Itertools::flatten(x.iter()), Itertools::flatten(objterm)))
