@@ -63,7 +63,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
     let objterm = pays.iter().map(|pay| repeat(pay).take(shifts.len()));
     let objexpr = Zip::new((Itertools::flatten(x.iter()), Itertools::flatten(objterm)))
         .fold(LinExpr::new(), |expr, (x, &c)| expr + c * x);
-    (model.set_objective(objexpr, Minimize))?;
+    model.set_objective(objexpr, Minimize)?;
 
     for (s, (shift, &requirement)) in shifts.iter().zip(shift_requirements.iter()).enumerate() {
         (model.add_constr(
