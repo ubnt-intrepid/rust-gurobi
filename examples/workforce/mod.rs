@@ -45,7 +45,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
         let mut xshift = Vec::new();
         for (shift, &availability) in Zip::new((shifts.iter(), availability.iter())) {
             let vname = format!("{}.{}", worker, shift);
-            let v = (model.add_var(
+            let v = model.add_var(
                 vname.as_str(),
                 Continuous,
                 0.0,
@@ -53,7 +53,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
                 f64::from(availability),
                 &[],
                 &[],
-            ))?;
+            )?;
             xshift.push(v);
         }
         x.push(xshift);
