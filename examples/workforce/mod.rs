@@ -38,7 +38,7 @@ pub fn make_model(env: &Env) -> Result<Model> {
         vec![1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ];
 
-    let mut model = (Model::new("assignment", env))?;
+    let mut model = Model::new("assignment", env)?;
 
     let mut x = Vec::new();
     for (worker, availability) in Zip::new((workers.iter(), availability.iter())) {
