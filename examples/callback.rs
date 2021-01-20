@@ -122,7 +122,7 @@ fn main() {
                     println!("**** NEW NODE! ****");
                     let x = (ctx.get_node_rel(vars.as_slice()))?;
                     println!("  relaxed solution = {:?}", x);
-                    (ctx.set_solution(vars.as_slice(), x.as_slice()))?;
+                    ctx.set_solution(vars.as_slice(), x.as_slice())?;
                 }
 
                 // Currently in barrier
