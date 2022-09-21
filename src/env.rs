@@ -34,6 +34,19 @@ impl Env {
     })
   }
 
+  /// Create empty environment
+  pub fn empty() -> Result<Env> {
+    let mut env = null_mut();
+    let error = unsafe { ffi::GRBemptyenv(&mut env) };
+    if error != 0 {
+      return Err(Error::FromAPI(get_error_msg(env), error));
+    }
+    Ok(Env {
+      env: env,
+      require_drop: true
+    })
+  }
+
   /// Create a client environment on a computer server with log file
   pub fn new_client(logfilename: &str, computeserver: &str, port: i32, password: &str, priority: i32, timeout: f64)
                     -> Result<Env> {
